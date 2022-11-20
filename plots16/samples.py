@@ -6,7 +6,6 @@ dataSteps = 'DATAl1loose2016v7__l2loose__l2tightOR2016v7'
 
 
 treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano'
-#limitFiles = -1
 
 def makeMCDirectory(var=''):
         return os.path.join(treeBaseDir, mcProduction, mcSteps.format(var=''))
@@ -28,10 +27,6 @@ xsDB = {
         'DYJetsToLL_M-50_HT-100to200': 147.40,
         'DYJetsToLL_M-50_HT-200to400': 40.99,
         'DYJetsToLL_M-50_HT-400to600': 5.678,
-        #'DYJetsToLL_M-50_HT-600toInf': ,
-        #'DYJetsToLL_M-50': 6189.39,
-        #'DYJetsToLL_M-50_ext2': 6189.39,
-
 }
 
 def CombineBaseW(samples, proc, samplelist):
@@ -60,7 +55,6 @@ def addSampleWeight(samples, sampleName, sampleNameType, weight):
         samples[sampleName]['name'].append((obj[0], obj[1], weight))
 
 
-#mcDirectory = makeMCDirectory()
 
 DataRun = [
     ['B','Run2016B-02Apr2020_ver2-v1'],
@@ -209,7 +203,6 @@ files = nanoGetSampleFiles(mcDirectory, 'ZZZ') + \
     nanoGetSampleFiles(mcDirectory, 'WZZ') + \
     nanoGetSampleFiles(mcDirectory, 'WWZ') + \
     nanoGetSampleFiles(mcDirectory, 'WWW')
-#+ nanoGetSampleFiles(mcDirectory, 'WWG'), #should this be included? or is it already taken into account in the WW sample?
 
 samples['VVV'] = {
     'name': files,
@@ -244,7 +237,6 @@ for _, sd in DataRun:
 
     samples['Fake']['name'].extend(files)
     addSampleWeight(samples, 'Fake', pd + '_' + sd, DataTrig[pd])
-    #samples['Fake']['weights'].extend([DataTrig[pd]] * len(files))
 
 samples['Fake']['subsamples'] = {
   'e': 'abs(Lepton_pdgId[1]) == 11',
@@ -270,6 +262,4 @@ for _, sd in DataRun:
     
     samples['DATA']['name'].extend(files)
     addSampleWeight(samples, 'DATA', pd + '_' + sd, DataTrig[pd])
-    #samples['DATA']['weights'].extend([DataTrig[pd]] * len(files))
-#print(samples['DATA']['name'])
 
