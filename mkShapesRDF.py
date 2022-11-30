@@ -1,4 +1,5 @@
 import ROOT
+ROOT.gROOT.SetBatch(True)
 import glob
 from collections import OrderedDict
 import os
