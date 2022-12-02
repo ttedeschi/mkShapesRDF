@@ -77,22 +77,24 @@ def submit():
     txtjdl += f'queue 1 Folder in {", ".join(folders)}\n'
     with open(f'{batchFolder}/submit.jdl', 'w') as file:
         file.write(txtjdl)
-
-    process = subprocess.Popen(f'cd {batchFolder}; condor_submit submit.jdl; cd -', shell=True)
-    process.wait()
+    if dryRun != 1:
+        process = subprocess.Popen(f'cd {batchFolder}; condor_submit submit.jdl; cd -', shell=True)
+        process.wait()
     
     
     
 parser = argparse.ArgumentParser()
-parser.add_argument("-o","--operationMode", help="0 do analysis in batch, 1 hadd root files, 2 plot" , required=True, default='-1')
-#parser.add_argument("-a","--doAn", help="Do analysis" , required=False, default=False)
-#parser.add_argument("-p","--doP", help="Do plots" , required=False, default=False)
+parser.add_argument("-o","--operationMode", help="0 do analysis in batch, 1 hadd root files, 2 plot" , required=True)
+parser.add_argument("-b","--doBatch", help="0 (default) runs on local, 1 runs with condor" , required=False, default='0')
+parser.add_argument("-dR","--dryRun", help="1 do not submit to condor" , required=False, default='0')
 parser.add_argument("-f","--folder", help="Path to folder" , required=False, default='plotsconfig')
 parser.add_argument("-l","--limitFiles", help="Max number of files" , required=False, default='-1')
 
 args = parser.parse_args()
 folder     = args.folder
 operationMode = int(args.operationMode)
+doBatch = int(args.doBatch)
+dryRun = int(args.dryRun)
 
 exec(open(f'{folder}/configuration.py').read())
 
@@ -153,43 +155,52 @@ _results = {}
 
 if operationMode == 0:
     print('',''.join(['#' for _ in range(20)]), '\n\n', '   Doing analysis', '\n\n', ''.join(['#' for _ in range(20)]))
-    results = {}
-    for sampleName in list(samples.keys()):
-        __results = {}
-        types = {}
-        for filesType in samples[sampleName]['name']:
-            if len(filesType) == 2 and len(filesType[1])>0:
-                if '1' not in list(types.keys()):
-                    types['1'] = []
-                types['1'].append(filesType + ('1',))
-            elif len(filesType) == 3 and len(filesType[1])>0:
-                if filesType[2] not in list(types.keys()):
-                    types[filesType[2]] = []
-                types[filesType[2]].append(filesType)
-            else:
-                print("Error", sampleName, filesType, file=sys.stderr)
-                print("Either the sample proc you specified has no files, or the weight had problems", file=sys.stderr)
-                sys.exit()
+    if doBatch == 1:
+        print('',''.join(['#' for _ in range(20)]), '\n\n', ' Running on condor  ', '\n\n', ''.join(['#' for _ in range(20)]))
+        results = {}
+        for sampleName in list(samples.keys()):
+            __results = {}
+            types = {}
+            for filesType in samples[sampleName]['name']:
+                if len(filesType) == 2 and len(filesType[1])>0:
+                    if '1' not in list(types.keys()):
+                        types['1'] = []
+                    types['1'].append(filesType + ('1',))
+                elif len(filesType) == 3 and len(filesType[1])>0:
+                    if filesType[2] not in list(types.keys()):
+                        types[filesType[2]] = []
+                    types[filesType[2]].append(filesType)
+                else:
+                    print("Error", sampleName, filesType, file=sys.stderr)
+                    print("Either the sample proc you specified has no files, or the weight had problems", file=sys.stderr)
+                    sys.exit()
 
-        i = 0
-        for _type in list(types.keys()):
-            __files = list(map(lambda k: k[1], types[_type]))
-            __files = [item for sublist in __files for item in sublist] # flatted list of files
-            dim = 1
-            if 'FilesPerJob' in list(samples[sampleName].keys()):
-                dim = samples[sampleName]['FilesPerJob']
-            else:
-                dim = len(__files)
+            i = 0
+            for _type in list(types.keys()):
+                __files = list(map(lambda k: k[1], types[_type]))
+                __files = [item for sublist in __files for item in sublist] # flatted list of files
+                dim = 1
+                if 'FilesPerJob' in list(samples[sampleName].keys()):
+                    dim = samples[sampleName]['FilesPerJob']
+                else:
+                    dim = len(__files)
 
-            __files = [__files[j: j+dim] for j in range(0, len(__files), dim)]
+                __files = [__files[j: j+dim] for j in range(0, len(__files), dim)]
 
-            for ___files in __files:
-                sampleType = [types[_type][0][2], ___files]
-                sampleType[0] = '( ' + samples[sampleName]['weight'] + ' ) * ( ' + sampleType[0] + ' )'
-                createBatch(samples, sampleName, sampleType, i) 
-                i+=1
+                for ___files in __files:
+                    sampleType = [types[_type][0][2], ___files]
+                    sampleType[0] = '( ' + samples[sampleName]['weight'] + ' ) * ( ' + sampleType[0] + ' )'
+                    createBatch(samples, sampleName, sampleType, i) 
+                    i+=1
 
-    submit()
+        submit()
+    else:
+        print('',''.join(['#' for _ in range(20)]), '\n\n', ' Running on local machine  ', '\n\n', ''.join(['#' for _ in range(20)]))
+        from runner import runAnalysis
+        def outputFileMap(sampleName):
+            return f'{folder}/{outputFolder}/mkShapes__{tag}__ALL__{sampleName}.root'
+        runAnalysis(samples, aliases, variables, preselections, cuts, lumi, outputFileMap) 
+
 
 elif operationMode == 1:
     print('',''.join(['#' for _ in range(20)]), '\n\n', 'Merging root files', '\n\n', ''.join(['#' for _ in range(20)]))
