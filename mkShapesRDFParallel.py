@@ -5,7 +5,7 @@ from collections import OrderedDict
 import os
 import argparse
 import sys
-ROOT.EnableImplicitMT()
+#ROOT.EnableImplicitMT()
 ROOT.gInterpreter.Declare('#include "headers.hh"')
 from pathlib import Path
 import subprocess
@@ -20,7 +20,7 @@ def createBatch(samples, sampleName, filesType, i):
     # 5. append condor file to submit files
     
     # submission folder
-    Path(f'{batchFolder}/{sampleName}_{str(i)}').mkdir(parents=True, exist_ok=True)
+    Path(f'{batchFolder}/{tag}/{sampleName}_{str(i)}').mkdir(parents=True, exist_ok=True)
     folders.append(f'{sampleName}_{str(i)}')
     # python file
     
@@ -42,9 +42,10 @@ def createBatch(samples, sampleName, filesType, i):
     txtpy += f'aliases = {str(aliases)}\n'
     txtpy += f'variables = {str(variables)}\n'
     txtpy += f'cuts = {str(cuts)}\n'
+    txtpy += f'nuisances = {str(nuisances)}\n'
     txtpy += f'preselections = \'{preselections}\' \n'
     txtpy += f'lumi = {lumi} \n'
-    with open(f'{batchFolder}/{sampleName}_{str(i)}/script.py', 'w') as f:
+    with open(f'{batchFolder}/{tag}/{sampleName}_{str(i)}/script.py', 'w') as f:
         f.write(txtpy)
     
 def submit():
@@ -52,9 +53,9 @@ def submit():
     txtsh  = '#!/bin/bash\n'
     txtsh += 'source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh\n'
     txtsh += 'python runner.py\n'
-    with open(f'{batchFolder}/run.sh', 'w') as file:
+    with open(f'{batchFolder}/{tag}/run.sh', 'w') as file:
         file.write(txtsh)
-    process = subprocess.Popen(f'chmod +x {batchFolder}/run.sh', shell=True)
+    process = subprocess.Popen(f'chmod +x {batchFolder}/{tag}/run.sh', shell=True)
     process.wait()
         
      
@@ -75,10 +76,10 @@ def submit():
 
 
     txtjdl += f'queue 1 Folder in {", ".join(folders)}\n'
-    with open(f'{batchFolder}/submit.jdl', 'w') as file:
+    with open(f'{batchFolder}/{tag}/submit.jdl', 'w') as file:
         file.write(txtjdl)
     if dryRun != 1:
-        process = subprocess.Popen(f'cd {batchFolder}; condor_submit submit.jdl; cd -', shell=True)
+        process = subprocess.Popen(f'cd {batchFolder}/{tag}; condor_submit submit.jdl; cd -', shell=True)
         process.wait()
     
     
@@ -88,7 +89,8 @@ parser.add_argument("-o","--operationMode", help="0 do analysis in batch, 1 hadd
 parser.add_argument("-b","--doBatch", help="0 (default) runs on local, 1 runs with condor" , required=False, default='0')
 parser.add_argument("-dR","--dryRun", help="1 do not submit to condor" , required=False, default='0')
 parser.add_argument("-f","--folder", help="Path to folder" , required=False, default='plotsconfig')
-parser.add_argument("-l","--limitFiles", help="Max number of files" , required=False, default='-1')
+#parser.add_argument("-l","--limitFiles", help="Max number of files" , required=False, default='-1')
+parser.add_argument("-l","--limitEvents", help="Max number of events" , required=False, default='-1')
 
 args = parser.parse_args()
 folder     = args.folder
@@ -111,13 +113,15 @@ if operationMode == 1 and os.path.exists(f'{folder}/{outputFolder}/{outputFile}'
     print(f'You can run: rm {folder}/{outputFolder}/{outputFile}')
     sys.exit()
 
-limitFiles = int(args.limitFiles)
+#limitFiles = int(args.limitFiles)
+limit = int(args.limitEvents)
 exec(open(f'{folder}/{samplesFile}').read())
 
 exec(open(f'{folder}/{aliasesFile}').read())
 exec(open(f'{folder}/{variablesFile}').read())
 exec(open(f'{folder}/{cutsFile}').read())
 exec(open(f'{folder}/{plotFile}').read())
+exec(open(f'{folder}/{nuisancesFile}').read())
 
 
 #print(samf'{folder}
@@ -199,7 +203,7 @@ if operationMode == 0:
         from runner import runAnalysis
         def outputFileMap(sampleName):
             return f'{folder}/{outputFolder}/mkShapes__{tag}__ALL__{sampleName}.root'
-        runAnalysis(samples, aliases, variables, preselections, cuts, lumi, outputFileMap) 
+        runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lumi, limit, outputFileMap) 
 
 
 elif operationMode == 1:
@@ -402,7 +406,7 @@ elif operationMode == 2:
             frameDistro.GetYaxis().SetTitleOffset( 0.8)
             frameDistro.GetYaxis().SetTitleSize ( 0.06)
 
-            frameDistro.GetYaxis().SetRangeUser( max(1e-3, _min), _max)
+            frameDistro.GetYaxis().SetRangeUser( max(1, _min), _max)
             #frameDistro.GetYaxis().SetRangeUser(1e-3, 1e+5)
             #h.GetYaxis().SetRangeUser( min(1e-3, _min), _max)
 
@@ -444,6 +448,7 @@ elif operationMode == 2:
                         hdata.Add(_results[cut_cat][var][sampleName]['object'].Clone())
             hmc = 0
             for sampleName in list(_results[cut_cat][var].keys()):
+                # IMPORTANT: Signal not included in ratio!
                 if _results[cut_cat][var][sampleName]['isData'] or _results[cut_cat][var][sampleName]['isSignal']:
                     continue
                 if hmc == 0:
@@ -473,13 +478,16 @@ elif operationMode == 2:
             xAxisDistro = frameRatio.GetXaxis()
             xAxisDistro.SetNdivisions(6,5,0)
             frameRatio.GetYaxis().SetTitle("DATA / MC")
-            frameRatio.GetYaxis().SetRangeUser( 0.0, 2 )
+            frameRatio.GetYaxis().SetRangeUser( 0.6, 1.4 )
             frameRatio.GetXaxis().SetTitle(variables[var]['xaxis'])
             Pad2TAxis(frameRatio)
 
             h_err.SetFillColorAlpha(ROOT.kBlack, 0.5)
             h_err.SetFillStyle(3004)
-            h_err.Draw("same e4")
+            h_err.GetYaxis().SetRangeUser( 0.6, 1.4 )
+
+            h_err.Draw("same e3")
+            rp.GetYaxis().SetRangeUser( 0.6, 1.4 )
 
             rp.Draw("same e")
 
