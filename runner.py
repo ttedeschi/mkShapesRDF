@@ -77,69 +77,54 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
 
     def create_cuts_vars(results, df):
 
+        mergedCuts = {}
         for cut in list(cuts.keys()):
-            df1 = df.Filter(cuts[cut]['expr'])
-            for cat in list(cuts[cut]['categories'].keys()):
-                df_cat = df1.Filter(cuts[cut]['categories'][cat])
-                results[cut + '_' + cat] = {}
-                for var in list(variables.keys()):
-                    """
-                    if variables[var]['name'] == '1':
-                        results[cut + '_' + cat][var] = {
-                                'type': 'num',
-                                'object': df_cat.Sum('weight')
-                        }
-                    else:
-                        """
-                    _h = df_cat.Histo1D((cut + '_' + cat + '_' + var,'') + variables[var]['range'], var, "weight")
-                    results[cut + '_' + cat][var] = {
-                            'type': 'th1',
-                            'object': _h
-                    }
-        for cut in list(cuts.keys()):
-            for cat in list(cuts[cut]['categories'].keys()):
-                for var in list(variables.keys()):
-                        _s = results[cut + '_' + cat][var]['object']
-                        #print('starting var')
-                        _s_var = ROOT.RDF.Experimental.VariationsFor(_s)
-                        results[cut + '_' + cat][var]['object'] = _s_var
-                        #print('stop var')
+            __cutExpr = ''
+            if type(cuts[cut]) == dict:
+                __cutExpr = cuts[cut]['expr']
+                for cat in list(cuts[cut]['categories'].keys()):
+                    mergedCuts[cut + '_' + cat] = __cutExpr  + ' && ' + cuts[cut]['categories'][cat]
+            elif type(cuts[cut]) == str:
+                __cutExpr = cuts[cut]
+                mergedCuts[cut] = __cutExpr
+
+        for cut in mergedCuts.keys():
+            df_cat = df.Filter(mergedCuts[cut])
+            results[cut] = {}
+            for var in list(variables.keys()):
+                _h = df_cat.Histo1D((cut + '_' + var,'') + variables[var]['range'], var, "weight")
+                results[cut][var] = {
+                        'type': 'th1',
+                        'object': _h
+                }
+
+        for cut in mergedCuts.keys():
+            for var in list(variables.keys()):
+                _s = results[cut][var]['object']
+                _s_var = ROOT.RDF.Experimental.VariationsFor(_s)
+                results[cut][var]['object'] = _s_var
 
 
                         
 
-        for cut in list(cuts.keys()):
-            for cat in list(cuts[cut]['categories'].keys()):
-                for var in list(variables.keys()):
-                        _s_var = results[cut + '_' + cat][var]['object']
-                        _histos = {}
-                        for _variation in list(map(lambda k: str(k) , _s_var.GetKeys())):
-                            _h_name = _variation.replace(':', '_')
-
-                            _h = 0
-                            #if variables[var]['name'] == '1':
-                            """
-                            if results[cut + '_' + cat][var]['type'] == 'num':
-                                _h = ROOT.TH1D(cut + '_' + cat + '_' + var + '_' + _h_name + '_' + str(_incr[0]), var, *variables[var]['range'])
-                                _incr[0] += 1
-                                #print('starting histo')
-                                _h.Fill(1, _s_var[_variation])
-                                #print('stop histo')
-                            else:
-                            """
-                            #print('starting histo')
-                            _h = _s_var[_variation] 
-                            #print('stop histo')
-                            fold = variables[var].get('fold', -1)
-                            if fold == 1 or fold == 3 :
-                                _h.SetBinContent(1, _h.GetBinContent(0) + _h.GetBinContent(1))
-                            if fold == 2 or fold == 3 :
-                                lastBin = _h.GetNbinsX()
-                                _h.SetBinContent(lastBin-1, _h.GetBinContent(lastBin-1) + _h.GetBinContent(lastBin))
-                            _histos[_h_name] = _h.Clone()
-                            del _h
-                        del  results[cut + '_' + cat][var]['object']
-                        results[cut + '_' + cat][var]['objects'] = _histos
+        for cut in mergedCuts.keys():
+            for var in list(variables.keys()):
+                    _s_var = results[cut][var]['object']
+                    _histos = {}
+                    for _variation in list(map(lambda k: str(k) , _s_var.GetKeys())):
+                        _h_name = _variation.replace(':', '_')
+                        _h = 0
+                        _h = _s_var[_variation] 
+                        fold = variables[var].get('fold', -1)
+                        if fold == 1 or fold == 3 :
+                            _h.SetBinContent(1, _h.GetBinContent(0) + _h.GetBinContent(1))
+                        if fold == 2 or fold == 3 :
+                            lastBin = _h.GetNbinsX()
+                            _h.SetBinContent(lastBin-1, _h.GetBinContent(lastBin-1) + _h.GetBinContent(lastBin))
+                        _histos[_h_name] = _h.Clone()
+                        del _h
+                    del  results[cut][var]['object']
+                    results[cut][var]['objects'] = _histos
 
 
     """
@@ -340,10 +325,27 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
         
         for var in list(variables.keys()):
             #if variables[var]['name'] != '1':
+            if var in columnNames:
+                _var = '__' + var
+                variables[_var] = variables[var]
+                del variables[var]
+
+
+        print(variables)
+        for var in list(variables.keys()):
             if variables[var]['name'] not in columnNames:
                 df2 = df2.Define(var, variables[var]['name'])
-            elif var not in list(df2.GetColumnNames()):
+            elif var not in columnNames:
                 df2 = df2.Alias(var, variables[var]['name'])
+            else:
+                print("Error, cannot define variable")
+                sys.exit()
+            """
+            elif var not in columnNames:
+                df2 = df2.Alias(var, variables[var]['name'])
+            else:
+            """
+
 
         if 'subsamples' in list(samples[sampleName].keys()):
             for subsample in list(samples[sampleName]['subsamples'].keys()):

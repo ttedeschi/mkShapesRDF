@@ -108,12 +108,13 @@ if operationMode == 0 and not os.path.exists(f'{folder}/{outputFolder}'):
     print('You didn\'t create outputFolder ', outputFolder)
     sys.exit()
 
-if operationMode == 1 and os.path.exists(f'{folder}/{outputFolder}/{outputFile}'):
+if operationMode == 2 and os.path.exists(f'{folder}/{outputFolder}/{outputFile}'):
     print('Can\'t merge files, output already exists')
     print(f'You can run: rm {folder}/{outputFolder}/{outputFile}')
     sys.exit()
 
 #limitFiles = int(args.limitFiles)
+limitFiles = -1
 limit = int(args.limitEvents)
 exec(open(f'{folder}/{samplesFile}').read())
 
@@ -121,7 +122,10 @@ exec(open(f'{folder}/{aliasesFile}').read())
 exec(open(f'{folder}/{variablesFile}').read())
 exec(open(f'{folder}/{cutsFile}').read())
 exec(open(f'{folder}/{plotFile}').read())
-exec(open(f'{folder}/{nuisancesFile}').read())
+if 'nuisancesFile' in dir():
+    exec(open(f'{folder}/{nuisancesFile}').read())
+else:
+    nuisances = {}
 
 
 #print(samf'{folder}
@@ -205,8 +209,56 @@ if operationMode == 0:
             return f'{folder}/{outputFolder}/mkShapes__{tag}__ALL__{sampleName}.root'
         runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lumi, limit, outputFileMap) 
 
-
 elif operationMode == 1:
+    #condorFolder = folder + '/' + batchFolder 
+
+    errs = glob.glob("{}/{}/*/*err*".format(batchFolder, tag))
+    files = glob.glob("{}/{}/*/script.py".format(batchFolder, tag))
+    #print(files[:3], len(files))
+    errsD = list(map(lambda k: '/'.join(k.split('/')[:-1]), errs))
+    filesD = list(map(lambda k: '/'.join(k.split('/')[:-1]), files))
+    #print(files)
+    notFinished = list(set(filesD).difference(set(errsD)))
+    print(notFinished)
+    print(len(files), len(errs), len(notFinished))
+    #print('queue 1 Folder in ' + ' '.join(list(map(lambda k: k.split('/')[-1], notFinished))))
+    normalErrs = """Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+    Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+    Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+    Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+    Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+    """
+    normalErrs = normalErrs.split('\n')
+    normalErrs = list(map(lambda k: k.strip(' ').strip('\t'), normalErrs))
+    normalErrs = list(filter(lambda k: k!='', normalErrs))
+
+    toResubmit = []
+    def normalErrsF(k):
+        for s in normalErrs:
+            if s in k:
+                return True
+        return False
+
+    for err in errs:
+        with open(err) as file:
+            l = file.read()
+        txt = l.split("\n")
+        #txt = list(filter(lambda k: k not in normalErrs, txt))
+        txt = list(filter(lambda k: not normalErrsF(k), txt))
+        txt = list(filter(lambda k: k.strip() != '' , txt))
+        if len(txt) > 0:
+            print(err)
+            print("\n")
+            print("\n".join(txt))
+            print("\n\n")
+            toResubmit.append(err)
+    toResubmit = list(map(lambda k: ''.join(k.split('/')[-2]), toResubmit))
+    print(toResubmit)
+    if len(toResubmit) > 0:
+        print('queue 1 Folder in ' + ' '.join(list(map(lambda k: k.split('/')[-1], toResubmit))))
+
+
+elif operationMode == 2:
     print('',''.join(['#' for _ in range(20)]), '\n\n', 'Merging root files', '\n\n', ''.join(['#' for _ in range(20)]))
     #results = {}
     filesToMerge = []
@@ -252,7 +304,7 @@ elif operationMode == 1:
 
 
 
-elif operationMode == 2:
+elif operationMode == 3:
     print('',''.join(['#' for _ in range(20)]), '\n\n', 'Doing plots', '\n\n', ''.join(['#' for _ in range(20)]))
     f = ROOT.TFile(f'{folder}/{outputFolder}/{outputFile}', "read")
     for cut_cat in [k.GetName() for k in f.GetDirectory('/').GetListOfKeys()]:
@@ -293,18 +345,19 @@ elif operationMode == 2:
     histPlots = {}
 
     for cut_cat in list(_results.keys()):
-        sampleNamesSorted = list(filter(lambda k: not k[1]['isSignal'] and not k[1]['isData'],  _results[cut_cat]['events'].items() ))
+        sampleNamesSorted = list(filter(lambda k: not k[1]['isSignal'] and not k[1]['isData'],  _results[cut_cat][list(_results[cut_cat].keys())[0]].items() ))
         #sampleNamesSorted = list(sorted(_results[cut_cat]['events'].items(), key=lambda k:k[1]['object'].GetBinContent(1) ))
-        sampleNamesSorted = list(sorted(sampleNamesSorted, key=lambda k:k[1]['object'].GetBinContent(1) ))
+        print(cut_cat, sampleNamesSorted)
+        sampleNamesSorted = list(sorted(sampleNamesSorted, key=lambda k:k[1]['object'].Integral() ))
         sampleNamesSorted = list(map(lambda k: k[0], sampleNamesSorted))
-        sigName = list(filter(lambda k: k[1]['isSignal'],  _results[cut_cat]['events'].items() ))
+        sigName = list(filter(lambda k: k[1]['isSignal'], _results[cut_cat][list(_results[cut_cat].keys())[0]].items() ))
         #sigName = list(filter(_results[cut_cat]['events'].items(), key=lambda k: k[1]['isSignal']))
         if len(sigName)==0 or len(sigName)>=2:
             print("Either no signal or many signals")
         else:
             print(sigName[0])
             sampleNamesSorted.append(sigName[0][0])
-        dataName = list(filter(lambda k: k[1]['isData'],  _results[cut_cat]['events'].items() ))
+        dataName = list(filter(lambda k: k[1]['isData'], _results[cut_cat][list(_results[cut_cat].keys())[0]].items() ))
         #dataName = list(filter(_results[cut_cat]['events'].items(), key=lambda k: k[1]['isData']))
         #if len(dataName)>0 and len(dataName)<2:
         if len(dataName)==0 or len(dataName)>=2:
@@ -334,6 +387,9 @@ elif operationMode == 2:
                     print('adding data to histPlots')
                     h.SetMarkerColor(ROOT.kBlack)
                     h.SetLineColor(ROOT.kBlack)
+                    h.SetMarkerColor(ROOT.kBlack)
+                    h.SetMarkerSize(1)
+                    h.SetMarkerStyle(20)
                     histPlots[cut_cat][var]['data'] = h
                 else:
                     h.SetLineColor(groupPlot[sampleName]['color'])
@@ -370,9 +426,9 @@ elif operationMode == 2:
              yaxis.SetTitleSize ( 0.11)
 
     for cut_cat in list(histPlots.keys()):
-        for var in list(histPlots[cut_cat].keys()):
+        for _var in list(histPlots[cut_cat].keys()):
             cnv = ROOT.TCanvas("c","c1", 800,800)
-
+            var = _var.replace('__', '')
             cnv.cd()
             canvasPad1Name = 'pad1'
             pad1 = ROOT.TPad(canvasPad1Name,canvasPad1Name, 0.0, 1-0.72, 1.0, 1-0.05)
@@ -381,8 +437,8 @@ elif operationMode == 2:
             pad1.Draw()
             pad1.cd()
 
-            _min = histPlots[cut_cat][var]['min'] * 1e-2
-            _max = histPlots[cut_cat][var]['max'] * 1e+2
+            _min = histPlots[cut_cat][_var]['min'] * 1e-2
+            _max = histPlots[cut_cat][_var]['max'] * 1e+2
             #minXused = h.GetBinLowEdge(1)
             #maxXused = h.GetBinUpEdge(h.GetNbinsX())
             minXused = variables[var]['range'][1]
@@ -418,21 +474,21 @@ elif operationMode == 2:
             tlegend.SetFillStyle(0)
 
             #tlegend.SetShadowColor(0)
-            for sampleName in list(_results[cut_cat][var].keys()):
-                name = groupPlot[sampleName]['nameHR'] + f' [{str(round(_results[cut_cat][var][sampleName]["object"].Integral(),1))}]'
-                if _results[cut_cat][var][sampleName]['isData']:
-                    tlegend.AddEntry(_results[cut_cat][var][sampleName]['object'], name, "lep")
+            for sampleName in list(_results[cut_cat][_var].keys()):
+                name = groupPlot[sampleName]['nameHR'] + f' [{str(round(_results[cut_cat][_var][sampleName]["object"].Integral(),1))}]'
+                if _results[cut_cat][_var][sampleName]['isData']:
+                    tlegend.AddEntry(_results[cut_cat][_var][sampleName]['object'], name, "lep")
                 else:
-                    tlegend.AddEntry(_results[cut_cat][var][sampleName]['object'], name, "f")
+                    tlegend.AddEntry(_results[cut_cat][_var][sampleName]['object'], name, "f")
 
             tlegend.SetNColumns(2)
 
-            h = histPlots[cut_cat][var]['thstack']
+            h = histPlots[cut_cat][_var]['thstack']
             h.Draw('same hist')
             hdata = 0 
-            if histPlots[cut_cat][var]['data'] != 0:
+            if histPlots[cut_cat][_var]['data'] != 0:
                 print('Data hist exists, plotting it')
-                hdata = histPlots[cut_cat][var]['data']
+                hdata = histPlots[cut_cat][_var]['data']
                 hdata.Draw('same p0')
             tlegend.Draw()
             pad1.RedrawAxis()
@@ -441,23 +497,25 @@ elif operationMode == 2:
 
             cnv.cd()
             if hdata == 0:
-                for sampleName in list(_results[cut_cat][var].keys()):
+                for sampleName in list(_results[cut_cat][_var].keys()):
                     if hdata == 0:
-                        hdata = _results[cut_cat][var][sampleName]['object'].Clone()
+                        hdata = _results[cut_cat][_var][sampleName]['object'].Clone()
                     else:
-                        hdata.Add(_results[cut_cat][var][sampleName]['object'].Clone())
+                        hdata.Add(_results[cut_cat][_var][sampleName]['object'].Clone())
             hmc = 0
-            for sampleName in list(_results[cut_cat][var].keys()):
+            for sampleName in list(_results[cut_cat][_var].keys()):
                 # IMPORTANT: Signal not included in ratio!
-                if _results[cut_cat][var][sampleName]['isData'] or _results[cut_cat][var][sampleName]['isSignal']:
+                if _results[cut_cat][_var][sampleName]['isData'] or _results[cut_cat][_var][sampleName]['isSignal']:
                     continue
                 if hmc == 0:
-                    hmc = _results[cut_cat][var][sampleName]['object'].Clone()
+                    hmc = _results[cut_cat][_var][sampleName]['object'].Clone()
                 else:
-                    hmc.Add(_results[cut_cat][var][sampleName]['object'].Clone())
+                    hmc.Add(_results[cut_cat][_var][sampleName]['object'].Clone())
 
-            h_err = hdata.Clone()
-            h_err.Divide(hdata)
+            h_err = hmc.Clone()
+            for j in range(h_err.GetNbinsX()):
+                h_err.SetBinError(j, 0)
+            h_err.Divide(hmc)
             rp = hdata.Clone()
             rp.Divide(hmc)
             rp.SetMarkerColor(ROOT.kBlack)
@@ -478,7 +536,7 @@ elif operationMode == 2:
             xAxisDistro = frameRatio.GetXaxis()
             xAxisDistro.SetNdivisions(6,5,0)
             frameRatio.GetYaxis().SetTitle("DATA / MC")
-            frameRatio.GetYaxis().SetRangeUser( 0.6, 1.4 )
+            frameRatio.GetYaxis().SetRangeUser( minRatio, maxRatio )
             frameRatio.GetXaxis().SetTitle(variables[var]['xaxis'])
             Pad2TAxis(frameRatio)
 
