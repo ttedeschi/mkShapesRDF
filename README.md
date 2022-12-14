@@ -1,11 +1,11 @@
 # Simple Parallel RDF version of Latinos mkShapes
 
-1. Run the setup command:
+## Run the setup command:
 ```
 . ./setup.sh
 ```
 
-2. Configure the configuration folder (e.g. 2016Renorm) with the main files:
+## Configure the configuration folder (e.g. 2016Renorm) with the main files:
 - aliases.py
 - configuration.py
 - cuts.py
@@ -14,7 +14,7 @@
 - samples.py
 - variables.py
 
-3. Run the analysis:
+## Run the analysis:
 ```
 python mkShapesRDFParallel.py -o 0 -f 2016Renorm -b 1
 ```
@@ -32,14 +32,17 @@ It's highly recommended to limit input ROOT files at the first run to check for 
 python mkShapesRDFParallel.py -o 0 -f 2016Renorm -l 1
 ```
 
-4. After all the jobs finished (or most of them did) you can run `mkShapesRDFParallel.py -o 1 -f 2016Renorm` to know which jobs failed and why
+## Check for errors
+After all the jobs finished (or most of them did) you can run `mkShapesRDFParallel.py -o 1 -f 2016Renorm` to know which jobs failed and why
 
-5. If all the jobs succeeded run the merger with the option: 
+## Merge files
+If all the jobs succeeded run the merger with the option: 
 ```
 python mkShapesRDFParallel.py -o 2 -f 2016Renorm
 ```
 
-6. Plot with 
+## Plots
+Plot with 
 ```
 python mkShapesRDFParallel.py -o 3 -f 2016Renorm
 ```
