@@ -118,9 +118,11 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
                         fold = variables[var].get('fold', -1)
                         if fold == 1 or fold == 3 :
                             _h.SetBinContent(1, _h.GetBinContent(0) + _h.GetBinContent(1))
+                            _h.SetBinContent(0, 0)
                         if fold == 2 or fold == 3 :
                             lastBin = _h.GetNbinsX()
                             _h.SetBinContent(lastBin-1, _h.GetBinContent(lastBin-1) + _h.GetBinContent(lastBin))
+                            _h.SetBinContent(lastBin-1, 0)
                         _histos[_h_name] = _h.Clone()
                         del _h
                     del  results[cut][var]['object']
