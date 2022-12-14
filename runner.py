@@ -129,21 +129,6 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
                     results[cut][var]['objects'] = _histos
 
 
-    """
-    def nanoGetSampleFiles(path, name):
-        _files = glob.glob(path + f"/nanoLatino_{name}__part*.root")
-        if limitFiles != -1 and len(_files) > limitFiles:
-            return [(name, _files[:limitFiles])]
-        else:
-            return  [(name, _files)]
-    """
-    
-    def varyWeight(df, name, down, up):
-        # in Latinos XSWeight will be weight
-        expression = 'ROOT::RVecF{'+ f'static_cast<float>(weight*{str(down)}), static_cast<float>(weight*{str(up)})' +'}'
-        return df.Vary('weight', 
-                expression, 
-                ['down', 'up'], name)
         
     def getTTreeNomAndFriends(fnom, friends):
         tnom = ROOT.TChain('Events')
@@ -175,7 +160,6 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
         nuisanceFilesDown = list(map(lambda k: nuisance['folderDown'] + '/' + k, _files))
         nuisanceFilesUp = list(map(lambda k: nuisance['folderUp'] + '/' + k, _files))
         return [nuisanceFilesDown, nuisanceFilesUp]
-        #return [nanoGetSampleFiles(nuisance['folderDown'], sampleName)[0][1], nanoGetSampleFiles(nuisance['folderUp'], sampleName)[0][1]]
 
     def loadSystematics(df, nuisances, sampleName, columnNames):
         for nuisanceName, nuisance in list(nuisances.items()):
@@ -197,17 +181,6 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
                             varNameDown = baseCol + '_' + nuisance['mapDown']
                             varNameUp   = baseCol + '_' + nuisance['mapUp']
 
-                        #_type = ''
-#                        if   df.GetColumnType(baseCol) == 'ROOT::VecOps::RVec<Float_t>':
-#                            expr = varyExpression(baseCol + '_' + nuisance['mapDown'],baseCol + '_' + nuisance['mapUp'], 'ROOT::VecOps::RVec<Float_t>')
-#                        elif df.GetColumnType(baseCol) == 'ROOT::VecOps::RVec<Int_t>':
-#                            expr = varyExpression(baseCol + '_' + nuisance['mapDown'],baseCol + '_' + nuisance['mapUp'], 'ROOT::VecOps::RVec<Int_t>')
-#                        elif df.GetColumnType(baseCol) == 'Float_t':
-#                            expr = varyExpression(baseCol + '_' + nuisance['mapDown'],baseCol + '_' + nuisance['mapUp'], 'Float_t')
-#                        else:
-#                            expr = varyExpression(baseCol + '_' + nuisance['mapDown'],baseCol + '_' + nuisance['mapUp'], df.GetColumnType(baseCol))
-#                            #print('Not known type for variation of nominal column ', baseCol)
-#                            #sys.exit()
                         _type = df.GetColumnType(baseCol)
                         expr = varyExpression(varNameDown, varNameUp , _type)
                         df = df.Vary(baseCol, expr, variationTags=["down", "up"], variationName=nuisance['name'])
@@ -228,18 +201,14 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
                         else:
                             variedNames.append(weights[1])
                             
-                        print(df.GetColumnType('weight'))
-                        print(df.GetColumnType(variedNames[0]))
-                        print(df.GetColumnType(variedNames[1]))
-                        """
-                        if df.GetColumnType('weight') != df.GetColumnType(variedNames[1]):
-                            print('Varied column and weight have different types, namely :',  df.GetColumnType(variedNames[1]), df.GetColumnType('weight'))
-                            sys.exit()
-                        """
                         if df.GetColumnType('weight') == 'double':
                             expr =  f'ROOT::RVecD' + '{(double)' + f'{variedNames[1]},(double) {variedNames[0]}' + '}'
                         elif df.GetColumnType('weight') == 'float':
                             expr =  f'ROOT::RVecF' + '{(float)' + f'{variedNames[1]},(float) {variedNames[0]}' + '}'
+                        else:
+                            print('Weight column has unknown type:', df.GetColumnType('weight'), 'while varied is: ', df.GetColumnType(variedNames[1]) )
+                            sys.exit()
+
                         df = df.Vary('weight', expr, variationTags=["down", "up"], variationName=nuisance['name'])
                 else:
                     print("Unsupported nuisance")
@@ -260,15 +229,9 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
                 continue
             if nuisance.get('type', '') == 'shape':
                 if nuisance.get('kind', '') == 'suffix':
-                    #friendsFiles += getNuisanceFiles(nuisance, sampleName)
                     friendsFiles += getNuisanceFiles(nuisance, files)
 
         tnom = getTTreeNomAndFriends(files, friendsFiles)
-                    
-
-        #print(files, len(files))
-
-        #df = ROOT.RDataFrame("Events", files)
 
         if limit != -1:
             df = ROOT.RDataFrame(tnom)
@@ -282,7 +245,6 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
 
         if 'isData' not in list(samples[sampleName].keys()):
             aliases['weight'] = {
-                        #'expr': '(float) ' + samples[sampleName]['weight'] + ' * ' + str(lumi) + ' * ' + filesType[0][2] + ''
                         'expr': samples[sampleName]['weight'] + ' * ' + str(lumi) + ' * ' + filesType[0][2]
                         }
         else:
@@ -297,7 +259,6 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
             if 'samples' in list(aliases[alias]):
                 if not sampleName in aliases[alias]['samples']:
                     continue
-            #print('Defining alias for sample ', sampleName, alias, aliases[alias])
             if alias in columnNames:
                 print(f'Alias {alias} cannot be defined, column with that name already exists')
                 sys.exit()
@@ -320,7 +281,6 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
             else:
                 print('Only aliases with expr or class are supported')
                 sys.exit()
-        #print(define_string)
 
         df1 = eval(define_string)
 
@@ -337,7 +297,6 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
         results = {}
         
         for var in list(variables.keys()):
-            #if variables[var]['name'] != '1':
             if var in columnNames:
                 _var = '__' + var
                 variables[_var] = variables[var]
@@ -353,11 +312,6 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
             else:
                 print("Error, cannot define variable")
                 sys.exit()
-            """
-            elif var not in columnNames:
-                df2 = df2.Alias(var, variables[var]['name'])
-            else:
-            """
 
 
         if 'subsamples' in list(samples[sampleName].keys()):

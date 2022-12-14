@@ -25,7 +25,6 @@ def createBatch(samples, sampleName, filesType, i):
     # python file
     
     txtpy = 'from collections import OrderedDict\n'
-    #print(''.join(['#' for _ in range(50)]))
     _samples = {}
     _samples[sampleName] = {
             'name': [(sampleName, filesType[1])],
