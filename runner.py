@@ -70,7 +70,7 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
                                 _results[cut_cat][var]['objects'][hname].SetName('histo_' + sampleName + '_' + subsample)
                             else:
                                 _results[cut_cat][var]['objects'][hname].SetName('histo_' + sampleName + '_' + subsample + '_' + hname)
-                        _results[cut_cat][var]['objects'][hname].Write()
+                            _results[cut_cat][var]['objects'][hname].Write()
         f.Close()
         
 
@@ -228,7 +228,18 @@ def runAnalysis(samples, aliases, variables, preselections, cuts, nuisances, lum
                         else:
                             variedNames.append(weights[1])
                             
-                        expr =  f'ROOT::RVecD' + '{(double)' + f'{variedNames[1]},(double) {variedNames[0]}' + '}'
+                        print(df.GetColumnType('weight'))
+                        print(df.GetColumnType(variedNames[0]))
+                        print(df.GetColumnType(variedNames[1]))
+                        """
+                        if df.GetColumnType('weight') != df.GetColumnType(variedNames[1]):
+                            print('Varied column and weight have different types, namely :',  df.GetColumnType(variedNames[1]), df.GetColumnType('weight'))
+                            sys.exit()
+                        """
+                        if df.GetColumnType('weight') == 'double':
+                            expr =  f'ROOT::RVecD' + '{(double)' + f'{variedNames[1]},(double) {variedNames[0]}' + '}'
+                        elif df.GetColumnType('weight') == 'float':
+                            expr =  f'ROOT::RVecF' + '{(float)' + f'{variedNames[1]},(float) {variedNames[0]}' + '}'
                         df = df.Vary('weight', expr, variationTags=["down", "up"], variationName=nuisance['name'])
                 else:
                     print("Unsupported nuisance")

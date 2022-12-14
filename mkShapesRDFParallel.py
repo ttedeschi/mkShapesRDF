@@ -52,7 +52,7 @@ def submit():
 
     txtsh  = '#!/bin/bash\n'
     txtsh += 'source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh\n'
-    txtsh += 'python runner.py\n'
+    txtsh += 'time python runner.py\n'
     with open(f'{batchFolder}/{tag}/run.sh', 'w') as file:
         file.write(txtsh)
     process = subprocess.Popen(f'chmod +x {batchFolder}/{tag}/run.sh', shell=True)
@@ -89,7 +89,6 @@ parser.add_argument("-o","--operationMode", help="0 do analysis in batch, 1 hadd
 parser.add_argument("-b","--doBatch", help="0 (default) runs on local, 1 runs with condor" , required=False, default='0')
 parser.add_argument("-dR","--dryRun", help="1 do not submit to condor" , required=False, default='0')
 parser.add_argument("-f","--folder", help="Path to folder" , required=False, default='plotsconfig')
-#parser.add_argument("-l","--limitFiles", help="Max number of files" , required=False, default='-1')
 parser.add_argument("-l","--limitEvents", help="Max number of events" , required=False, default='-1')
 
 args = parser.parse_args()
@@ -227,6 +226,9 @@ elif operationMode == 1:
     Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
     Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
     Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+    real
+    user
+    sys
     """
     normalErrs = normalErrs.split('\n')
     normalErrs = list(map(lambda k: k.strip(' ').strip('\t'), normalErrs))
@@ -236,6 +238,8 @@ elif operationMode == 1:
     def normalErrsF(k):
         for s in normalErrs:
             if s in k:
+                return True
+            elif k.startswith(s):
                 return True
         return False
 
@@ -557,7 +561,7 @@ elif operationMode == 3:
             outfile = cut_cat + '_' + var + '.png'
             cnv.SetLogy()
 
-            cnv.SaveAs("{}/{}".format(path, outfile))
+            cnv.SaveAs("{}/{}".format(plotPath, outfile))
     f.Close()
 
 
