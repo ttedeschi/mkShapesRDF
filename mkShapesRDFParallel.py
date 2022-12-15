@@ -301,7 +301,7 @@ elif operationMode == 2:
                 filesToMerge.append(f)
                 i+=1
     print(f'Hadding files into {folder}/{outputFolder}/{outputFile}')
-    process = subprocess.Popen(f'hadd {folder}/{outputFolder}/{outputFile} {" ".join(filesToMerge)}', shell=True)
+    process = subprocess.Popen(f'hadd -j {folder}/{outputFolder}/{outputFile} {" ".join(filesToMerge)}', shell=True)
     process.wait()
         
 
