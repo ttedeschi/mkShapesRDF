@@ -1,10 +1,11 @@
 # Documentation for `Runner`
 
-::: runner.RunAnalysis.splitSamples
+::: mkShapesRDF.shapeAnalysis.runner.RunAnalysis.splitSamples
 
-::: runner.RunAnalysis.__init__
+
+::: mkShapesRDF.shapeAnalysis.runner.RunAnalysis.__init__
 ## The main function:
-::: runner.RunAnalysis.run
+::: mkShapesRDF.shapeAnalysis.runner.RunAnalysis.run
 
 
 

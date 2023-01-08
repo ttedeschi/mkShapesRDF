@@ -6,7 +6,7 @@ dataSteps = 'DATAl1loose2016v7__l2loose__l2tightOR2016v7'
 
 
 treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano'
-limitFiles = -1
+limitFiles = 1
 
 def makeMCDirectory(var=''):
         return os.path.join(treeBaseDir, mcProduction, mcSteps.format(var=''))
@@ -81,6 +81,7 @@ DataTrig = {
 mcCommonWeightNoMatch = 'XSWeight*SFweight*METFilter_MC'
 mcCommonWeight = "XSWeight*SFweight*PromptGenLepMatch2l*METFilter_MC"
 
+"""
 
 ###### Zjj EWK #######
 
@@ -89,8 +90,9 @@ files = nanoGetSampleFiles(mcDirectory, 'EWK_LLJJ_MLL-50_MJJ-120')
 samples['Zjj'] = {
         'name': files,
         'weight': mcCommonWeight,
-        'FilesPerJob': 10,
+        'FilesPerJob': 1,
         }
+"""
 
 ###### DY MC ######
 
@@ -123,7 +125,7 @@ CombineBaseW(samples, 'DY', ['DYJetsToLL_M-50_HT-400to600'    , 'DYJetsToLL_M-50
 #
 addSampleWeight(samples, 'DY', 'DYJetsToLL_M-50_ext2',                  '(LHE_HT < 70)')
 
-
+"""
 ###### Top MC ######
 
 files = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu') + \
@@ -266,3 +268,4 @@ for _, sd in DataRun:
     #samples['DATA']['weights'].extend([DataTrig[pd]] * len(files))
 #print(samples['DATA']['name'])
 #
+"""

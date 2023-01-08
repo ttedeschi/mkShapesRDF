@@ -23,7 +23,7 @@ samplesFile = 'samples.py'
 plotFile = 'plot.py' 
 
 # nuisances file for mkDatacards and for mkShape
-nuisancesFile = 'nuisances.py'
+#nuisancesFile = 'nuisances.py'
 
 # luminosity to normalize to (in 1/fb)
 #lumi = 35.9
@@ -31,4 +31,6 @@ lumi = 36.33
 minRatio = 0.5
 maxRatio = 1.5
 
-batchFolder = f'condor'
+batchFolder = 'condor'
+
+

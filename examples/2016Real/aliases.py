@@ -154,7 +154,9 @@ aliases['Top_pTrw'] = {
 }
 
 print('\n\n\n')
-configurations = os.path.abspath('.') + '/' + folder + '/'
+print('Configs:\n\n\n')
+configurations = os.path.abspath('.') + '/' 
+print(configurations)
 print('\n\n\n')
 
 aliases['nCleanGenJet'] = {

@@ -3,7 +3,7 @@ import sys
 from collections import OrderedDict
 import ROOT
 ROOT.gROOT.SetBatch(True)
-ROOT.gInterpreter.Declare('#include "headers.hh"')
+#ROOT.gInterpreter.Declare('#include "headers.hh"')
 
 
 class RunAnalysis:
@@ -159,11 +159,12 @@ class RunAnalysis:
             if type(cuts[cut]) == dict:
                 __cutExpr = cuts[cut]['expr']
                 for cat in list(cuts[cut]['categories'].keys()):
-                    mergedCuts[cut + '_' + cat] = __cutExpr + \
+                    mergedCuts[cut + '_' + cat] = {'parent': cut}
+                    mergedCuts[cut + '_' + cat]['expr'] = __cutExpr + \
                         ' && ' + cuts[cut]['categories'][cat]
             elif type(cuts[cut]) == str:
                 __cutExpr = cuts[cut]
-                mergedCuts[cut] = __cutExpr
+                mergedCuts[cut] = {'expr': __cutExpr, 'parent': cut}
         self.cuts = mergedCuts
         self.nuisances = nuisances
         self.lumi = lumi
@@ -369,20 +370,62 @@ class RunAnalysis:
 
     def loadVariables(self):
         """
-        Loads variables and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
+        Loads variables (not ones with the 'tree' key in them) and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
         """
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
                 df = self.dfs[sampleName][index]['df']
                 columnNames = self.dfs[sampleName][index]['columnNames']
                 for var in list(self.variables.keys()):
-                    if var in columnNames:
+                    if 'tree' in self.variables[var].keys():
+                        continue
+                    if var in columnNames and var != self.variables[var]['name']:
+                        # need to rename the new variable
                         _var = '__' + var
                         self.variables[_var] = self.variables[var]
                         del self.variables[var]
 
                 print(self.variables)
                 for var in list(self.variables.keys()):
+                    if 'tree' in self.variables[var].keys():
+                        continue
+                    if self.variables[var]['name'] not in columnNames:
+                        # the variable expr does not exist, create it
+                        df = df.Define(var, self.variables[var]['name'])
+                    elif var not in columnNames:
+                        # the variable expr exists in the df, but not the variable key
+                        # use alias
+                        df = df.Alias(var, self.variables[var]['name'])
+                    else:
+                        #FIXME 
+                        print("Error, cannot define variable")
+                        sys.exit()
+                self.dfs[sampleName][index]['df'] = df
+                self.dfs[sampleName][index]['columnNames'] = list(
+                    map(lambda k: str(k), df.GetColumnNames()))
+
+    def loadBranches(self):
+        """
+        Loads branches for TTrees/SnapShots and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
+        """
+        for sampleName in self.dfs.keys():
+            for index in self.dfs[sampleName].keys():
+                df = self.dfs[sampleName][index]['df']
+                columnNames = self.dfs[sampleName][index]['columnNames']
+                for var in list(self.variables.keys()):
+                    if not 'tree' in self.variables[var].keys():
+                        continue
+                    for branchName in self.variables[var]['tree'].keys():
+
+                        if branchName in columnNames:
+                            _var = '__' + branchName
+                            self.variables[_var] = self.variables[var]
+                            del self.variables[var]
+
+                print(self.variables)
+                for var in list(self.variables.keys()):
+                    if 'tree' in self.variables[var].keys():
+                        continue
                     if self.variables[var]['name'] not in columnNames:
                         df = df.Define(var, self.variables[var]['name'])
                     elif var not in columnNames:
@@ -435,24 +478,30 @@ class RunAnalysis:
                 df = self.dfs[sampleName][index]['df']
 
                 for cut in mergedCuts.keys():
-                    df_cat = df.Filter(mergedCuts[cut])
+                    df_cat = df.Filter(mergedCuts[cut]['expr'])
+                    opts = ROOT.RDF.RSnapshotOptions() 
+                    opts.fLazy = True
+
                     for var in list(variables.keys()):
-                        _h = df_cat.Histo1D((cut + '_' + var, '') +
-                                            variables[var]['range'], var, "weight")
+                        if 'tree' in variables[var].keys():
+                            if not mergedCuts[cut]['parent'] in variables[var]['cuts']:
+                                del df_cat
+                                continue
+                            # FIXME output tree should follow DY_0 type of filename
+                            _h = df_cat.Snapshot('Events', self.outputFileMap, list(self.variables[var]['tree'].keys()), opts)
+                        else:
+                            _h = df_cat.Histo1D((cut + '_' + var, '') +
+                                                variables[var]['range'], var, "weight")
                         if sampleName not in self.results[cut][var].keys():
                             self.results[cut][var][sampleName] = {}
                         self.results[cut][var][sampleName][index] = _h
-                        '''
-                        {
-                            'type': 'th1',
-                            'object': _h
-                        }
-                        '''
+
                 for cut in mergedCuts.keys():
                     for var in list(variables.keys()):
-                        _s = self.results[cut][var][sampleName][index]
-                        _s_var = ROOT.RDF.Experimental.VariationsFor(_s)
-                        self.results[cut][var][sampleName][index] = _s_var
+                        if not 'tree' in variables[var].keys():
+                            _s = self.results[cut][var][sampleName][index]
+                            _s_var = ROOT.RDF.Experimental.VariationsFor(_s)
+                            self.results[cut][var][sampleName][index] = _s_var
 
     def convertResults(self):
         mergedCuts = self.cuts
@@ -461,6 +510,9 @@ class RunAnalysis:
             for index in self.dfs[sampleName].keys():
                 for cut in mergedCuts.keys():
                     for var in list(variables.keys()):
+                        if 'tree' in variables[var].keys():
+                            # no need to process SnapShots
+                            continue
                         _s_var = self.results[cut][var][sampleName][index]
                         _histos = {}
                         for _variation in list(map(lambda k: str(k), _s_var.GetKeys())):
@@ -488,6 +540,9 @@ class RunAnalysis:
         for cut_cat in list(self.results.keys()):
             _cut_cat = f.mkdir(cut_cat)
             for var in list(self.results[cut_cat].keys()):
+                if 'tree' in self.variables[var].keys():
+                    # no need to process SnapShots
+                    continue
                 _cut_cat.mkdir(var)
                 f.cd('/' + cut_cat + '/' + var)
                 for sampleName in list(self.results[cut_cat][var].keys()):
@@ -548,11 +603,28 @@ class RunAnalysis:
                             list(self.results[cut][var][sampleName][index].values()))
         ROOT.RDF.RunGraphs(dfs)
         '''
+
+        snapshots = []
+        for cut in self.cuts.keys():
+            for var in self.variables.keys():
+                if len(self.results[cut].get(var, [])) == 0 and not 'tree' in variables[var].keys():
+                    # no snapshots for this combination of cut variable
+                    continue
+
+                for sampleName in self.dfs.keys():
+                    for index in self.dfs[sampleName].keys():
+                        # dfs.append(self.results[cut][var][sampleName][index])
+                        snapshots.append(
+                            self.results[cut][var][sampleName][index]['df'])
+
+        ROOT.RDF.RunGraphs(snapshots)
+
         self.convertResults()
         self.saveResults()
 
 
 if __name__ == '__main__':
+    ROOT.gInterpreter.Declare(f'#include "headers.hh"')
     exec(open('script.py').read())
     runner = RunAnalysis(samples, aliases, variables,
                          preselections, cuts, nuisances, lumi)
