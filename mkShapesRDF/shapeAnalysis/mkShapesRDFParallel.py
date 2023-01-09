@@ -12,7 +12,8 @@ import inspect
 print(os.getcwd())
 configurations = os.path.realpath(
     inspect.getfile(inspect.currentframe()))  # this file
-configurations = os.path.dirname(configurations)
+configurations = os.path.dirname(configurations) # shapeAnalysis
+configurations = os.path.dirname(configurations) # mkShapesRDF
 print(configurations)
 ROOT.gInterpreter.Declare(f'#include "{configurations}/include/headers.hh"')
 
@@ -188,14 +189,14 @@ def main():
         print('#'*20, '\n\n', '   Doing analysis', '\n\n', '#'*20)
         if doBatch == 1:
             print('#'*20, '\n\n', ' Running on condor  ', '\n\n', '#'*20)
-            from mkShapesRDF.runner import RunAnalysis
+            from mkShapesRDF.shapeAnalysis.runner import RunAnalysis
             _samples = RunAnalysis.splitSamples(samples)
             for _sample in _samples:
                 createBatch(_sample)
             # submit()
         else:
             print('#'*20, '\n\n', ' Running on local machine  ', '\n\n', '#'*20)
-            from mkShapesRDF.runner import RunAnalysis
+            from mkShapesRDF.shapeAnalysis.runner import RunAnalysis
             outputFileMap = f'{folder}/{outputFolder}/{outputFile}'
 
             _samples = RunAnalysis.splitSamples(samples, False)

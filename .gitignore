@@ -3,3 +3,7 @@
 .*
 \#*#
 **.root
+**__py*
+mkShapesRDF.*
+myenv*
+examples/*/*_cc*

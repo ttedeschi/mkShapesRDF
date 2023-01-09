@@ -371,6 +371,7 @@ class RunAnalysis:
     def loadVariables(self):
         """
         Loads variables (not ones with the 'tree' key in them) and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
+        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs.
         """
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
@@ -380,7 +381,12 @@ class RunAnalysis:
                     if 'tree' in self.variables[var].keys():
                         continue
                     if var in columnNames and var != self.variables[var]['name']:
-                        # need to rename the new variable
+                        # here I want to define a variable whose key is already in the column name list
+                        # and its expression is different from its name
+                        # therefore we will either create a Define or an Alias
+
+                        # need to rename the new variable!
+                        print('changing variable', var,'to __'+var)
                         _var = '__' + var
                         self.variables[_var] = self.variables[var]
                         del self.variables[var]
@@ -396,6 +402,9 @@ class RunAnalysis:
                         # the variable expr exists in the df, but not the variable key
                         # use alias
                         df = df.Alias(var, self.variables[var]['name'])
+                    elif var == self.variables[var]['name'] and var in columnNames:
+                        # since the variable name and expression are equal and are already present in the df don't do anything
+                        pass
                     else:
                         #FIXME 
                         print("Error, cannot define variable")
@@ -519,7 +528,8 @@ class RunAnalysis:
                             _h_name = _variation.replace(':', '_')
                             _h = 0
                             _h = _s_var[_variation]
-                            fold = variables[var].get('fold', -1)
+                            fold = variables[var].get('fold', 0)
+                            print(sampleName, index, _h.Integral())
                             if fold == 1 or fold == 3:
                                 _h.SetBinContent(1, _h.GetBinContent(
                                     0) + _h.GetBinContent(1))
@@ -551,8 +561,7 @@ class RunAnalysis:
                     for index in list(self.results[cut_cat][var][sampleName].keys()):
                         for hname in list(self.results[cut_cat][var][sampleName][index].keys()):
                             if hname not in mergedHistos.keys():
-                                mergedHistos[hname] = self.results[cut_cat][var][sampleName][index][hname].Clone(
-                                )
+                                mergedHistos[hname] = self.results[cut_cat][var][sampleName][index][hname].Clone()
                             else:
                                 mergedHistos[hname].Add(
                                     self.results[cut_cat][var][sampleName][index][hname])
@@ -607,7 +616,7 @@ class RunAnalysis:
         snapshots = []
         for cut in self.cuts.keys():
             for var in self.variables.keys():
-                if len(self.results[cut].get(var, [])) == 0 and not 'tree' in variables[var].keys():
+                if len(self.results[cut].get(var, [])) == 0 or not 'tree' in self.variables[var].keys():
                     # no snapshots for this combination of cut variable
                     continue
 
@@ -617,7 +626,8 @@ class RunAnalysis:
                         snapshots.append(
                             self.results[cut][var][sampleName][index]['df'])
 
-        ROOT.RDF.RunGraphs(snapshots)
+        if len(snapshots) != 0:
+            ROOT.RDF.RunGraphs(snapshots)
 
         self.convertResults()
         self.saveResults()
