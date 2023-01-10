@@ -3,7 +3,6 @@ import sys
 from collections import OrderedDict
 import ROOT
 ROOT.gROOT.SetBatch(True)
-#ROOT.gInterpreter.Declare('#include "headers.hh"')
 
 
 class RunAnalysis:
