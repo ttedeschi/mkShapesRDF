@@ -371,16 +371,21 @@ class RunAnalysis:
     def loadVariables(self):
         """
         Loads variables (not ones with the 'tree' key in them) and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
-        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs.
+        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs. This is done by gathering the largest set of column names. 
         """
+
+        bigColumnNames = set()
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                df = self.dfs[sampleName][index]['df']
                 columnNames = self.dfs[sampleName][index]['columnNames']
+                bigColumnNames = bigColumnNames.union(set(columnNames))
+
+        for sampleName in self.dfs.keys():
+            for index in self.dfs[sampleName].keys():
                 for var in list(self.variables.keys()):
                     if 'tree' in self.variables[var].keys():
                         continue
-                    if var in columnNames and var != self.variables[var]['name']:
+                    if var in bigColumnNames and var != self.variables[var]['name']:
                         # here I want to define a variable whose key is already in the column name list
                         # and its expression is different from its name
                         # therefore we will either create a Define or an Alias
@@ -391,18 +396,20 @@ class RunAnalysis:
                         self.variables[_var] = self.variables[var]
                         del self.variables[var]
 
-                print(self.variables)
+        for sampleName in self.dfs.keys():
+            for index in self.dfs[sampleName].keys():
+                df = self.dfs[sampleName][index]['df']
                 for var in list(self.variables.keys()):
                     if 'tree' in self.variables[var].keys():
                         continue
-                    if self.variables[var]['name'] not in columnNames:
+                    if self.variables[var]['name'] not in bigColumnNames:
                         # the variable expr does not exist, create it
                         df = df.Define(var, self.variables[var]['name'])
-                    elif var not in columnNames:
+                    elif var not in bigColumnNames:
                         # the variable expr exists in the df, but not the variable key
                         # use alias
                         df = df.Alias(var, self.variables[var]['name'])
-                    elif var == self.variables[var]['name'] and var in columnNames:
+                    elif var == self.variables[var]['name'] and var in bigColumnNames:
                         # since the variable name and expression are equal and are already present in the df don't do anything
                         pass
                     else:
