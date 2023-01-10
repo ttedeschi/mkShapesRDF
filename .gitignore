@@ -7,3 +7,4 @@
 mkShapesRDF.*
 myenv*
 examples/*/*_cc*
+examples/*/*/

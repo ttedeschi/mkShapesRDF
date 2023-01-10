@@ -178,6 +178,7 @@ class RunAnalysis:
                 0: {
                     'df': obj,
                     'columnNames': [...],
+                    'ttree': obj2, # needed otherwise seg fault in root
                 },
                 ...
             }
@@ -552,6 +553,37 @@ class RunAnalysis:
                         self.results[cut][var][sampleName][index] = _histos
 
     def saveResults(self):
+        files = []
+        f = ROOT.TFile(self.outputFileMap, 'recreate')
+        for cut_cat in list(self.results.keys()):
+            _cut_cat = f.mkdir(cut_cat)
+            for var in list(self.results[cut_cat].keys()):
+                if 'tree' in self.variables[var].keys():
+                    # no need to process SnapShots
+                    continue
+                _cut_cat.mkdir(var)
+                f.cd('/' + cut_cat + '/' + var)
+                for sampleName in list(self.results[cut_cat][var].keys()):
+                    # should first merge histos
+                    mergedHistos = {}
+                    for index in list(self.results[cut_cat][var][sampleName].keys()):
+                        for hname in list(self.results[cut_cat][var][sampleName][index].keys()):
+                            if hname not in mergedHistos.keys():
+                                mergedHistos[hname] = self.results[cut_cat][var][sampleName][index][hname].Clone()
+                            else:
+                                mergedHistos[hname].Add(
+                                    self.results[cut_cat][var][sampleName][index][hname])
+
+                    for hname in mergedHistos.keys():
+                        if hname == 'nominal':
+                            mergedHistos[hname].SetName('histo_' + sampleName)
+                        else:
+                            mergedHistos[hname].SetName(
+                                'histo_' + sampleName + '_' + hname)
+                        mergedHistos[hname].Write()
+        f.Close()
+
+    def mergeAndSaveResults(self):
         f = ROOT.TFile(self.outputFileMap, 'recreate')
         for cut_cat in list(self.results.keys()):
             _cut_cat = f.mkdir(cut_cat)

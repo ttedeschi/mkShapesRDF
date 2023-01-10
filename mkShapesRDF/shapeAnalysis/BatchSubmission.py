@@ -1,22 +1,24 @@
 import subprocess
 from pathlib import Path
 import os
-print(os.getcwd())
 
 
-class BatchSumbission:
-    def __init__(self, batchFolder, tag, samples, aliases, variables, preselections, cuts, nuisances, lumi):
+class BatchSubmission:
+    def __init__(self, outputPath, batchFolder, headersPath, runnerPath, tag, samples, aliases, variables, preselections, cuts, nuisances, lumi):
+        self.outputPath = outputPath
         self.batchFolder = batchFolder
         self.tag = tag
+        self.headersPath = headersPath
+        self.runnerPath = runnerPath
 
         self.samples = samples
         self.aliases = aliases
         self.variables = variables
         self.preselections = preselections
-        self.cuts = mergedCuts
+        self.cuts = cuts
         self.nuisances = nuisances
         self.lumi = lumi
-        self.folders = []
+        self.folders = [] 
 
 
     def createBatch(self, sample):
@@ -78,14 +80,14 @@ class BatchSumbission:
         txtjdl += 'executable = run.sh\n'
         #txtjdl += 'arguments = $(Folder)\n'
         # FIXME what's the path to runner and headers?
-        txtjdl += f'transfer_input_files = $(Folder)/script.py, {os.getcwd()}/headers.hh, {os.getcwd()}/runner.py\n'
+        txtjdl += f'transfer_input_files = $(Folder)/script.py, {self.headersPath}, {self.runnerPath}\n'
 
         txtjdl += 'output = $(Folder)/out.txt\n'
         txtjdl += 'error  = $(Folder)/err.txt\n'
         txtjdl += 'log    = $(Folder)/log.txt\n'
         #txtjdl += 'transfer_input_files = $(File)\n'
         txtjdl += 'should_transfer_files = yes\n'
-        txtjdl += f'transfer_output_remaps = "output.root = {os.getcwd()}/{folder}/{outputFolder}/mkShapes__{tag}__ALL__$(Folder).root"\n'
+        txtjdl += f'transfer_output_remaps = "output.root = {self.outputPath}/mkShapes__{self.tag}__ALL__$(Folder).root"\n'
         txtjdl += 'when_to_transfer_output = ON_EXIT\n'
         txtjdl += 'request_cpus   = 1\n'
         txtjdl += '+JobFlavour = "workday"\n'

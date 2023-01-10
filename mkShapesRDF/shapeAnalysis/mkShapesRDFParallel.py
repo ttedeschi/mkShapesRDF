@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 import argparse
 import os
 from collections import OrderedDict
@@ -7,13 +8,12 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 # ROOT.EnableImplicitMT()
 import inspect
-print(os.getcwd())
-configurations = os.path.realpath(
-    inspect.getfile(inspect.currentframe()))  # this file
-configurations = os.path.dirname(configurations) # shapeAnalysis
-configurations = os.path.dirname(configurations) # mkShapesRDF
-print(configurations)
-ROOT.gInterpreter.Declare(f'#include "{configurations}/include/headers.hh"')
+#print(os.getcwd())
+#print(os.path.realpath(os.path.dirname(__file__)))
+runnerPath = os.path.realpath(os.path.dirname(__file__)) + '/runner.py'
+headersPath = os.path.dirname(os.path.dirname(runnerPath)) + '/include/headers.hh'
+print('runner path:', runnerPath, 'headersPath', headersPath)
+ROOT.gInterpreter.Declare(f'#include "{headersPath}"')
 
 
 def main():
@@ -48,6 +48,7 @@ def main():
     print(folder)
     print(batchFolder)
     print(outputFolder)
+    
 
     #FIXME one of the two following line should be removed
     Path(f'{folder}/{outputFolder}').mkdir(parents=True, exist_ok=True)
@@ -64,9 +65,9 @@ def main():
     #limitFiles = int(args.limitFiles)
     limitFiles = -1
     limit = int(args.limitEvents)
-    print(folder)
+    #print(folder)
     exec(open(f'{folder}/{samplesFile}').read(),globals(), globals() )
-    print(folder)
+    #print(folder)
 
     exec(open(f'{folder}/{aliasesFile}').read(),globals(), globals() )
     exec(open(f'{folder}/{variablesFile}').read(), None, globals())
@@ -91,8 +92,12 @@ def main():
             from mkShapesRDF.shapeAnalysis.runner import RunAnalysis
             _samples = RunAnalysis.splitSamples(samples)
 
-            from BatchSubmission import BatchSubmission
-            batch = BatchSubmission(batchFolder, tag, _samples, aliases, variables, preselections, cuts, nuisances, lumi)
+            from mkShapesRDF.shapeAnalysis.BatchSubmission import BatchSubmission
+
+            outputPath = os.path.abspath(outputFolder)
+            #print('ouput path:', outputPath)
+
+            batch = BatchSubmission(outputPath, batchFolder, headersPath, runnerPath, tag, _samples, aliases, variables, preselections, cuts, nuisances, lumi)
             batch.createBatches()
             batch.submit(dryRun)
 
