@@ -2,6 +2,7 @@ from copy import deepcopy
 import sys
 from collections import OrderedDict
 import ROOT
+from array import array
 ROOT.gROOT.SetBatch(True)
 
 
@@ -506,8 +507,17 @@ class RunAnalysis:
                             # FIXME output tree should follow DY_0 type of filename
                             _h = df_cat.Snapshot('Events', self.outputFileMap, list(self.variables[var]['tree'].keys()), opts)
                         else:
+                            histRange = []
+                            if len(variables[var]['range']) == 1:
+                                # bin endges are provided by the user
+                                histRange = [len(variables[var]['range'][0])-1, array('d', variables[var]['range'][0])]
+                            else:
+                                histRange = variables[var]['range']
+
+                            histRange = tuple(histRange)
+
                             _h = df_cat.Histo1D((cut + '_' + var, '') +
-                                                variables[var]['range'], var, "weight")
+                                                histRange, var, "weight")
                         if sampleName not in self.results[cut][var].keys():
                             self.results[cut][var][sampleName] = {}
                         self.results[cut][var][sampleName][index] = _h
@@ -544,8 +554,8 @@ class RunAnalysis:
                             if fold == 2 or fold == 3:
                                 lastBin = _h.GetNbinsX()
                                 _h.SetBinContent(
-                                    lastBin-1, _h.GetBinContent(lastBin-1) + _h.GetBinContent(lastBin))
-                                _h.SetBinContent(lastBin, 0)
+                                    lastBin, _h.GetBinContent(lastBin) + _h.GetBinContent(lastBin+1))
+                                _h.SetBinContent(lastBin+1, 0)
                             _histos[_h_name] = _h.Clone()
                             # del _h
                         #del self.results[cut][var][sampleName]['object']
@@ -554,6 +564,36 @@ class RunAnalysis:
 
     def saveResults(self):
         files = []
+        f = ROOT.TFile(self.outputFileMap, 'recreate')
+        for cut_cat in list(self.results.keys()):
+            _cut_cat = f.mkdir(cut_cat)
+            for var in list(self.results[cut_cat].keys()):
+                if 'tree' in self.variables[var].keys():
+                    # no need to process SnapShots
+                    continue
+                _cut_cat.mkdir(var)
+                f.cd('/' + cut_cat + '/' + var)
+                for sampleName in list(self.results[cut_cat][var].keys()):
+                    # should first merge histos
+                    mergedHistos = {}
+                    for index in list(self.results[cut_cat][var][sampleName].keys()):
+                        for hname in list(self.results[cut_cat][var][sampleName][index].keys()):
+                            if hname not in mergedHistos.keys():
+                                mergedHistos[hname] = self.results[cut_cat][var][sampleName][index][hname].Clone()
+                            else:
+                                mergedHistos[hname].Add(
+                                    self.results[cut_cat][var][sampleName][index][hname])
+
+                    for hname in mergedHistos.keys():
+                        if hname == 'nominal':
+                            mergedHistos[hname].SetName('histo_' + sampleName)
+                        else:
+                            mergedHistos[hname].SetName(
+                                'histo_' + sampleName + '_' + hname)
+                        mergedHistos[hname].Write()
+        f.Close()
+
+    def mergeSaveResults(self):
         f = ROOT.TFile(self.outputFileMap, 'recreate')
         for cut_cat in list(self.results.keys()):
             _cut_cat = f.mkdir(cut_cat)

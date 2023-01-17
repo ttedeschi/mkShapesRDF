@@ -17,32 +17,9 @@ groupPlot['top']  = {
                   'samples'  : ['top']
               }
 
-_bins = [30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700]
-dys = {}
-for i in range(-1, len(_bins)-1):
-    if i == -1:
-        # underflow bin
-        dys[f'DY{i+1}'] = f'(ptll < {_bins[i+1]})'
-    elif i == len(_bins)-2:
-        # overflow bin
-        dys[f'DY{i+1}'] = f'(ptll >= {_bins[i]})'
-    else:
-        dys[f'DY{i+1}'] = f'(ptll >= {_bins[i]} && ptll < {_bins[i+1]})'
 
-_i = 0
-for dy in dys.keys():
-    groupPlot[dy] = {
-            'nameHR': dy,
-            'isSignal': 0,
-            'color': ROOT.kGreen - 7 + _i,
-            'samples': ['DY_' + dy]
-            }
-    _i +=1
-
-
-"""
 groupPlot['DY']  = {  
-                  'nameHR' : ,
+                  'nameHR' : "DY no PU jets",
                   'isSignal' : 0,
                   #'color': 418,    # kGreen+2
                   'color': ROOT.kGreen+2,    # kGreen+2
@@ -54,7 +31,6 @@ groupPlot['DY_PUJets']  = {
                   'color': 416,    # kGreen
                   'samples'  : ['DY_PUJets']
               }
-"""
 
 
 groupPlot['Multiboson']  = {  

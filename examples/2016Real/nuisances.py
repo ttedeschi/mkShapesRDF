@@ -15,7 +15,20 @@ def makeMCDirectory(var=''):
         return os.path.join(treeBaseDir, mcProduction, mcSteps + '__' + var)
 
 
+cuts2j = cuts
 nuisances = {}
+
+nuisances['lumi_Uncorrelated'] = {
+        'name': 'lumi_13TeV_2016',
+        'type': 'lnN',
+        'samples': dict((skey, '1.01') for skey in mc if skey not in ['WW', 'top', 'DY'])
+}
+
+nuisances['lumi_correlated'] = {
+        'name': 'lumi_13TeV_correlated',
+        'type': 'lnN',
+        'samples': dict((skey, '1.006') for skey in mc if skey not in ['WW', 'top', 'DY'])
+}
 """
 
 nuisances['fake_syst_e'] = {
@@ -36,7 +49,6 @@ nuisances['fake_syst_m'] = {
     'cutspost': lambda self, cuts: [cut for cut in cuts if 'ee' not in cut],
 }
 
-"""
 
 nuisances['fake_ele'] = {
     'name': 'CMS_fake_e_2016',
@@ -74,21 +86,21 @@ nuisances['fake_mu_stat'] = {
     }
 }
 
-##### B-tagger
-
-for shift in ['jes', 'lf', 'hfstats1', 'hfstats2', 'lfstats1', 'lfstats2', 'cferr1', 'cferr2']:
-    btag_syst = ['(btagSF%sup)/(btagSF)' % shift, '(btagSF%sdown)/(btagSF)' % shift]
-
-    name = 'CMS_btag_%s' % shift
-    if 'stats' in shift:
-        name += '_2016'
-
-    nuisances['btag_shape_%s' % shift] = {
-        'name': name,
-        'kind': 'weight',
-        'type': 'shape',
-        'samples': dict((skey, btag_syst) for skey in mc),
-    }
+###### B-tagger
+#
+#for shift in ['jes', 'lf', 'hfstats1', 'hfstats2', 'lfstats1', 'lfstats2', 'cferr1', 'cferr2']:
+#    btag_syst = ['(btagSF%sup)/(btagSF)' % shift, '(btagSF%sdown)/(btagSF)' % shift]
+#
+#    name = 'CMS_btag_%s' % shift
+#    if 'stats' in shift:
+#        name += '_2016'
+#
+#    nuisances['btag_shape_%s' % shift] = {
+#        'name': name,
+#        'kind': 'weight',
+#        'type': 'shape',
+#        'samples': dict((skey, btag_syst) for skey in mc),
+#    }
 
 ##### Trigger Efficiency
 
@@ -275,16 +287,14 @@ nuisances['PS_FSR']  = {
 }
 
 
-"""
-# An overall 1.5% UE uncertainty will cover all the UEup/UEdo variations
-# And we don't observe any dependency of UE variations on njet
-nuisances['UE']  = {
-                'name'  : 'UE_CUET',
-                'skipCMS' : 1,
-                'type': 'lnN',
-                'samples': dict((skey, '1.015') for skey in mc if not skey in ['WW','top']),
-}
-"""
+## An overall 1.5% UE uncertainty will cover all the UEup/UEdo variations
+## And we don't observe any dependency of UE variations on njet
+#nuisances['UE']  = {
+#                'name'  : 'UE_CUET',
+#                'skipCMS' : 1,
+#                'type': 'lnN',
+#                'samples': dict((skey, '1.015') for skey in mc if not skey in ['WW','top']),
+#}
 
 ###### Generic "cross section uncertainties"
 
@@ -313,7 +323,6 @@ nuisances['TopPtRew'] = {
     'symmetrize': True
 }
 
-"""
 nuisances['VgStar'] = {
     'name': 'CMS_hww_VgStarScale',
     'type': 'lnN',
@@ -533,6 +542,35 @@ nuisances['DYnorm2j_PUJets']  = {
                  'cuts'  : cuts2j
                 }
 
+"""
+
+"""
+## Use the following if you want to apply the automatic combine MC stat nuisances.
+nuisances['stat'] = {
+    'type': 'auto',
+    'maxPoiss': '10',
+    'includeSignal': '0',
+    #  nuisance ['maxPoiss'] =  Number of threshold events for Poisson modelling
+    #  nuisance ['includeSignal'] =  Include MC stat nuisances on signal processes (1=True, 0=False)
+    'samples': {}
+}
+"""
+
+_bins = [30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700]
+dys = {}
+for i in range(-1, len(_bins)-1):
+    nuisances[f'DYnorm2j_DY{i+1}']  = {
+                     'name'  : f'CMS_hww_DYnorm2j_DY{i+1}',
+                     'samples'  : {
+                       f'DY_DY{i+1}' : '1.00',
+                         },
+                     'type'  : 'rateParam',
+                     'cuts'  : cuts2j
+                    }
+
+
+
+
 nuisances['WWnorm2j']  = {
                'name'  : 'CMS_hww_WWnorm2j',
                'samples'  : {
@@ -543,6 +581,7 @@ nuisances['WWnorm2j']  = {
               }
 
 
+"""
 #
 # Do I need? Too much?
 #
@@ -554,6 +593,7 @@ nuisances['WWnorm2j']  = {
                #'type'  : 'rateParam',
                #'cuts'  : cuts2j
               #}
+"""
 
 nuisances['Topnorm2j']  = {
                'name'  : 'CMS_hww_Topnorm2j',
@@ -564,4 +604,3 @@ nuisances['Topnorm2j']  = {
                'cuts'  : cuts2j
               }
 
-"""

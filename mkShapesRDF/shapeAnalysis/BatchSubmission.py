@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 import os
+import shutil
 
 
 class BatchSubmission:
@@ -31,7 +32,12 @@ class BatchSubmission:
         # submission folder
         sampleName = sample[0]
         i = sample[3]
-        Path(f'{self.batchFolder}/{self.tag}/{sampleName}_{str(i)}').mkdir(parents=True, exist_ok=True)
+        try:
+            Path(f'{self.batchFolder}/{self.tag}/{sampleName}_{str(i)}').mkdir(parents=True, exist_ok=False)
+        except:
+            print('Removing dir:', os.path.abspath(f'{self.batchFolder}/{self.tag}'))
+            shutil.rmtree(os.path.abspath(f'{self.batchFolder}/{self.tag}'))
+            Path(f'{self.batchFolder}/{self.tag}/{sampleName}_{str(i)}').mkdir(parents=True, exist_ok=False)
         self.folders.append(f'{sampleName}_{str(i)}')
         # python file
 

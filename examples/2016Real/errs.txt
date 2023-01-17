@@ -1,0 +1,1789 @@
+Channel ewkz_topcr_ee will use autoMCStats with settings: event-threshold=10, include-signal=0, hist-mode=1
+============================================================
+Analysing bin errors for: prop_binewkz_topcr_ee
+Poisson cut-off: 10
+Processes excluded for sums: Zjj
+============================================================
+Bin        Contents        Error           Notes                         
+0          1770.412596     59.864907       total sum                     
+0          1764.244402     59.863161       excluding marked processes    
+0          869.000000      29.478806       Unweighted events, alpha=2.037299
+  => Total parameter prop_binewkz_topcr_ee_bin0[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+1          1415.603585     53.023359       total sum                     
+1          1409.546703     53.021512       excluding marked processes    
+1          707.000000      26.589472       Unweighted events, alpha=2.002268
+  => Total parameter prop_binewkz_topcr_ee_bin1[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+2          1099.395290     46.638519       total sum                     
+2          1093.663724     46.636428       excluding marked processes    
+2          550.000000      23.452079       Unweighted events, alpha=1.998901
+  => Total parameter prop_binewkz_topcr_ee_bin2[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+3          829.402540      40.299588       total sum                     
+3          824.645768      40.297679       excluding marked processes    
+3          419.000000      20.469489       Unweighted events, alpha=1.979481
+  => Total parameter prop_binewkz_topcr_ee_bin3[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+4          572.166764      33.948612       total sum                     
+4          567.443659      33.946391       excluding marked processes    
+4          279.000000      16.703293       Unweighted events, alpha=2.050777
+  => Total parameter prop_binewkz_topcr_ee_bin4[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+5          384.305776      31.564815       total sum                     
+5          379.927541      31.562568       excluding marked processes    
+5          145.000000      12.041595       Unweighted events, alpha=2.650385
+  => Total parameter prop_binewkz_topcr_ee_bin5[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+6          333.199185      29.085464       total sum                     
+6          330.164710      29.083818       excluding marked processes    
+6          129.000000      11.357817       Unweighted events, alpha=2.582939
+  => Total parameter prop_binewkz_topcr_ee_bin6[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+7          184.517267      21.112472       total sum                     
+7          182.235100      21.110781       excluding marked processes    
+7          75.000000       8.660254        Unweighted events, alpha=2.460230
+  => Total parameter prop_binewkz_topcr_ee_bin7[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+8          117.510299      17.170028       total sum                     
+8          115.424348      17.168056       excluding marked processes    
+8          45.000000       6.708204        Unweighted events, alpha=2.611340
+  => Total parameter prop_binewkz_topcr_ee_bin8[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+9          87.442878       13.614861       total sum                     
+9          85.850217       13.612977       excluding marked processes    
+9          40.000000       6.324555        Unweighted events, alpha=2.186072
+  => Total parameter prop_binewkz_topcr_ee_bin9[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+10         48.443752       10.428282       total sum                     
+10         47.512021       10.426809       excluding marked processes    
+10         21.000000       4.582576        Unweighted events, alpha=2.306845
+  => Total parameter prop_binewkz_topcr_ee_bin10[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+11         24.324572       6.592018        total sum                     
+11         23.789098       6.590771        excluding marked processes    
+11         13.000000       3.605551        Unweighted events, alpha=1.871121
+  => Total parameter prop_binewkz_topcr_ee_bin11[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+12         19.262367       6.946835        total sum                     
+12         18.908767       6.946048        excluding marked processes    
+12         7.000000        2.645751        Unweighted events, alpha=2.751767
+  => Number of weighted events is below poisson threshold
+    WWewk                0.020183        0.008107                                      
+                         6.000000        2.449490        Unweighted events, alpha=0.003364
+      => Product of prop_binewkz_topcr_ee_bin12_WWewk[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
+  ----------------------------------------------------------
+    WW                   0.096386        0.361064                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin12_WW[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  8.970283        0.694729                                      
+                         167.000000      12.922848       Unweighted events, alpha=0.053714
+      => Parameter prop_binewkz_topcr_ee_bin12_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.037391        0.037391                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.037391
+      => Product of prop_binewkz_topcr_ee_bin12_ggWW[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    Fake_e               0.000000        0.834974                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin12_Fake_e[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.353600        0.104534                                      
+                         11.000000       3.316625        Unweighted events, alpha=0.032145
+      => Parameter prop_binewkz_topcr_ee_bin12_Zjj[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.037812        0.025527                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.018906
+      => Product of prop_binewkz_topcr_ee_bin12_VZ[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               2.318934        2.257582                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.318934
+      => Product of prop_binewkz_topcr_ee_bin12_DY_DY1[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY0               5.664123        4.487758                                      
+                         2.000000        1.414214        Unweighted events, alpha=2.832061
+      => Product of prop_binewkz_topcr_ee_bin12_DY_DY0[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY3               0.000000        1.858969                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin12_DY_DY3[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY2               0.000000        3.890036                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin12_DY_DY2[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY5               1.763657        1.763657                                      
+                         1.000000        1.000000        Unweighted events, alpha=1.763657
+      => Product of prop_binewkz_topcr_ee_bin12_DY_DY5[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+13         6.329941        3.369622        total sum                     
+13         6.163887        3.368820        excluding marked processes    
+13         3.000000        1.732051        Unweighted events, alpha=2.109980
+  => Number of weighted events is below poisson threshold
+    WWewk                0.025143        0.009517                                      
+                         7.000000        2.645751        Unweighted events, alpha=0.003592
+      => Product of prop_binewkz_topcr_ee_bin13_WWewk[7.00,0.07,45.79] and const [0.1429] to be poisson constrained
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  3.830265        0.430567                                      
+                         79.000000       8.888194        Unweighted events, alpha=0.048484
+      => Parameter prop_binewkz_topcr_ee_bin13_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.000000        0.432402                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin13_Fake_e[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.166054        0.073491                                      
+                         5.000000        2.236068        Unweighted events, alpha=0.033211
+      => Product of prop_binewkz_topcr_ee_bin13_Zjj[5.00,0.01,41.33] and const [0.2000] to be poisson constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.017350        0.012397                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.008675
+      => Product of prop_binewkz_topcr_ee_bin13_VZ[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        2.393130                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin13_DY_DY2[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY5               2.291130        2.291130                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.291130
+      => Product of prop_binewkz_topcr_ee_bin13_DY_DY5[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+14         4.100499        2.948206        total sum                     
+14         4.069645        2.948044        excluding marked processes    
+14         2.000000        1.414214        Unweighted events, alpha=2.050249
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.005768        0.005768                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.005768
+      => Product of prop_binewkz_topcr_ee_bin14_VVV[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    top                  1.861441        0.319064                                      
+                         34.000000       5.830952        Unweighted events, alpha=0.054748
+      => Parameter prop_binewkz_topcr_ee_bin14_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.138105        0.314026                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin14_Fake_e[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.030854        0.030854                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.030854
+      => Product of prop_binewkz_topcr_ee_bin14_Zjj[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.003835        0.003835                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.003835
+      => Product of prop_binewkz_topcr_ee_bin14_VZ[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        2.050688                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin14_DY_DY3[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.198841                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin14_DY_DY2[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               2.060496        2.060496                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.060496
+      => Product of prop_binewkz_topcr_ee_bin14_DY_DY4[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+15         1.122303        1.820730        total sum                     
+15         1.044359        1.819893        excluding marked processes    
+15         0.000000        0.000000        Unweighted events, alpha=inf  
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  1.031972        0.184398                                      
+                         31.000000       5.567764        Unweighted events, alpha=0.033289
+      => Parameter prop_binewkz_topcr_ee_bin15_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.000000        0.142566                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin15_Fake_e[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.077944        0.055212                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.038972
+      => Product of prop_binewkz_topcr_ee_bin15_Zjj[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.012387        0.012387                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.012387
+      => Product of prop_binewkz_topcr_ee_bin15_VZ[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        1.804863                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin15_DY_DY0[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+16         0.656638        0.291081        total sum                     
+16         0.623553        0.289596        excluding marked processes    
+16         5.000000        2.236068        Unweighted events, alpha=0.131328
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.623553        0.175134                                      
+                         13.000000       3.605551        Unweighted events, alpha=0.047966
+      => Parameter prop_binewkz_topcr_ee_bin16_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.000000        0.230638                                      
+      => Poisson not viable, prop_binewkz_topcr_ee_bin16_Fake_e[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.033085        0.029363                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.033085
+      => Product of prop_binewkz_topcr_ee_bin16_Zjj[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+17         0.326595        0.105644        total sum                     
+17         0.300748        0.102433        excluding marked processes    
+17         9.000000        3.000000        Unweighted events, alpha=0.036288
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.300748        0.102433                                      
+                         9.000000        3.000000        Unweighted events, alpha=0.033416
+      => Product of prop_binewkz_topcr_ee_bin17_top[9.00,0.20,49.98] and const [0.1111] to be poisson constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Zjj                  0.025847        0.025847                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.025847
+      => Product of prop_binewkz_topcr_ee_bin17_Zjj[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+18         0.565219        0.369033        total sum                     
+18         0.524685        0.366800        excluding marked processes    
+18         2.000000        1.414214        Unweighted events, alpha=0.282609
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.165801        0.075793                                      
+                         5.000000        2.236068        Unweighted events, alpha=0.033160
+      => Product of prop_binewkz_topcr_ee_bin18_top[5.00,0.01,41.33] and const [0.2000] to be poisson constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Zjj                  0.040533        0.040533                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.040533
+      => Product of prop_binewkz_topcr_ee_bin18_Zjj[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.358884        0.358884                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.358884
+      => Product of prop_binewkz_topcr_ee_bin18_DY_DY1[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+19         0.026915        0.026915        total sum                     
+19         0.026915        0.026915        excluding marked processes    
+19         1.000000        1.000000        Unweighted events, alpha=0.026915
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.026915        0.026915                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.026915
+      => Product of prop_binewkz_topcr_ee_bin19_top[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Zjj                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+Channel ewkz_topcr_mm will use autoMCStats with settings: event-threshold=10, include-signal=0, hist-mode=1
+============================================================
+Analysing bin errors for: prop_binewkz_topcr_mm
+Poisson cut-off: 10
+Processes excluded for sums: Zjj
+============================================================
+Bin        Contents        Error           Notes                         
+0          4429.164178     101.783465      total sum                     
+0          4413.824157     101.780514      excluding marked processes    
+0          1881.000000     43.370497       Unweighted events, alpha=2.354686
+  => Total parameter prop_binewkz_topcr_mm_bin0[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+1          3250.234707     89.932992       total sum                     
+1          3236.268404     89.929943       excluding marked processes    
+1          1295.000000     35.986108       Unweighted events, alpha=2.509834
+  => Total parameter prop_binewkz_topcr_mm_bin1[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+2          2467.392187     79.336181       total sum                     
+2          2453.963530     79.332901       excluding marked processes    
+2          957.000000      30.935417       Unweighted events, alpha=2.578257
+  => Total parameter prop_binewkz_topcr_mm_bin2[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+3          1782.181975     66.919815       total sum                     
+3          1770.336379     66.916347       excluding marked processes    
+3          700.000000      26.457513       Unweighted events, alpha=2.545974
+  => Total parameter prop_binewkz_topcr_mm_bin3[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+4          1400.759443     60.694572       total sum                     
+4          1391.165664     60.691616       excluding marked processes    
+4          525.000000      22.912878       Unweighted events, alpha=2.668113
+  => Total parameter prop_binewkz_topcr_mm_bin4[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+5          938.076946      53.067788       total sum                     
+5          929.011824      53.064438       excluding marked processes    
+5          307.000000      17.521415       Unweighted events, alpha=3.055625
+  => Total parameter prop_binewkz_topcr_mm_bin5[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+6          658.292844      43.133712       total sum                     
+6          650.980617      43.130501       excluding marked processes    
+6          228.000000      15.099669       Unweighted events, alpha=2.887249
+  => Total parameter prop_binewkz_topcr_mm_bin6[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+7          428.732079      35.745383       total sum                     
+7          423.024512      35.742266       excluding marked processes    
+7          140.000000      11.832160       Unweighted events, alpha=3.062372
+  => Total parameter prop_binewkz_topcr_mm_bin7[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+8          303.585900      27.968608       total sum                     
+8          298.311123      27.964791       excluding marked processes    
+8          114.000000      10.677078       Unweighted events, alpha=2.663034
+  => Total parameter prop_binewkz_topcr_mm_bin8[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+9          214.003881      26.400100       total sum                     
+9          210.991546      26.397885       excluding marked processes    
+9          64.000000       8.000000        Unweighted events, alpha=3.343811
+  => Total parameter prop_binewkz_topcr_mm_bin9[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+10         119.332721      19.253434       total sum                     
+10         117.047904      19.251123       excluding marked processes    
+10         37.000000       6.082763        Unweighted events, alpha=3.225209
+  => Total parameter prop_binewkz_topcr_mm_bin10[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+11         65.931020       16.763090       total sum                     
+11         64.503236       16.761503       excluding marked processes    
+11         15.000000       3.872983        Unweighted events, alpha=4.395401
+  => Total parameter prop_binewkz_topcr_mm_bin11[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+12         44.172268       10.763424       total sum                     
+12         43.885539       10.762946       excluding marked processes    
+12         17.000000       4.123106        Unweighted events, alpha=2.598369
+  => Total parameter prop_binewkz_topcr_mm_bin12[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+13         21.101407       5.927603        total sum                     
+13         20.922517       5.926863        excluding marked processes    
+13         12.000000       3.464102        Unweighted events, alpha=1.758451
+  => Total parameter prop_binewkz_topcr_mm_bin13[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+14         6.997192        2.926258        total sum                     
+14         6.888074        2.925515        excluding marked processes    
+14         6.000000        2.449490        Unweighted events, alpha=1.166199
+  => Number of weighted events is below poisson threshold
+    WWewk                0.012566        0.009576                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.006283
+      => Product of prop_binewkz_topcr_mm_bin14_WWewk[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  3.960365        0.456047                                      
+                         75.000000       8.660254        Unweighted events, alpha=0.052805
+      => Parameter prop_binewkz_topcr_mm_bin14_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_m               0.000000        0.183967                                      
+      => Poisson not viable, prop_binewkz_topcr_mm_bin14_Fake_m[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.109118        0.065946                                      
+                         3.000000        1.732051        Unweighted events, alpha=0.036373
+      => Product of prop_binewkz_topcr_mm_bin14_Zjj[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.031356        0.022181                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.015678
+      => Product of prop_binewkz_topcr_mm_bin14_VZ[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               2.883788        2.883788                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.883788
+      => Product of prop_binewkz_topcr_mm_bin14_DY_DY0[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+15         8.618819        3.395730        total sum                     
+15         8.554922        3.395424        excluding marked processes    
+15         6.000000        2.449490        Unweighted events, alpha=1.436470
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  2.664208        0.351159                                      
+                         58.000000       7.615773        Unweighted events, alpha=0.045935
+      => Parameter prop_binewkz_topcr_mm_bin15_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_m               0.077547        0.152593                                      
+      => Poisson not viable, prop_binewkz_topcr_mm_bin15_Fake_m[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.063896        0.045541                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.031948
+      => Product of prop_binewkz_topcr_mm_bin15_Zjj[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   2.046327        2.046327                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.046327
+      => Product of prop_binewkz_topcr_mm_bin15_Vg[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY1               1.659467        1.659467                                      
+                         1.000000        1.000000        Unweighted events, alpha=1.659467
+      => Product of prop_binewkz_topcr_mm_bin15_DY_DY1[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               2.107374        2.107374                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.107374
+      => Product of prop_binewkz_topcr_mm_bin15_DY_DY5[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+16         1.302051        0.319419        total sum                     
+16         1.217934        0.313819        excluding marked processes    
+16         15.000000       3.872983        Unweighted events, alpha=0.086803
+  => Total parameter prop_binewkz_topcr_mm_bin16[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+17         3.297774        2.304329        total sum                     
+17         3.297774        2.304329        excluding marked processes    
+17         2.000000        1.414214        Unweighted events, alpha=1.648887
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.452769        0.138834                                      
+                         11.000000       3.316625        Unweighted events, alpha=0.041161
+      => Parameter prop_binewkz_topcr_mm_bin17_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_m               0.000000        0.011328                                      
+      => Poisson not viable, prop_binewkz_topcr_mm_bin17_Fake_m[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               2.211015        2.211014                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.211015
+      => Product of prop_binewkz_topcr_mm_bin17_DY_DY0[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.633990        0.633990                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.633990
+      => Product of prop_binewkz_topcr_mm_bin17_DY_DY2[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+18         0.165950        0.107797        total sum                     
+18         0.165950        0.107797        excluding marked processes    
+18         2.000000        1.414214        Unweighted events, alpha=0.082975
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.091238        0.057470                                      
+                         3.000000        1.732051        Unweighted events, alpha=0.030413
+      => Product of prop_binewkz_topcr_mm_bin18_top[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_m               0.074711        0.091200                                      
+      => Poisson not viable, prop_binewkz_topcr_mm_bin18_Fake_m[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+19         0.024878        0.025115        total sum                     
+19         0.024878        0.025115        excluding marked processes    
+19         1.000000        1.000000        Unweighted events, alpha=0.024878
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.024878        0.024878                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.024878
+      => Product of prop_binewkz_topcr_mm_bin19_top[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_m               0.000000        0.003439                                      
+      => Poisson not viable, prop_binewkz_topcr_mm_bin19_Fake_m[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+------------------------------------------------------------
+Channel ewkz_dycr_ee will use autoMCStats with settings: event-threshold=10, include-signal=0, hist-mode=1
+============================================================
+Analysing bin errors for: prop_binewkz_dycr_ee
+Poisson cut-off: 10
+Processes excluded for sums: Zjj
+============================================================
+Bin        Contents        Error           Notes                         
+0          152663.190819   727.432584      total sum                     
+0          152298.759697   727.427115      excluding marked processes    
+0          43834.000000    209.365709      Unweighted events, alpha=3.482757
+  => Total parameter prop_binewkz_dycr_ee_bin0[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+1          63169.038257    641.405084      total sum                     
+1          62955.834445    641.399455      excluding marked processes    
+1          9634.000000     98.152942       Unweighted events, alpha=6.556886
+  => Total parameter prop_binewkz_dycr_ee_bin1[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+2          38658.156113    501.010426      total sum                     
+2          38500.947495    501.005137      excluding marked processes    
+2          5906.000000     76.850504       Unweighted events, alpha=6.545573
+  => Total parameter prop_binewkz_dycr_ee_bin2[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+3          20175.229176    367.683809      total sum                     
+3          20065.949039    367.678830      excluding marked processes    
+3          2978.000000     54.571055       Unweighted events, alpha=6.774758
+  => Total parameter prop_binewkz_dycr_ee_bin3[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+4          11517.850269    270.131095      total sum                     
+4          11441.529881    270.126329      excluding marked processes    
+4          1794.000000     42.355637       Unweighted events, alpha=6.420206
+  => Total parameter prop_binewkz_dycr_ee_bin4[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+5          6215.244761     203.673774      total sum                     
+5          6164.041400     203.669550      excluding marked processes    
+5          916.000000      30.265492       Unweighted events, alpha=6.785202
+  => Total parameter prop_binewkz_dycr_ee_bin5[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+6          3683.278824     156.958629      total sum                     
+6          3645.116177     156.954474      excluding marked processes    
+6          539.000000      23.216374       Unweighted events, alpha=6.833541
+  => Total parameter prop_binewkz_dycr_ee_bin6[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+7          2307.641084     122.701400      total sum                     
+7          2281.807977     122.697830      excluding marked processes    
+7          346.000000      18.601075       Unweighted events, alpha=6.669483
+  => Total parameter prop_binewkz_dycr_ee_bin7[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+8          1356.360246     97.779423       total sum                     
+8          1336.394977     97.775935       excluding marked processes    
+8          187.000000      13.674794       Unweighted events, alpha=7.253263
+  => Total parameter prop_binewkz_dycr_ee_bin8[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+9          867.858653      76.956306       total sum                     
+9          854.488832      76.953349       excluding marked processes    
+9          123.000000      11.090537       Unweighted events, alpha=7.055761
+  => Total parameter prop_binewkz_dycr_ee_bin9[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+10         639.688629      64.062995       total sum                     
+10         629.982487      64.060451       excluding marked processes    
+10         97.000000       9.848858        Unweighted events, alpha=6.594728
+  => Total parameter prop_binewkz_dycr_ee_bin10[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+11         437.304584      54.618734       total sum                     
+11         429.959151      54.616414       excluding marked processes    
+11         62.000000       7.874008        Unweighted events, alpha=7.053300
+  => Total parameter prop_binewkz_dycr_ee_bin11[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+12         354.074641      43.277196       total sum                     
+12         349.495489      43.275406       excluding marked processes    
+12         65.000000       8.062258        Unweighted events, alpha=5.447302
+  => Total parameter prop_binewkz_dycr_ee_bin12[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+13         232.847074      36.202842       total sum                     
+13         228.095867      36.200636       excluding marked processes    
+13         40.000000       6.324555        Unweighted events, alpha=5.821177
+  => Total parameter prop_binewkz_dycr_ee_bin13[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+14         113.082540      32.156120       total sum                     
+14         109.256748      32.154002       excluding marked processes    
+14         12.000000       3.464102        Unweighted events, alpha=9.423545
+  => Total parameter prop_binewkz_dycr_ee_bin14[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+15         90.263855       24.853611       total sum                     
+15         87.830133       24.851893       excluding marked processes    
+15         12.000000       3.464102        Unweighted events, alpha=7.521988
+  => Total parameter prop_binewkz_dycr_ee_bin15[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+16         133.242254      23.468196       total sum                     
+16         131.486120      23.466899       excluding marked processes    
+16         31.000000       5.567764        Unweighted events, alpha=4.298137
+  => Total parameter prop_binewkz_dycr_ee_bin16[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+17         66.626146       19.279184       total sum                     
+17         65.343496       19.277980       excluding marked processes    
+17         11.000000       3.316625        Unweighted events, alpha=6.056922
+  => Total parameter prop_binewkz_dycr_ee_bin17[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+18         23.603515       15.512866       total sum                     
+18         22.280239       15.511376       excluding marked processes    
+18         2.000000        1.414214        Unweighted events, alpha=11.801758
+  => Number of weighted events is below poisson threshold
+    WWewk                0.004407        0.004407                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.004407
+      => Product of prop_binewkz_dycr_ee_bin18_WWewk[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.056419        0.036081                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.028210
+      => Product of prop_binewkz_dycr_ee_bin18_VVV[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    top                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.000000        1.137663                                      
+      => Poisson not viable, prop_binewkz_dycr_ee_bin18_Fake_e[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  1.323277        0.215018                                      
+                         38.000000       6.164414        Unweighted events, alpha=0.034823
+      => Parameter prop_binewkz_dycr_ee_bin18_Zjj[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   1.313138        0.253189                                      
+                         27.000000       5.196152        Unweighted events, alpha=0.048635
+      => Parameter prop_binewkz_dycr_ee_bin18_VZ[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   0.000000        3.568318                                      
+      => Poisson not viable, prop_binewkz_dycr_ee_bin18_Vg[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              20.906275       15.050255                                     
+                         2.000000        1.414214        Unweighted events, alpha=10.453137
+      => Product of prop_binewkz_dycr_ee_bin18_DY_DY12[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+------------------------------------------------------------
+19         90.319641       12.800317       total sum                     
+19         87.937881       12.799260       excluding marked processes    
+19         47.000000       6.855655        Unweighted events, alpha=1.921694
+  => Total parameter prop_binewkz_dycr_ee_bin19[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+Channel ewkz_dycr_mm will use autoMCStats with settings: event-threshold=10, include-signal=0, hist-mode=1
+============================================================
+Analysing bin errors for: prop_binewkz_dycr_mm
+Poisson cut-off: 10
+Processes excluded for sums: Zjj
+============================================================
+Bin        Contents        Error           Notes                         
+0          401353.076171   1300.189178     total sum                     
+0          400444.552245   1300.180001     excluding marked processes    
+0          94859.000000    307.991883      Unweighted events, alpha=4.231049
+  => Total parameter prop_binewkz_dycr_mm_bin0[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+1          156965.712340   1118.669476     total sum                     
+1          156447.027220   1118.660039     excluding marked processes    
+1          19559.000000    139.853495      Unweighted events, alpha=8.025242
+  => Total parameter prop_binewkz_dycr_mm_bin1[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+2          90818.049389    856.878595      total sum                     
+2          90460.541485    856.870184      excluding marked processes    
+2          11145.000000    105.569882      Unweighted events, alpha=8.148771
+  => Total parameter prop_binewkz_dycr_mm_bin2[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+3          46792.071842    614.365359      total sum                     
+3          46553.616291    614.357556      excluding marked processes    
+3          5742.000000     75.775986       Unweighted events, alpha=8.149089
+  => Total parameter prop_binewkz_dycr_mm_bin3[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+4          23964.310849    441.678498      total sum                     
+4          23806.501859    441.671322      excluding marked processes    
+4          2905.000000     53.898052       Unweighted events, alpha=8.249332
+  => Total parameter prop_binewkz_dycr_mm_bin4[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+5          13345.690672    328.424725      total sum                     
+5          13237.182959    328.418085      excluding marked processes    
+5          1625.000000     40.311289       Unweighted events, alpha=8.212733
+  => Total parameter prop_binewkz_dycr_mm_bin5[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+6          7648.925992     247.151538      total sum                     
+6          7577.364697     247.145741      excluding marked processes    
+6          940.000000      30.659419       Unweighted events, alpha=8.137155
+  => Total parameter prop_binewkz_dycr_mm_bin6[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+7          4894.544259     191.644305      total sum                     
+7          4842.239576     191.638842      excluding marked processes    
+7          638.000000      25.258662       Unweighted events, alpha=7.671699
+  => Total parameter prop_binewkz_dycr_mm_bin7[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+8          2864.322624     148.993169      total sum                     
+8          2831.330738     148.988806      excluding marked processes    
+8          361.000000      19.000000       Unweighted events, alpha=7.934412
+  => Total parameter prop_binewkz_dycr_mm_bin8[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+9          1719.676623     118.599925      total sum                     
+9          1694.775020     118.595739      excluding marked processes    
+9          204.000000      14.282857       Unweighted events, alpha=8.429787
+  => Total parameter prop_binewkz_dycr_mm_bin9[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+10         1198.019531     96.191799       total sum                     
+10         1179.857057     96.188038       excluding marked processes    
+10         150.000000      12.247449       Unweighted events, alpha=7.986797
+  => Total parameter prop_binewkz_dycr_mm_bin10[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+11         868.051653      83.386492       total sum                     
+11         854.717799      83.383249       excluding marked processes    
+11         105.000000      10.246951       Unweighted events, alpha=8.267159
+  => Total parameter prop_binewkz_dycr_mm_bin11[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+12         588.240132      65.601957       total sum                     
+12         578.027132      65.598800       excluding marked processes    
+12         78.000000       8.831761        Unweighted events, alpha=7.541540
+  => Total parameter prop_binewkz_dycr_mm_bin12[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+13         410.490740      56.652150       total sum                     
+13         404.223122      56.649940       excluding marked processes    
+13         51.000000       7.141428        Unweighted events, alpha=8.048838
+  => Total parameter prop_binewkz_dycr_mm_bin13[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+14         301.372565      46.288262       total sum                     
+14         294.973370      46.285404       excluding marked processes    
+14         41.000000       6.403124        Unweighted events, alpha=7.350550
+  => Total parameter prop_binewkz_dycr_mm_bin14[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+15         231.528270      42.407903       total sum                     
+15         227.048690      42.405755       excluding marked processes    
+15         29.000000       5.385165        Unweighted events, alpha=7.983733
+  => Total parameter prop_binewkz_dycr_mm_bin15[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+16         128.806798      31.487593       total sum                     
+16         124.907928      31.485111       excluding marked processes    
+16         16.000000       4.000000        Unweighted events, alpha=8.050425
+  => Total parameter prop_binewkz_dycr_mm_bin16[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+17         48.222266       25.402116       total sum                     
+17         46.135382       25.400527       excluding marked processes    
+17         3.000000        1.732051        Unweighted events, alpha=16.074089
+  => Number of weighted events is below poisson threshold
+    WWewk                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.132985        0.051053                                      
+                         7.000000        2.645751        Unweighted events, alpha=0.018998
+      => Product of prop_binewkz_dycr_mm_bin17_VVV[7.00,0.07,45.79] and const [0.1429] to be poisson constrained
+  ----------------------------------------------------------
+    top                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_m               0.391368        0.311500                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.195684
+      => Product of prop_binewkz_dycr_mm_bin17_Fake_m[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    Zjj                  2.086885        0.284077                                      
+                         54.000000       7.348469        Unweighted events, alpha=0.038646
+      => Parameter prop_binewkz_dycr_mm_bin17_Zjj[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   3.045013        0.539448                                      
+                         32.000000       5.656854        Unweighted events, alpha=0.095157
+      => Parameter prop_binewkz_dycr_mm_bin17_VZ[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY8               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Vg                   8.830408        5.238008                                      
+                         3.000000        1.732051        Unweighted events, alpha=2.943469
+      => Product of prop_binewkz_dycr_mm_bin17_Vg[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY1               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY0               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY3               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY2               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY5               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY4               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY7               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY6               0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY12              33.735607       24.846718                                     
+                         2.000000        1.414214        Unweighted events, alpha=16.867804
+      => Product of prop_binewkz_dycr_mm_bin17_DY_DY12[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+------------------------------------------------------------
+18         91.410427       25.938221       total sum                     
+18         89.595985       25.936838       excluding marked processes    
+18         12.000000       3.464102        Unweighted events, alpha=7.617536
+  => Total parameter prop_binewkz_dycr_mm_bin18[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+19         220.566401      20.190881       total sum                     
+19         213.046267      20.189542       excluding marked processes    
+19         111.000000      10.535654       Unweighted events, alpha=1.987085
+  => Total parameter prop_binewkz_dycr_mm_bin19[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+Channel ewkz_sr_ee will use autoMCStats with settings: event-threshold=10, include-signal=0, hist-mode=1
+============================================================
+Analysing bin errors for: prop_binewkz_sr_ee
+Poisson cut-off: 10
+Processes excluded for sums: Zjj
+============================================================
+Bin        Contents        Error           Notes                         
+0          66949.457711    368.155057      total sum                     
+0          66190.888498    368.130186      excluding marked processes    
+0          32329.000000    179.802670      Unweighted events, alpha=2.070879
+  => Total parameter prop_binewkz_sr_ee_bin0[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+1          2405.049164     124.672836      total sum                     
+1          2192.083039     124.645068      excluding marked processes    
+1          309.000000      17.578396       Unweighted events, alpha=7.783331
+  => Total parameter prop_binewkz_sr_ee_bin1[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+2          561.347824      55.488883       total sum                     
+2          482.031936      55.466314       excluding marked processes    
+2          76.000000       8.717798        Unweighted events, alpha=7.386156
+  => Total parameter prop_binewkz_sr_ee_bin2[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+3          150.598562      26.566322       total sum                     
+3          119.386432      26.548010       excluding marked processes    
+3          20.000000       4.472136        Unweighted events, alpha=7.529928
+  => Total parameter prop_binewkz_sr_ee_bin3[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+4          37.362677       11.806764       total sum                     
+4          18.884100       11.791390       excluding marked processes    
+4          3.000000        1.732051        Unweighted events, alpha=12.454226
+  => Number of weighted events is below poisson threshold
+    WWewk                0.150040        0.016653                                      
+                         81.000000       9.000000        Unweighted events, alpha=0.001852
+      => Parameter prop_binewkz_sr_ee_bin4_WWewk[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.064245        0.037949                                      
+                         3.000000        1.732051        Unweighted events, alpha=0.021415
+      => Product of prop_binewkz_sr_ee_bin4_top[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
+  ----------------------------------------------------------
+    ggWW                 0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    Fake_e               0.000000        0.552814                                      
+      => Poisson not viable, prop_binewkz_sr_ee_bin4_Fake_e[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  18.478577       0.602319                                      
+                         941.000000      30.675723       Unweighted events, alpha=0.019637
+      => Parameter prop_binewkz_sr_ee_bin4_Zjj[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.224235        0.056110                                      
+                         16.000000       4.000000        Unweighted events, alpha=0.014015
+      => Parameter prop_binewkz_sr_ee_bin4_VZ[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        3.577648                                      
+      => Poisson not viable, prop_binewkz_sr_ee_bin4_DY_DY9[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY8               2.873090        2.873090                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.873090
+      => Product of prop_binewkz_sr_ee_bin4_DY_DY8[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    Vg                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY1               0.000000        2.529089                                      
+      => Poisson not viable, prop_binewkz_sr_ee_bin4_DY_DY1[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY0               2.447587        2.208380                                      
+                         1.000000        1.000000        Unweighted events, alpha=2.447587
+      => Product of prop_binewkz_sr_ee_bin4_DY_DY0[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY3               7.125288        5.758965                                      
+                         2.000000        1.414214        Unweighted events, alpha=3.562644
+      => Product of prop_binewkz_sr_ee_bin4_DY_DY3[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY2               0.000000        3.861792                                      
+      => Poisson not viable, prop_binewkz_sr_ee_bin4_DY_DY2[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY5               0.763802        2.079740                                      
+      => Poisson not viable, prop_binewkz_sr_ee_bin4_DY_DY5[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY4               0.000000        4.148874                                      
+      => Poisson not viable, prop_binewkz_sr_ee_bin4_DY_DY4[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY7               3.612260        2.556764                                      
+                         2.000000        1.414214        Unweighted events, alpha=1.806130
+      => Product of prop_binewkz_sr_ee_bin4_DY_DY7[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY6               0.000000        4.919308                                      
+      => Poisson not viable, prop_binewkz_sr_ee_bin4_DY_DY6[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY11              0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    DY_DY10              1.623552        1.623552                                      
+                         1.000000        1.000000        Unweighted events, alpha=1.623552
+      => Product of prop_binewkz_sr_ee_bin4_DY_DY10[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY12              0.000000        1.846301                                      
+      => Poisson not viable, prop_binewkz_sr_ee_bin4_DY_DY12[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+------------------------------------------------------------
+Channel ewkz_sr_mm will use autoMCStats with settings: event-threshold=10, include-signal=0, hist-mode=1
+============================================================
+Analysing bin errors for: prop_binewkz_sr_mm
+Poisson cut-off: 10
+Processes excluded for sums: Zjj
+============================================================
+Bin        Contents        Error           Notes                         
+0          175110.877294   649.670010      total sum                     
+0          173324.003149   649.630760      excluding marked processes    
+0          71184.000000    266.803298      Unweighted events, alpha=2.459975
+  => Total parameter prop_binewkz_sr_mm_bin0[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+1          6402.525564     218.853330      total sum                     
+1          5923.431601     218.810750      excluding marked processes    
+1          733.000000      27.073973       Unweighted events, alpha=8.734687
+  => Total parameter prop_binewkz_sr_mm_bin1[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+2          1260.585207     93.448660       total sum                     
+2          1085.460574     93.413021       excluding marked processes    
+2          135.000000      11.618950       Unweighted events, alpha=9.337668
+  => Total parameter prop_binewkz_sr_mm_bin2[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+3          372.963615      45.102602       total sum                     
+3          300.754723      45.072220       excluding marked processes    
+3          45.000000       6.708204        Unweighted events, alpha=8.288080
+  => Total parameter prop_binewkz_sr_mm_bin3[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+4          100.020742      23.967579       total sum                     
+4          54.969419       23.944831       excluding marked processes    
+4          5.000000        2.236068        Unweighted events, alpha=20.004148
+  => Number of weighted events is below poisson threshold
+    WWewk                0.311756        0.030535                                      
+                         104.000000      10.198039       Unweighted events, alpha=0.002998
+      => Parameter prop_binewkz_sr_mm_bin4_WWewk[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    WW                   0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VVV                  0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    top                  0.278110        0.072147                                      
+                         15.000000       3.872983        Unweighted events, alpha=0.018541
+      => Parameter prop_binewkz_sr_mm_bin4_top[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    ggWW                 0.049579        0.049579                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.049579
+      => Product of prop_binewkz_sr_mm_bin4_ggWW[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    Fake_m               0.000000        0.309949                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_Fake_m[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Zjj                  45.051323       1.043985                                      
+                         1862.000000     43.150898       Unweighted events, alpha=0.024195
+      => Parameter prop_binewkz_sr_mm_bin4_Zjj[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    VgS_L                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VgS_H                0.000000        0.000000                                      
+      => Error is zero, ignore      
+  ----------------------------------------------------------
+    VZ                   0.564001        0.095118                                      
+                         35.000000       5.916080        Unweighted events, alpha=0.016114
+      => Parameter prop_binewkz_sr_mm_bin4_VZ[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY9               0.000000        3.685963                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY9[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY8               0.212420        4.281773                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY8[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    Vg                   0.925212        0.821084                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.925212
+      => Product of prop_binewkz_sr_mm_bin4_Vg[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY1               20.667118       6.670675                                      
+                         10.000000       3.162278        Unweighted events, alpha=2.066712
+      => Product of prop_binewkz_sr_mm_bin4_DY_DY1[10.00,0.30,52.00] and const [0.1000] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY0               25.711933       10.818553                                     
+                         6.000000        2.449490        Unweighted events, alpha=4.285322
+      => Product of prop_binewkz_sr_mm_bin4_DY_DY0[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
+  ----------------------------------------------------------
+    DY_DY3               0.000000        12.460933                                     
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY3[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY2               0.000000        8.813105                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY2[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY5               0.000000        5.017563                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY5[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY4               0.000000        7.442651                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY4[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY7               0.000000        3.334138                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY7[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY6               0.000000        5.448145                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY6[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY11              0.000000        3.688776                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY11[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY10              0.000000        1.536165                                      
+      => Poisson not viable, prop_binewkz_sr_mm_bin4_DY_DY10[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
+    DY_DY12              6.249291        2.971163                                      
+                         4.000000        2.000000        Unweighted events, alpha=1.562323
+      => Product of prop_binewkz_sr_mm_bin4_DY_DY12[4.00,0.00,38.96] and const [0.2500] to be poisson constrained
+  ----------------------------------------------------------
+------------------------------------------------------------

@@ -109,7 +109,7 @@ aliases['bReq'] = {
 }
 
 aliases['topcr'] = {
-    'expr' : 'abs(mll-91)>15 && bReq'
+    'expr' : 'abs(mll-91)>15 && bReq && (detajj >= 3)'
 }
 
 aliases['bVetoSF'] = {
@@ -153,6 +153,7 @@ aliases['Top_pTrw'] = {
     'samples': ['top']
 }
 
+"""
 print('\n\n\n')
 print('Configs:\n\n\n')
 configurations = os.path.abspath('.') + '/' 
@@ -168,9 +169,11 @@ aliases['nCleanGenJet'] = {
         PhotonGen_mass, nGenJet, GenJet_pt, GenJet_eta, GenJet_phi',
     'samples': mc
 }
+"""
 
 aliases['SFweight'] = {
             'expr': ' * '.join(['SFweight2l','LepWPCut', 'LepSF2l__ele_' + eleWP + '__mu_' + muWP, 'btagSF', 'PrefireWeight', 'Jet_PUIDSF']),
+            #'expr': ' * '.join(['SFweight2l','LepWPCut', 'LepSF2l__ele_' + eleWP + '__mu_' + muWP, 'PrefireWeight', 'Jet_PUIDSF']),
             'samples': mc
             }
 

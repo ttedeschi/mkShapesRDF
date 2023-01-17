@@ -4,6 +4,7 @@ import argparse
 import os
 from collections import OrderedDict
 import glob
+import subprocess
 import ROOT
 ROOT.gROOT.SetBatch(True)
 # ROOT.EnableImplicitMT()
@@ -29,7 +30,13 @@ def main():
     parser.add_argument("-l", "--limitEvents",
                         help="Max number of events", required=False, default='-1')
 
+    parser.add_argument("-pdf", "--savePdf",
+                        help="Save pdf of plots", required=False, default='0')
+
     args = parser.parse_args()
+    
+    savePdf = int(args.savePdf)
+
     folder = args.folder
     print(os.getcwd())
     print(os.path.abspath(f'{folder}/configuration.py'))
@@ -365,8 +372,13 @@ def main():
                 _max = histPlots[cut_cat][_var]['max'] * 1e+2
                 #minXused = h.GetBinLowEdge(1)
                 #maxXused = h.GetBinUpEdge(h.GetNbinsX())
-                minXused = variables[var]['range'][1]
-                maxXused = variables[var]['range'][2]
+                if  len(variables[var]['range']) == 1:
+                    # custom binning
+                    minXused = variables[var]['range'][0][0]
+                    maxXused = variables[var]['range'][0][-1]
+                else:
+                    minXused = variables[var]['range'][1]
+                    maxXused = variables[var]['range'][2]
 
                 frameDistro = pad1.DrawFrame(minXused, 0.0, maxXused, 1.0)
                 frameDistro.SetTitleSize(0)
@@ -416,9 +428,15 @@ def main():
                     print('Data hist exists, plotting it')
                     hdata = histPlots[cut_cat][_var]['data']
                     hdata.Draw('same p0')
+                if histPlots[cut_cat][_var]['sig'] != 0:
+                    hsig = histPlots[cut_cat][_var]['sig']
+                    #hdata.Draw('hist same L')
+                    hsig.Draw('hist same noclear')
                 tlegend.Draw()
                 pad1.RedrawAxis()
                 pad1.SetLogy()
+                if variables[_var].get('setLogx', 0) != 0:
+                    pad1.SetLogx()
 
                 cnv.cd()
                 if hdata == 0:
@@ -451,8 +469,8 @@ def main():
                 canvasPad2Name = 'pad2'
                 pad2 = ROOT.TPad(
                     canvasPad2Name, canvasPad2Name, 0.0, 0, 1, 1-0.72)
-                pad2.SetTopMargin(0.06)
-                pad2.SetBottomMargin(0.292)
+                pad2.SetTopMargin(0.008)
+                pad2.SetBottomMargin(0.31)
                 pad2.Draw()
                 pad2.cd()
 
@@ -478,10 +496,13 @@ def main():
 
                 ROOT.gStyle.SetOptStat(0)
 
-                outfile = cut_cat + '_' + var + '.png'
                 cnv.SetLogy()
 
+                outfile = cut_cat + '_' + var + '.png'
                 cnv.SaveAs("{}/{}".format(plotPath, outfile))
+                if savePdf == 1:
+                    outfile = cut_cat + '_' + var + '.pdf'
+                    cnv.SaveAs("{}/{}".format(plotPath, outfile))
         f.Close()
 
 

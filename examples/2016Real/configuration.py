@@ -1,10 +1,10 @@
 #tag = 'new_vbf_16_2'
-tag = 'new_vbf_16_4'
+tag = 'new_vbf_16_5'
 
-outputFile   = f"mkShapes__{tag}.root"
-outputFolder = f"rootFiles"
+outputFile   = "mkShapes__{}.root".format(tag)
+outputFolder = "rootFiles"
 
-plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full/"
+plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full6_topcr/"
 
 
 # file with TTree aliases
@@ -22,8 +22,10 @@ samplesFile = 'samples.py'
 # file with list of samples
 plotFile = 'plot.py' 
 
+structureFile = 'structure.py'
+
 # nuisances file for mkDatacards and for mkShape
-#nuisancesFile = 'nuisances.py'
+nuisancesFile = 'nuisances.py'
 
 # luminosity to normalize to (in 1/fb)
 #lumi = 35.9

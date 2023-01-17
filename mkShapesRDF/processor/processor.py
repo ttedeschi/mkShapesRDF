@@ -35,14 +35,10 @@ for val in values:
         if str(type(val[0])) == "<class 'function'>":
             data.append(val[0](*val[1:]))
         else:
-            #elif 'list' in str(type(val)):
-            #print(val[1], round(val[0].GetValue(), 3))
-            #print(val[1], sciNot(val[0].GetValue()))
             data.append([val[1], sciNot(val[0].GetValue())])
     else:
-        #print(round(val.GetValue(), 3))
-        #print(sciNot(val.GetValue()))
         data.append('', sciNot(val.GetValue()))
+
 #print(df.Filter('nElectron>=2 || nMuon >=2').Count().GetValue())
 
 from tabulate import tabulate
