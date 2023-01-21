@@ -5,6 +5,34 @@ import shutil
 
 
 class BatchSubmission:
+    @staticmethod
+    def resubmitJobs(batchFolder, tag, samples, dryRun):
+        """
+        Resubmit failed jobs and rename the old error file to err-1.txt
+        Args:
+            batchFolder (string): path to the batch folder
+            tag (string): string used to tag the configuration
+            samples (list of strings): samples to be resubmitted in the form of ['DY_0', ...]
+        """
+        
+        #Path(f'{self.batchFolder}/{self.tag}/{sampleName}_{str(i)}').mkdir(parents=True, exist_ok=False)
+        for sample in samples:
+            if os.path.exists(f'{batchFolder}/{tag}/{sample}/err.txt'):
+                os.rename(f'{batchFolder}/{tag}/{sample}/err.txt', f'{batchFolder}/{tag}/{sample}/err-1.txt')
+        with open(f'{batchFolder}/{tag}/submit.jdl') as file:
+            txt = file.read()
+        lines = txt.split('\n')
+        line = list(filter(lambda k: k.startswith('queue'), lines))[0]
+        lines[lines.index(line)] = f'queue 1 Folder in {", ".join(samples)}\n '
+        with open(f'{batchFolder}/{tag}/submit.jdl', 'w') as file:
+            file.write('\n'.join(lines))
+
+        if dryRun != 1:
+            process = subprocess.Popen(
+                f'cd {batchFolder}/{tag}; condor_submit submit.jdl; cd -', shell=True)
+            process.wait()
+        
+        
     def __init__(self, outputPath, batchFolder, headersPath, runnerPath, tag, samples, aliases, variables, preselections, cuts, nuisances, lumi):
         self.outputPath = outputPath
         self.batchFolder = batchFolder
@@ -105,4 +133,5 @@ class BatchSubmission:
             process = subprocess.Popen(
                 f'cd {self.batchFolder}/{self.tag}; condor_submit submit.jdl; cd -', shell=True)
             process.wait()
+
 

@@ -4,7 +4,9 @@ tag = 'new_vbf_16_5'
 outputFile   = "mkShapes__{}.root".format(tag)
 outputFolder = "rootFiles"
 
-plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full6_topcr/"
+#plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full6_topcr/"
+#plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full7_postfit"
+plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full8_postfit"
 
 
 # file with TTree aliases

@@ -15,7 +15,21 @@ def makeMCDirectory(var=''):
         return os.path.join(treeBaseDir, mcProduction, mcSteps + '__' + var)
 
 
-cuts2j = cuts
+# merge cuts
+_mergedCuts = []
+for cut in list(cuts.keys()):
+    __cutExpr = ''
+    if type(cuts[cut]) == dict:
+        __cutExpr = cuts[cut]['expr']
+        for cat in list(cuts[cut]['categories'].keys()):
+            _mergedCuts.append(cut + '_' + cat)
+    elif type(cuts[cut]) == str:
+        _mergedCuts.append(cut)
+
+cuts2j = _mergedCuts
+cuts2j_ee = list(filter(lambda k: k.endswith('ee'), cuts2j))
+cuts2j_mm = list(filter(lambda k: k.endswith('mm'), cuts2j))
+
 nuisances = {}
 
 nuisances['lumi_Uncorrelated'] = {
@@ -556,6 +570,7 @@ nuisances['stat'] = {
 }
 """
 
+"""
 _bins = [30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700]
 dys = {}
 for i in range(-1, len(_bins)-1):
@@ -568,8 +583,31 @@ for i in range(-1, len(_bins)-1):
                      'cuts'  : cuts2j
                     }
 
+"""
+
+_bins = [30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700]
+dys = {}
+for i in range(-1, len(_bins)-1):
+    nuisances[f'DYnorm2j_ee_DY{i+1}']  = {
+                     'name'  : f'CMS_hww_DYnorm2j_ee_DY{i+1}',
+                     'samples'  : {
+                       f'DY_DY{i+1}' : '1.00',
+                         },
+                     'type'  : 'rateParam',
+                     'cuts'  : cuts2j_ee
+                    }
+
+    nuisances[f'DYnorm2j_mm_DY{i+1}']  = {
+                     'name'  : f'CMS_hww_DYnorm2j_mm_DY{i+1}',
+                     'samples'  : {
+                       f'DY_DY{i+1}' : '1.00',
+                         },
+                     'type'  : 'rateParam',
+                     'cuts'  : cuts2j_mm
+                    }
 
 
+"""
 
 nuisances['WWnorm2j']  = {
                'name'  : 'CMS_hww_WWnorm2j',
@@ -579,6 +617,7 @@ nuisances['WWnorm2j']  = {
                'type'  : 'rateParam',
                'cuts'  : cuts2j
               }
+"""
 
 
 """
@@ -593,7 +632,6 @@ nuisances['WWnorm2j']  = {
                #'type'  : 'rateParam',
                #'cuts'  : cuts2j
               #}
-"""
 
 nuisances['Topnorm2j']  = {
                'name'  : 'CMS_hww_Topnorm2j',
@@ -603,4 +641,5 @@ nuisances['Topnorm2j']  = {
                'type'  : 'rateParam',
                'cuts'  : cuts2j
               }
+"""
 

@@ -20,23 +20,23 @@ cuts['dy_pu'] = {
     }
 }
 """
-
-cuts['topcr'] = {
-    'expr': 'topcr',
-    'categories':{
-        'ee': '(Lepton_pdgId[0]*Lepton_pdgId[1] == -11*11)',
-        'mm': '(Lepton_pdgId[0]*Lepton_pdgId[1] == -13*13)',
-    }
-}
-
-cuts['vvcr'] = {
-    'expr': 'abs(mll-91)>15 && bVeto && mth>60 && mtw2>30',
-    'categories':{
-        'ee': '(Lepton_pdgId[0]*Lepton_pdgId[1] == -11*11)',
-        'mm': '(Lepton_pdgId[0]*Lepton_pdgId[1] == -13*13)',
-    }
-}
-
+#
+#cuts['topcr'] = {
+#    'expr': 'topcr',
+#    'categories':{
+#        'ee': '(Lepton_pdgId[0]*Lepton_pdgId[1] == -11*11)',
+#        'mm': '(Lepton_pdgId[0]*Lepton_pdgId[1] == -13*13)',
+#    }
+#}
+#
+#cuts['vvcr'] = {
+#    'expr': 'abs(mll-91)>15 && bVeto && mth>60 && mtw2>30',
+#    'categories':{
+#        'ee': '(Lepton_pdgId[0]*Lepton_pdgId[1] == -11*11)',
+#        'mm': '(Lepton_pdgId[0]*Lepton_pdgId[1] == -13*13)',
+#    }
+#}
+#
 cuts['dycr'] = {
     'expr': 'abs(mll-91)<15 && bVeto && detajj < 3',
     'categories':{

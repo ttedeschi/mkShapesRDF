@@ -169,6 +169,8 @@ def main():
 
             for nuisance in nuisances.keys():
                 # FIXME need to treat also asLnN and asShape?
+                if not cut in nuisances[nuisance].get('cuts', mergedCuts):
+                    continue
                 if nuisances[nuisance]['type'] == 'rateParam':
                     samplesNuisance = list(list(nuisances[nuisance]['samples'].items())[0])
                     if len(samplesNuisance) != 2:

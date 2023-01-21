@@ -170,6 +170,7 @@ class RunAnalysis:
         self.lumi = lumi
         self.limit = limit
         self.outputFileMap = outputFileMap
+        self.remappedVariables = {}
 
         self.dfs = {}
         """
@@ -212,7 +213,6 @@ class RunAnalysis:
             if not sampleName in self.dfs.keys():
                 self.dfs[sample[0]] = {}
             self.dfs[sampleName][sample[3]] = {'df': df, 'ttree': tnom}
-            #self.dfs[sample[0]] = {'df' :df, 'ttree': tnom}
 
         print('\n\nLoaded dataframes\n\n')
 
@@ -235,12 +235,10 @@ class RunAnalysis:
                 isData = sample[4]
                 if not isData:
                     aliases['weight'] = {
-                        # 'expr': samples[sampleName]['weight'] + ' * ' + str(self.lumi) + ' * ' + weight
                         'expr': str(self.lumi) + ' * ' + weight
                     }
                 else:
                     aliases['weight'] = {
-                        # 'expr': samples[sampleName]['weight'] + ' * ' + weight
                         'expr': weight
                     }
 
@@ -270,12 +268,13 @@ class RunAnalysis:
 
                     if 'expr' in list(aliases[alias].keys()):
                         define_string += f".Define('{alias}', '{aliases[alias]['expr']}') \\\n\t"
+
                     elif 'class' in list(aliases[alias].keys()):
                         define_string += f".Define('{alias}', '{aliases[alias]['class']} ( {aliases[alias].get('args', '')}  )') \\\n\t"
                     else:
-                        print('Only aliases with expr or class are supported')
-                        sys.exit()
-                print('\nDebug 1\n')
+                        print('empty alias')
+#                        print('Only aliases with expr or class are supported')
+#                        sys.exit()
 
                 df1 = eval(define_string)
                 self.dfs[sampleName][index]['df'] = df1
@@ -392,9 +391,14 @@ class RunAnalysis:
                         # therefore we will either create a Define or an Alias
 
                         # need to rename the new variable!
-                        print('changing variable', var,'to __'+var)
-                        _var = '__' + var
-                        self.variables[_var] = self.variables[var]
+                        prefix = '__'
+                        nVar = prefix + var
+                        while nVar in bigColumnNames:
+                            prefix += '__'
+                            nVar = prefix + var
+                        print('changing variable', var,'to '+nVar)
+                        self.remappedVariables[nVar] = prefix
+                        self.variables[nVar] = deepcopy(self.variables[var])
                         del self.variables[var]
 
         for sampleName in self.dfs.keys():
@@ -504,8 +508,12 @@ class RunAnalysis:
                             if not mergedCuts[cut]['parent'] in variables[var]['cuts']:
                                 del df_cat
                                 continue
-                            # FIXME output tree should follow DY_0 type of filename
-                            _h = df_cat.Snapshot('Events', self.outputFileMap, list(self.variables[var]['tree'].keys()), opts)
+
+                            outpath = self.outputFileMap 
+                            if self.outputFileMap != 'output.root':
+                                # if it's not on batch should ouput it to e.g. DY_0.root
+                                outpath = '/'.join(self.outputFileMap.split('/')[:-1]) + 'tree_' + sampleName + '_' + str(index) + '.root'
+                            _h = df_cat.Snapshot('Events', outpath, list(self.variables[var]['tree'].keys()), opts)
                         else:
                             histRange = []
                             if len(variables[var]['range']) == 1:
@@ -571,8 +579,15 @@ class RunAnalysis:
                 if 'tree' in self.variables[var].keys():
                     # no need to process SnapShots
                     continue
-                _cut_cat.mkdir(var)
-                f.cd('/' + cut_cat + '/' + var)
+                _var = ''
+                if var in list(self.remappedVariables.keys()):
+                    # remove the __ at the beginning 
+                    _var = var[len(self.remappedVariables[var]):] 
+                else:
+                    _var = var
+
+                _cut_cat.mkdir(_var)
+                f.cd('/' + cut_cat + '/' + _var)
                 for sampleName in list(self.results[cut_cat][var].keys()):
                     # should first merge histos
                     mergedHistos = {}
@@ -676,6 +691,7 @@ class RunAnalysis:
         print('splitted samples')
         self.create_cuts_vars()
         print('created cuts')
+
         '''
         # FIXME RunGraphs can't handle results of VaraitionsFor, ask Vincenzo about it
 

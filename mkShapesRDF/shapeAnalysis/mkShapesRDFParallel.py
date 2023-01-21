@@ -23,19 +23,33 @@ def main():
                         help="0 do analysis in batch, 1 hadd root files, 2 plot", required=True)
     parser.add_argument(
         "-b", "--doBatch", help="0 (default) runs on local, 1 runs with condor", required=False, default='0')
+
     parser.add_argument(
         "-dR", "--dryRun", help="1 do not submit to condor", required=False, default='0')
+
     parser.add_argument("-f", "--folder", help="Path to folder",
                         required=False, default='plotsconfig')
+
     parser.add_argument("-l", "--limitEvents",
                         help="Max number of events", required=False, default='-1')
 
+    parser.add_argument("-r", "--resubmit",
+                        help="Resubmit jobs", required=False, default='0')
+
+    parser.add_argument("-lin", "--linPlots",
+                        help="Create lin scaled plots", required=False, default='0')
+    parser.add_argument("-log", "--logPlots",
+                        help="Create log scaled plots", required=False, default='1')
+
     parser.add_argument("-pdf", "--savePdf",
-                        help="Save pdf of plots", required=False, default='0')
+                        help="Save pdf of plots", required=False, default='-1')
 
     args = parser.parse_args()
     
+    resubmit = int(args.resubmit)
     savePdf = int(args.savePdf)
+    linPlots = int(args.linPlots)
+    logPlots = int(args.logPlots)
 
     folder = args.folder
     print(os.getcwd())
@@ -123,7 +137,7 @@ def main():
     elif operationMode == 1:
         #condorFolder = folder + '/' + batchFolder
 
-        errs = glob.glob("{}/{}/*/*err*".format(batchFolder, tag))
+        errs = glob.glob("{}/{}/*/err.txt".format(batchFolder, tag))
         files = glob.glob("{}/{}/*/script.py".format(batchFolder, tag))
         #print(files[:3], len(files))
         errsD = list(map(lambda k: '/'.join(k.split('/')[:-1]), errs))
@@ -131,7 +145,11 @@ def main():
         # print(files)
         notFinished = list(set(filesD).difference(set(errsD)))
         print(notFinished)
-        print(len(files), len(errs), len(notFinished))
+        tabulated = []
+        tabulated.append(['Total jobs', 'Finished jobs', 'Running jobs'])
+        tabulated.append([len(files), len(errs), len(notFinished)])
+        import tabulate
+        print(tabulate.tabulate(tabulated))
         #print('queue 1 Folder in ' + ' '.join(list(map(lambda k: k.split('/')[-1], notFinished))))
         normalErrs = """Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
         Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
@@ -164,6 +182,7 @@ def main():
             txt = list(filter(lambda k: not normalErrsF(k), txt))
             txt = list(filter(lambda k: k.strip() != '', txt))
             if len(txt) > 0:
+                print('Found unusual error in')
                 print(err)
                 print("\n")
                 print("\n".join(txt))
@@ -172,8 +191,13 @@ def main():
         toResubmit = list(map(lambda k: ''.join(k.split('/')[-2]), toResubmit))
         print(toResubmit)
         if len(toResubmit) > 0:
+            print('\n\nShould resubmit the following files\n')
             print('queue 1 Folder in ' +
                   ' '.join(list(map(lambda k: k.split('/')[-1], toResubmit))))
+            if resubmit == 1:
+                from mkShapesRDF.shapeAnalysis.BatchSubmission import BatchSubmission
+                BatchSubmission.resubmitJobs(batchFolder, tag, toResubmit, dryRun)
+
 
     elif operationMode == 2:
         print('', ''.join(['#' for _ in range(20)]), '\n\n',
@@ -237,6 +261,7 @@ def main():
                 # for sampleName in [k.GetName() for k in f.GetDirectory('/' + cut_cat + '/' + var).GetListOfKeys()]:
                 for sampleName in list(groupPlot.keys()):
                     h = 0
+                    isBlind = plot.get(sampleName, {}).get('blind', {}).get(cut_cat, '') == 'full'
                     if groupPlot[sampleName].get('isData', False):
                         h = f.Get('/' + cut_cat + '/' +
                                   var + '/histo_' + sampleName)
@@ -244,22 +269,39 @@ def main():
                         if len(groupPlot[sampleName]['samples']) > 1:
                             for subSample in groupPlot[sampleName]['samples']:
                                 hname = 'histo_' + subSample
+                                plotScaleFactor = plot.get(subSample, {'scale': 1}).get('scale', 1) * plot.get(subSample, {'scale': 1}).get('cuts', {}).get(cut_cat, 1)
+
+                                if plotScaleFactor != 1:
+                                    print('\n\nscaling plot\n\n', plotScaleFactor)
                                 if hname in [k.GetName() for k in f.GetDirectory('/' + cut_cat + '/' + var).GetListOfKeys()]:
                                     if h != 0:
                                         _h = f.Get('/' + cut_cat + '/' +
-                                                   var + '/histo_' + subSample)
+                                                   var + '/histo_' + subSample).Clone()
+                                        if plotScaleFactor != 1:
+                                            _h.Scale(plotScaleFactor)
                                         h.Add(_h)
                                     else:
                                         h = f.Get('/' + cut_cat + '/' +
-                                                  var + '/histo_' + subSample)
+                                                  var + '/histo_' + subSample).Clone()
+                                        if plotScaleFactor != 1:
+                                                h.Scale(plotScaleFactor)
                                 else:
                                     print('Missing histo',
                                           cut_cat, var, subSample)
                                     sys.exit()
                         else:
-                            h = f.Get('/' + cut_cat + '/' + var + '/histo_' +
-                                      groupPlot[sampleName]['samples'][0])
+                            plotScaleFactor = plot.get(sampleName, {'scale': 1}).get('scale', 1) * plot.get(sampleName, {'scale': 1}).get('cuts', {}).get(cut_cat, 1)
 
+                            #plotScaleFactor = plot.get(sampleName, {'scale': 1}).get('scale', 1)
+                            if plotScaleFactor != 1:
+                                print('\n\nscaling plot\n\n', sampleName, plotScaleFactor)
+                            h = f.Get('/' + cut_cat + '/' + var + '/histo_' +
+                                      groupPlot[sampleName]['samples'][0]).Clone()
+                            if plotScaleFactor != 1:
+                                    h.Scale(plotScaleFactor)
+                    if isBlind:
+                        for iBin in range(h.GetNbinsX()+1):
+                            h.SetBinContent(iBin, 0)
                     _results[cut_cat][var][sampleName] = {
                         'object': h,
                         'isData': groupPlot[sampleName].get('isData', 0) == 1,
@@ -355,154 +397,187 @@ def main():
             yaxis.SetTitleOffset(.4)
             yaxis.SetTitleSize(0.11)
 
+
+        # the user may specify to plot 
+        # a) only logs
+        # b) only lins
+        # c) both logs and lins
+        # save in plotsLog list if he wants logs or not
+
+        if logPlots==1 and linPlots == 0:
+            plotLogs = [True]
+        elif logPlots==0 and linPlots == 1:
+            plotLogs = [False]
+        else:
+            #plot both log and lins
+            plotLogs = [True, False]
+
         for cut_cat in list(histPlots.keys()):
             for _var in list(histPlots[cut_cat].keys()):
-                cnv = ROOT.TCanvas("c", "c1", 800, 800)
-                var = _var.replace('__', '')
-                cnv.cd()
-                canvasPad1Name = 'pad1'
-                pad1 = ROOT.TPad(canvasPad1Name, canvasPad1Name,
-                                 0.0, 1-0.72, 1.0, 1-0.05)
-                pad1.SetTopMargin(0.)
-                pad1.SetBottomMargin(0.020)
-                pad1.Draw()
-                pad1.cd()
+                for plotLog in plotLogs:
+                    cnv = ROOT.TCanvas("c", "c1", 800, 800)
+                    var = _var.replace('__', '')
+                    cnv.cd()
+                    canvasPad1Name = 'pad1'
+                    pad1 = ROOT.TPad(canvasPad1Name, canvasPad1Name,
+                                     0.0, 1-0.72, 1.0, 1-0.05)
+                    pad1.SetTopMargin(0.)
+                    pad1.SetBottomMargin(0.020)
+                    pad1.Draw()
+                    pad1.cd()
 
-                _min = histPlots[cut_cat][_var]['min'] * 1e-2
-                _max = histPlots[cut_cat][_var]['max'] * 1e+2
-                #minXused = h.GetBinLowEdge(1)
-                #maxXused = h.GetBinUpEdge(h.GetNbinsX())
-                if  len(variables[var]['range']) == 1:
-                    # custom binning
-                    minXused = variables[var]['range'][0][0]
-                    maxXused = variables[var]['range'][0][-1]
-                else:
-                    minXused = variables[var]['range'][1]
-                    maxXused = variables[var]['range'][2]
-
-                frameDistro = pad1.DrawFrame(minXused, 0.0, maxXused, 1.0)
-                frameDistro.SetTitleSize(0)
-
-                xAxisDistro = frameDistro.GetXaxis()
-                xAxisDistro.SetNdivisions(6, 5, 0)
-                xAxisDistro.SetLabelSize(0)
-
-                # frameDistro.GetXaxis().SetTitle(var)
-                frameDistro.GetYaxis().SetTitle("Events / bin")
-
-                frameDistro.GetYaxis().SetLabelOffset(0.0)
-                frameDistro.GetYaxis().SetLabelSize(0.05)
-                #frameDistro.GetYaxis().SetNdivisions ( 505)
-                frameDistro.GetYaxis().SetTitleFont(42)
-                frameDistro.GetYaxis().SetTitleOffset(0.8)
-                frameDistro.GetYaxis().SetTitleSize(0.06)
-
-                frameDistro.GetYaxis().SetRangeUser(max(1, _min), _max)
-                #frameDistro.GetYaxis().SetRangeUser(1e-3, 1e+5)
-                #h.GetYaxis().SetRangeUser( min(1e-3, _min), _max)
-
-                tlegend = ROOT.TLegend(0.20, 0.75, 0.80, 0.98)
-                # tlegend.SetFillColor(0)
-                tlegend.SetTextFont(42)
-                tlegend.SetTextSize(0.035)
-                tlegend.SetLineColor(0)
-                tlegend.SetFillStyle(0)
-
-                # tlegend.SetShadowColor(0)
-                for sampleName in list(_results[cut_cat][_var].keys()):
-                    name = groupPlot[sampleName]['nameHR'] + \
-                        f' [{str(round(_results[cut_cat][_var][sampleName]["object"].Integral(),1))}]'
-                    if _results[cut_cat][_var][sampleName]['isData']:
-                        tlegend.AddEntry(
-                            _results[cut_cat][_var][sampleName]['object'], name, "lep")
+                    _min = histPlots[cut_cat][_var]['min'] * 1e-2
+                    _max = histPlots[cut_cat][_var]['max'] * 1e+2
+                    #minXused = h.GetBinLowEdge(1)
+                    #maxXused = h.GetBinUpEdge(h.GetNbinsX())
+                    if  len(variables[var]['range']) == 1:
+                        # custom binning
+                        minXused = variables[var]['range'][0][0]
+                        maxXused = variables[var]['range'][0][-1]
                     else:
-                        tlegend.AddEntry(
-                            _results[cut_cat][_var][sampleName]['object'], name, "f")
+                        minXused = variables[var]['range'][1]
+                        maxXused = variables[var]['range'][2]
 
-                tlegend.SetNColumns(2)
+                    frameDistro = pad1.DrawFrame(minXused, 0.0, maxXused, 1.0)
+                    frameDistro.SetTitleSize(0)
 
-                h = histPlots[cut_cat][_var]['thstack']
-                h.Draw('same hist')
-                hdata = 0
-                if histPlots[cut_cat][_var]['data'] != 0:
-                    print('Data hist exists, plotting it')
-                    hdata = histPlots[cut_cat][_var]['data']
-                    hdata.Draw('same p0')
-                if histPlots[cut_cat][_var]['sig'] != 0:
-                    hsig = histPlots[cut_cat][_var]['sig']
-                    #hdata.Draw('hist same L')
-                    hsig.Draw('hist same noclear')
-                tlegend.Draw()
-                pad1.RedrawAxis()
-                pad1.SetLogy()
-                if variables[_var].get('setLogx', 0) != 0:
-                    pad1.SetLogx()
+                    xAxisDistro = frameDistro.GetXaxis()
+                    xAxisDistro.SetNdivisions(6, 5, 0)
+                    xAxisDistro.SetLabelSize(0)
 
-                cnv.cd()
-                if hdata == 0:
+                    # frameDistro.GetXaxis().SetTitle(var)
+                    frameDistro.GetYaxis().SetTitle("Events / bin")
+
+                    frameDistro.GetYaxis().SetLabelOffset(0.0)
+                    frameDistro.GetYaxis().SetLabelSize(0.05)
+                    #frameDistro.GetYaxis().SetNdivisions ( 505)
+                    frameDistro.GetYaxis().SetTitleFont(42)
+                    frameDistro.GetYaxis().SetTitleOffset(0.8)
+                    frameDistro.GetYaxis().SetTitleSize(0.06)
+
+                    frameDistro.GetYaxis().SetRangeUser(max(1, _min), _max)
+                    #frameDistro.GetYaxis().SetRangeUser(1e-3, 1e+5)
+                    #h.GetYaxis().SetRangeUser( min(1e-3, _min), _max)
+
+                    tlegend = ROOT.TLegend(0.20, 0.75, 0.80, 0.98)
+                    # tlegend.SetFillColor(0)
+                    tlegend.SetTextFont(42)
+                    tlegend.SetTextSize(0.035)
+                    tlegend.SetLineColor(0)
+                    tlegend.SetFillStyle(0)
+
+                    # tlegend.SetShadowColor(0)
                     for sampleName in list(_results[cut_cat][_var].keys()):
-                        if hdata == 0:
-                            hdata = _results[cut_cat][_var][sampleName]['object'].Clone(
-                            )
+                        name = groupPlot[sampleName]['nameHR'] + \
+                            f' [{str(round(_results[cut_cat][_var][sampleName]["object"].Integral(),1))}]'
+                        if _results[cut_cat][_var][sampleName]['isData']:
+                            tlegend.AddEntry(
+                                _results[cut_cat][_var][sampleName]['object'], name, "lep")
                         else:
-                            hdata.Add(_results[cut_cat][_var]
-                                      [sampleName]['object'].Clone())
-                hmc = 0
-                for sampleName in list(_results[cut_cat][_var].keys()):
-                    # IMPORTANT: Signal not included in ratio!
-                    if _results[cut_cat][_var][sampleName]['isData'] or _results[cut_cat][_var][sampleName]['isSignal']:
-                        continue
-                    if hmc == 0:
-                        hmc = _results[cut_cat][_var][sampleName]['object'].Clone()
+                            tlegend.AddEntry(
+                                _results[cut_cat][_var][sampleName]['object'], name, "f")
+
+                    tlegend.SetNColumns(2)
+
+                    h = histPlots[cut_cat][_var]['thstack']
+                    h.Draw('same hist')
+                    hdata = 0
+                    if histPlots[cut_cat][_var]['data'] != 0:
+                        print('Data hist exists, plotting it')
+                        hdata = histPlots[cut_cat][_var]['data']
+                        hdata.Draw('same p0')
+                    if histPlots[cut_cat][_var]['sig'] != 0:
+                        hsig = histPlots[cut_cat][_var]['sig']
+                        #hdata.Draw('hist same L')
+                        hsig.Draw('hist same noclear')
+                    tlegend.Draw()
+
+                    pad1.RedrawAxis()
+
+                    if plotLog:
+                        pad1.SetLogy()
                     else:
-                        hmc.Add(_results[cut_cat][_var]
-                                [sampleName]['object'].Clone())
+                        frameDistro.GetYaxis().SetRangeUser(max(1, _min/1e-2), _max/1e+2)
 
-                h_err = hmc.Clone()
-                for j in range(h_err.GetNbinsX()):
-                    h_err.SetBinError(j, 0)
-                h_err.Divide(hmc)
-                rp = hdata.Clone()
-                rp.Divide(hmc)
-                rp.SetMarkerColor(ROOT.kBlack)
 
-                canvasPad2Name = 'pad2'
-                pad2 = ROOT.TPad(
-                    canvasPad2Name, canvasPad2Name, 0.0, 0, 1, 1-0.72)
-                pad2.SetTopMargin(0.008)
-                pad2.SetBottomMargin(0.31)
-                pad2.Draw()
-                pad2.cd()
+                    if variables[_var].get('setLogx', 0) != 0:
+                        pad1.SetLogx()
 
-                frameRatio = pad2.DrawFrame(minXused, 0.0, maxXused, 2.0)
-                xAxisDistro = frameRatio.GetXaxis()
-                xAxisDistro.SetNdivisions(6, 5, 0)
-                frameRatio.GetYaxis().SetTitle("DATA / MC")
-                frameRatio.GetYaxis().SetRangeUser(minRatio, maxRatio)
-                frameRatio.GetXaxis().SetTitle(variables[var]['xaxis'])
-                Pad2TAxis(frameRatio)
+                    cnv.cd()
+                    if hdata == 0:
+                        for sampleName in list(_results[cut_cat][_var].keys()):
+                            if hdata == 0:
+                                hdata = _results[cut_cat][_var][sampleName]['object'].Clone(
+                                )
+                            else:
+                                hdata.Add(_results[cut_cat][_var]
+                                          [sampleName]['object'].Clone())
+                    hmc = 0
+                    for sampleName in list(_results[cut_cat][_var].keys()):
+    #                    # IMPORTANT: Signal not included in ratio!
+    #                    if _results[cut_cat][_var][sampleName]['isData'] or _results[cut_cat][_var][sampleName]['isSignal']:
+    #                        continue
+                        #IMPORTANT2 now Signal is included in ratio
+                        if _results[cut_cat][_var][sampleName]['isData']: 
+                            continue
+                        if hmc == 0:
+                            hmc = _results[cut_cat][_var][sampleName]['object'].Clone()
+                        else:
+                            hmc.Add(_results[cut_cat][_var]
+                                    [sampleName]['object'].Clone())
 
-                h_err.SetFillColorAlpha(ROOT.kBlack, 0.5)
-                h_err.SetFillStyle(3004)
-                h_err.GetYaxis().SetRangeUser(0.6, 1.4)
+                    h_err = hmc.Clone()
+                    for j in range(h_err.GetNbinsX()):
+                        h_err.SetBinError(j, 0)
+                    h_err.Divide(hmc)
+                    rp = hdata.Clone()
+                    rp.Divide(hmc)
+                    rp.SetMarkerColor(ROOT.kBlack)
 
-                h_err.Draw("same e3")
-                rp.GetYaxis().SetRangeUser(0.6, 1.4)
+                    canvasPad2Name = 'pad2'
+                    pad2 = ROOT.TPad(
+                        canvasPad2Name, canvasPad2Name, 0.0, 0, 1, 1-0.72)
+                    pad2.SetTopMargin(0.008)
+                    pad2.SetBottomMargin(0.31)
+                    pad2.Draw()
+                    pad2.cd()
 
-                rp.Draw("same e")
+                    frameRatio = pad2.DrawFrame(minXused, 0.0, maxXused, 2.0)
+                    xAxisDistro = frameRatio.GetXaxis()
+                    xAxisDistro.SetNdivisions(6, 5, 0)
+                    frameRatio.GetYaxis().SetTitle("DATA / MC")
+                    frameRatio.GetYaxis().SetRangeUser(minRatio, maxRatio)
+                    frameRatio.GetXaxis().SetTitle(variables[var]['xaxis'])
+                    Pad2TAxis(frameRatio)
 
-                pad2.RedrawAxis()
-                pad2.SetGrid()
+                    h_err.SetFillColorAlpha(ROOT.kBlack, 0.5)
+                    h_err.SetFillStyle(3004)
+                    h_err.GetYaxis().SetRangeUser(0.6, 1.4)
 
-                ROOT.gStyle.SetOptStat(0)
+                    #h_err.Draw("same e3")
+                    h_err.Draw("same e2")
+                    rp.GetYaxis().SetRangeUser(0.6, 1.4)
 
-                cnv.SetLogy()
+                    rp.Draw("same e")
 
-                outfile = cut_cat + '_' + var + '.png'
-                cnv.SaveAs("{}/{}".format(plotPath, outfile))
-                if savePdf == 1:
-                    outfile = cut_cat + '_' + var + '.pdf'
+                    pad2.RedrawAxis()
+                    if variables[_var].get('setLogx', 0) != 0:
+                        pad2.SetLogx()
+                    pad2.SetGrid()
+
+                    ROOT.gStyle.SetOptStat(0)
+
+                    cnv.SetLogy()
+
+                    if plotLog:
+                        outfile = 'log_'
+                    else:
+                        outfile = 'lin_'
+                    outfile += cut_cat + '_' + var + '.png'
                     cnv.SaveAs("{}/{}".format(plotPath, outfile))
+                    if savePdf == 1:
+                        outfile = cut_cat + '_' + var + '.pdf'
+                        cnv.SaveAs("{}/{}".format(plotPath, outfile))
         f.Close()
 
 
