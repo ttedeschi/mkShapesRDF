@@ -109,7 +109,8 @@ aliases['bReq'] = {
 }
 
 aliases['topcr'] = {
-    'expr' : 'abs(mll-91)>15 && bReq && (detajj >= 3)'
+    #'expr' : 'abs(mll-91)>15 && bReq && (detajj >= 3)'
+    'expr' : 'abs(mll-91)>15 && bReq' 
 }
 
 aliases['bVetoSF'] = {
@@ -177,13 +178,14 @@ aliases['SFweight'] = {
             'samples': mc
             }
 
+_PUJetsThres = 10
 aliases['hardJets'] = {
-    'expr': 'Jet_genJetIdx[CleanJet_jetIdx[0]] >= 0 && Jet_genJetIdx[CleanJet_jetIdx[1]] >= 0 && GenJet_pt[Jet_genJetIdx[CleanJet_jetIdx[0]]] > 10 && GenJet_pt[Jet_genJetIdx[CleanJet_jetIdx[1]]] > 10',
+    'expr': f'Jet_genJetIdx[CleanJet_jetIdx[0]] >= 0 && Jet_genJetIdx[CleanJet_jetIdx[1]] >= 0 && GenJet_pt[Jet_genJetIdx[CleanJet_jetIdx[0]]] > {_PUJetsThres} && GenJet_pt[Jet_genJetIdx[CleanJet_jetIdx[1]]] > {_PUJetsThres}',
     'samples': ['DY']
 }
 
 aliases['PUJets'] = {
-    'expr': '!(Jet_genJetIdx[CleanJet_jetIdx[0]] >= 0 && Jet_genJetIdx[CleanJet_jetIdx[1]] >= 0 && GenJet_pt[Jet_genJetIdx[CleanJet_jetIdx[0]]] > 10 && GenJet_pt[Jet_genJetIdx[CleanJet_jetIdx[1]]] > 10)',
+    'expr': f'!(Jet_genJetIdx[CleanJet_jetIdx[0]] >= 0 && Jet_genJetIdx[CleanJet_jetIdx[1]] >= 0 && GenJet_pt[Jet_genJetIdx[CleanJet_jetIdx[0]]] > {_PUJetsThres} && GenJet_pt[Jet_genJetIdx[CleanJet_jetIdx[1]]] > {_PUJetsThres})',
     'samples': ['DY']
 }
 
@@ -219,4 +221,8 @@ aliases['SFweightMuUp'] = {
 aliases['SFweightMuDown'] = {
     'expr': 'LepSF2l__mu_'+muWP+'__Do',
     'samples': mc_emb
+}
+
+aliases['newDetajj'] = {
+        'expr': 'abs(Alt(CleanJet_eta, 0, -1000) - Alt(CleanJet_eta, 1, 1000))',
 }

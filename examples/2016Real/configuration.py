@@ -1,12 +1,14 @@
 #tag = 'new_vbf_16_2'
-tag = 'new_vbf_16_5'
+tag = 'new_vbf_16'
 
-outputFile   = "mkShapes__{}.root".format(tag)
-outputFolder = "rootFiles"
+runnerFile = 'default'
 
-#plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full6_topcr/"
-#plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full7_postfit"
-plotPath = "/eos/user/g/gpizzati/www/rdf/2016_full8_postfit"
+outputFile    = "mkShapes__{}.root".format(tag)
+outputFolder  = "rootFiles"
+batchFolder   = 'condor'
+configsFolder = 'configs'
+
+plotPath      = "/eos/user/g/gpizzati/www/rdf/2016_new_prefit"
 
 
 # file with TTree aliases
@@ -35,6 +37,10 @@ lumi = 36.33
 minRatio = 0.5
 maxRatio = 1.5
 
-batchFolder = 'condor'
+mountEOS=True
 
+imports = ['os', 'glob', ('collections', 'OrderedDict'), 'ROOT']
+filesToExec = [samplesFile, aliasesFile, variablesFile, cutsFile,  plotFile, nuisancesFile]
+varsToKeep = ['outputFolder', 'batchFolder', 'configsFolder', 'outputFile', 'runnerFile', 'tag', 'samples', 'aliases', 'variables', ('cuts', {'cuts': 'cuts', 'preselections': 'preselections'} ), ('plot', {'plot' : 'plot', 'groupPlot': 'groupPlot'}), 'nuisances', 'lumi', 'mountEOS']
+batchVars = varsToKeep[varsToKeep.index('samples'):]
 

@@ -132,15 +132,14 @@ class RunAnalysis:
             map(lambda k: nuisance['folderUp'] + '/' + k, _files))
         return [nuisanceFilesDown, nuisanceFilesUp]
 
-    def __init__(self, samples, aliases, variables, preselections, cuts, nuisances, lumi, limit=-1, outputFileMap='output.root'):
+    def __init__(self, samples, aliases, variables, cuts, nuisances, lumi, limit=-1, outputFileMap='output.root'):
         """
         Stores arguments in the class attributes and creates all the RDataFrame objects
         Args:
             samples (list of tuples): same type as the return of the splitSamples method
             aliases (dict): dict of aliases
             variables (dict): dict of variables
-            preselections (str): string with the preselections
-            cuts (dict): dict of cuts
+            cuts (dict): dict of cuts, contains two keys (preselections: str, cuts: dict)
             nuisances (dict): dict of nuisances
             lumi (float): lumi in fb-1
             limit (int, optional): limit of events to be processed. Defaults to -1.
@@ -152,18 +151,18 @@ class RunAnalysis:
         self.samples = samples
         self.aliases = aliases
         self.variables = variables
-        self.preselections = preselections
+        self.preselections = cuts['preselections']
         mergedCuts = {}
-        for cut in list(cuts.keys()):
+        for cut in list(cuts['cuts'].keys()):
             __cutExpr = ''
-            if type(cuts[cut]) == dict:
-                __cutExpr = cuts[cut]['expr']
-                for cat in list(cuts[cut]['categories'].keys()):
+            if type(cuts['cuts'][cut]) == dict:
+                __cutExpr = cuts['cuts'][cut]['expr']
+                for cat in list(cuts['cuts'][cut]['categories'].keys()):
                     mergedCuts[cut + '_' + cat] = {'parent': cut}
                     mergedCuts[cut + '_' + cat]['expr'] = __cutExpr + \
-                        ' && ' + cuts[cut]['categories'][cat]
-            elif type(cuts[cut]) == str:
-                __cutExpr = cuts[cut]
+                        ' && ' + cuts['cuts'][cut]['categories'][cat]
+            elif type(cuts['cuts'][cut]) == str:
+                __cutExpr = cuts['cuts'][cut]
                 mergedCuts[cut] = {'expr': __cutExpr, 'parent': cut}
         self.cuts = mergedCuts
         self.nuisances = nuisances
@@ -731,5 +730,5 @@ if __name__ == '__main__':
     ROOT.gInterpreter.Declare(f'#include "headers.hh"')
     exec(open('script.py').read())
     runner = RunAnalysis(samples, aliases, variables,
-                         preselections, cuts, nuisances, lumi)
+                         cuts, nuisances, lumi)
     runner.run()

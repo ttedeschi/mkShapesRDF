@@ -11,26 +11,14 @@ structure['Zjj']  = {
               }
 
 
-_bins = [30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700]
-dys = {}
-for i in range(-1, len(_bins)-1):
-    structure[f'DY_DY{i+1}'] = {
+
+for dy in dys.keys():
+    structure[f'DY_{dy}'] = {
                   'isSignal' : 0,
                   'isData'   : 0
                   }
 
 
-"""
-structure['DY_hardJets']  = {  
-                  'isSignal' : 0,
-                  'isData'   : 0
-              }
-
-structure['DY_PUJets']  = {
-                  'isSignal' : 0,
-                  'isData'   : 0
-              }
-"""
 
 structure['Fake_e']  = {  
                   'isSignal' : 0,

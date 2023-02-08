@@ -172,11 +172,15 @@ def main():
                 if not cut in nuisances[nuisance].get('cuts', mergedCuts):
                     continue
                 if nuisances[nuisance]['type'] == 'rateParam':
-                    samplesNuisance = list(list(nuisances[nuisance]['samples'].items())[0])
-                    if len(samplesNuisance) != 2:
-                        print('rateParam', nuisance, 'must have only 1 sampleName and 1 value', samplesNuisance)
-                        sys.exit()
-                    values = [nuisances[nuisance]['name'], 'rateParam', cut] + samplesNuisance
+                    samplesNuisance = list(map(lambda k: list(k), list(nuisances[nuisance]['samples'].items())))
+                    values = []
+                    for sampleNuisance in samplesNuisance:
+                        if len(sampleNuisance) != 2:
+                            print('rateParam', nuisance, 'must have only 1 sampleName and 1 value', samplesNuisance)
+                            sys.exit()
+                        values.append([nuisances[nuisance]['name'], 'rateParam', cut] + sampleNuisance)
+                    # workaround to add multiple rateParam, save as tuple in values and type checks at the end will add multiple lines
+                    values = tuple(values)
                 elif nuisances[nuisance]['type'] == 'auto':
                     values = [cut, 'autoMCStats', nuisances[nuisance]['maxPoiss'], nuisances[nuisance]['includeSignal']] 
                 else:
@@ -192,7 +196,10 @@ def main():
                                 values.append(str(value))
                             else:
                                 values.append('-')
-                table.append(values)
+                if type(values) == type([]):
+                    table.append(values)
+                elif type(values) == type((0,)):
+                    table.extend(list(values))
 
                 #datacard += nuisance + '\n' 
 

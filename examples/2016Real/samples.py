@@ -94,49 +94,22 @@ samples['Zjj'] = {
 
 
 ###### DY MC ######
-_bins = [30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700]
-dys = {}
-for i in range(-1, len(_bins)-1):
-    if i == -1:
-        # underflow bin
-        dys[f'DY{i+1}'] = f'(ptll < {_bins[i+1]})'
-    elif i == len(_bins)-2:
-        # overflow bin
-        dys[f'DY{i+1}'] = f'(ptll >= {_bins[i]})'
-    else:
-        dys[f'DY{i+1}'] = f'(ptll >= {_bins[i]} && ptll < {_bins[i+1]})'
+dys = {
+            "DY_hardJets": "hardJets",
+            "DY_PUJets": "PUJets",
+}
 
 
 files = nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_ext2')
-#files = nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_ext2') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-70to100') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-100to200') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-100to200_ext1') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-200to400') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-200to400_ext1') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-400to600') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-400to600_ext1') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-600to800') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-800to1200') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-1200to2500') + \
-#        nanoGetSampleFiles(mcDirectory, 'DYJetsToLL_M-50_HT-2500toInf')
 
 samples['DY'] = {
     'name': files,
-    'weight': mcCommonWeight + '*( !(Sum(PhotonGen_isPrompt==1 && PhotonGen_pt>15 && abs(PhotonGen_eta)<2.6) > 0))',
+    'weight': mcCommonWeight + '*( !(Sum(PhotonGen_isPrompt==1 && PhotonGen_pt>15 && abs(PhotonGen_eta)<2.6) > 0)) * ewknloW',
     'FilesPerJob': 5,
-#    'subsamples': {
-#      'hardJets'  : 'hardJets',
-#      'PUJets'    : 'PUJets'
-#    }
     'subsamples': dys
 }
 
-#CombineBaseW(samples, 'DY', ['DYJetsToLL_M-50_HT-100to200'    , 'DYJetsToLL_M-50_HT-100to200_ext1'])
-#CombineBaseW(samples, 'DY', ['DYJetsToLL_M-50_HT-200to400'    , 'DYJetsToLL_M-50_HT-200to400_ext1'])
-#CombineBaseW(samples, 'DY', ['DYJetsToLL_M-50_HT-400to600'    , 'DYJetsToLL_M-50_HT-400to600_ext1'])
-##
-#addSampleWeight(samples, 'DY', 'DYJetsToLL_M-50_ext2',                  '(LHE_HT < 70)')
+"""
 
 ###### Top MC ######
 
@@ -280,3 +253,4 @@ for _, sd in DataRun:
     #samples['DATA']['weights'].extend([DataTrig[pd]] * len(files))
 #print(samples['DATA']['name'])
 #
+"""

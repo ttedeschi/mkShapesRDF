@@ -15,7 +15,7 @@ variables['ptj2'] = {
 }
 
 variables['mjj']      = {   'name': 'mjj',            #   variable name    
-                            'range' : (50, 200, 3000),    #   variable range
+                            'range' : (20, 200, 3000),    #   variable range
                             'xaxis' : 'm_{jj} [GeV]',  #   x axis name
                             'fold' :3
                         }
@@ -32,25 +32,38 @@ variables['ptll']  = {   'name': 'ptll',
                         'fold' : 3
                         }
 
-#variables['ptll_few']  = {   'name': 'ptll',
-#                        'range' : (20, 30, 600),
-#                        'xaxis' : 'p_{T}^{ll} [GeV]',
-#                        'fold' : 3
-#                        }
-
-# np.logspace(np.log(30)/np.log(10),np.log(600)/np.log(10),20) 
 
 variables['ptll_few']  = {   'name': 'ptll',
-                        'range': ([0, 30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700],),
-#                        'range' : ([ 30.        ,  35.12339741,  41.12176819,  48.14454022,
-#                                    56.36666064,  65.99295408,  77.26322508,  90.458232  ,
-#                                           105.90668105, 123.99341491, 145.16899961, 169.96094884,
-#                                                  198.98686501, 232.96982465, 272.75639121, 319.33770416,
-#                                                         373.87416973, 437.72436818, 512.47889801, 600.        ],),
+                        #'range': ([  30., 63,  134,  284, 450,  600. ],),
+                        #'range': ([  30., 63,  134,  284, 600. ],),
+                        'range': ([  30., 63,  134,  600. ],),
                         'xaxis' : 'p_{T}^{ll} [GeV]',
                         'fold' : 3,
                         #'setLogx': 1
                         }
+
+variables['ptll_few_l']  = {   'name': 'ptll',
+                        #'range': ([  30., 63,  134,  284, 450,  600. ],),
+                        #'range': ([  30., 63,  134,  284, 600. ],),
+                        'range': ([  30., 40, 63, 98,  134, 367,  600. ],),
+                        'xaxis' : 'p_{T}^{ll} [GeV]',
+                        'fold' : 3,
+                        #'setLogx': 1
+                        }
+
+variables['ptll_few_c']  = {   'name': 'ptll',
+                        #'range': ([  30., 63,  134,  284, 450,  600. ],),
+                        #'range': ([  30., 63,  134,  284, 600. ],),
+                        'range': ([  63,  134,  600. ],),
+                        'xaxis' : 'p_{T}^{ll} [GeV]',
+                        'fold' : 3,
+                        #'setLogx': 1
+                        }
+
+
+
+
+
 
 variables['mll']  = {   'name': 'mll',
                         'range' : (100, 66,107),
@@ -58,13 +71,6 @@ variables['mll']  = {   'name': 'mll',
                         'fold' : 3
                         }
 
-"""
-variables['mllOut']  = {   'name': 'mll',
-                        'range' : (100, 50,150),
-                        'xaxis' : 'm_{ll} [GeV]',
-                        'fold' : 3
-                        }
-                        """
 
 
 
@@ -88,26 +94,26 @@ variables['puppimet']  = {
                         'fold'  : 3
                         }
 
-variables['detajj']  = {  'name': 'detajj',
-                        'range' : (40, 0.0, 10.0),
+variables['detajj']  = {  'name': 'newDetajj',
+                        'range' : (50, 0.0, 9.0),
                         'xaxis' : '#Delta#eta_{jj}',
                         'fold'  : 3
                         }
 
-variables['detajj_low']  = {  'name': 'detajj',
+variables['detajj_low']  = {  'name': 'newDetajj',
                         'range' : (20, 0.0, 3.0),
                         'xaxis' : '#Delta#eta_{jj}',
                         'fold'  : 3
                         }
 
-variables['detajj_high']  = {  'name': 'detajj',
-                        'range' : (15, 3.0, 7.0),
+variables['detajj_high']  = {  'name': 'newDetajj',
+                        'range' : (15, 3.0, 9.0),
                         'xaxis' : '#Delta#eta_{jj}',
                         'fold'  : 3
                         }
 
 variables['dphijj']  = {  'name': 'dphijj',
-                        'range' : (40, 0, 6.5),
+                        'range' : (20, 0, 3.15),
                         'xaxis' : '#Delta#phi_{jj}',
                         'fold'  : 3
                         }

@@ -536,102 +536,55 @@ nuisances['stat'] = {
     'samples': {}
 }
 
-## rate parameters
-
-nuisances['DYnorm2j_hardJets']  = {
-                 'name'  : 'CMS_hww_DYnorm2j_hardJets',
-                 'samples'  : {
-                   'DY_hardJets' : '1.00',
-                     },
-                 'type'  : 'rateParam',
-                 'cuts'  : cuts2j
-                }
-
-nuisances['DYnorm2j_PUJets']  = {
-                 'name'  : 'CMS_hww_DYnorm2j_PUJets_2016',
-                 'samples'  : {
-                   'DY_PUJets' : '1.00',
-                     },
-                 'type'  : 'rateParam',
-                 'cuts'  : cuts2j
-                }
-
 """
 
-"""
-## Use the following if you want to apply the automatic combine MC stat nuisances.
-nuisances['stat'] = {
-    'type': 'auto',
-    'maxPoiss': '10',
-    'includeSignal': '0',
-    #  nuisance ['maxPoiss'] =  Number of threshold events for Poisson modelling
-    #  nuisance ['includeSignal'] =  Include MC stat nuisances on signal processes (1=True, 0=False)
-    'samples': {}
-}
-"""
+autoStats = False
+if autoStats:
+    ## Use the following if you want to apply the automatic combine MC stat nuisances.
+    nuisances['stat'] = {
+        'type': 'auto',
+        'maxPoiss': '10',
+        'includeSignal': '0',
+        #  nuisance ['maxPoiss'] =  Number of threshold events for Poisson modelling
+        #  nuisance ['includeSignal'] =  Include MC stat nuisances on signal processes (1=True, 0=False)
+        'samples': {}
+    }
 
-"""
-_bins = [30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700]
-dys = {}
-for i in range(-1, len(_bins)-1):
-    nuisances[f'DYnorm2j_DY{i+1}']  = {
-                     'name'  : f'CMS_hww_DYnorm2j_DY{i+1}',
+for dy in dys.keys():
+    nuisances[f'DYnorm2j_ee_{dy}']  = {
+                     'name'  : f'CMS_hww_DYnorm2j_ee_{dy}',
                      'samples'  : {
-                       f'DY_DY{i+1}' : '1.00',
-                         },
-                     'type'  : 'rateParam',
-                     'cuts'  : cuts2j
-                    }
-
-"""
-
-_bins = [30, 50, 70, 100, 130, 160, 200, 250, 300, 350, 400, 500, 700]
-dys = {}
-for i in range(-1, len(_bins)-1):
-    nuisances[f'DYnorm2j_ee_DY{i+1}']  = {
-                     'name'  : f'CMS_hww_DYnorm2j_ee_DY{i+1}',
-                     'samples'  : {
-                       f'DY_DY{i+1}' : '1.00',
+                       f'DY_{dy}' : '1.00',
                          },
                      'type'  : 'rateParam',
                      'cuts'  : cuts2j_ee
                     }
-
-    nuisances[f'DYnorm2j_mm_DY{i+1}']  = {
-                     'name'  : f'CMS_hww_DYnorm2j_mm_DY{i+1}',
+    nuisances[f'DYnorm2j_mm_{dy}']  = {
+                     'name'  : f'CMS_hww_DYnorm2j_mm_{dy}',
                      'samples'  : {
-                       f'DY_DY{i+1}' : '1.00',
+                       f'DY_{dy}' : '1.00',
                          },
                      'type'  : 'rateParam',
                      'cuts'  : cuts2j_mm
                     }
 
 
-"""
-
-nuisances['WWnorm2j']  = {
-               'name'  : 'CMS_hww_WWnorm2j',
+nuisances['VVnorm2j']  = {
+               'name'  : 'CMS_hww_VVnorm2j',
                'samples'  : {
                    'WW' : '1.00',
+                   'ggWW' : '1.00',
+                   'Vg' : '1.00',
+                   'VgS_L' : '1.00',
+                   'VgS_H' : '1.00',
+                   'VZ' : '1.00',
+                   'VVV' : '1.00',
+                   'WWewk' : '1.00',
                    },
                'type'  : 'rateParam',
                'cuts'  : cuts2j
               }
-"""
 
-
-"""
-#
-# Do I need? Too much?
-#
-#nuisances['ggWWnorm2j']  = {
-               #'name'  : 'CMS_hww_WWnorm2j',
-               #'samples'  : {
-                   #'ggWW' : '1.00',
-                   #},
-               #'type'  : 'rateParam',
-               #'cuts'  : cuts2j
-              #}
 
 nuisances['Topnorm2j']  = {
                'name'  : 'CMS_hww_Topnorm2j',
@@ -641,5 +594,4 @@ nuisances['Topnorm2j']  = {
                'type'  : 'rateParam',
                'cuts'  : cuts2j
               }
-"""
 
