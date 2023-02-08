@@ -2,9 +2,9 @@ site_name: mkShapesRDF
 nav:
     - Home: index.md
     - 'Framework':
-      - 'mkShapesRDF': 'mkShapesRDF.md'
+      # - 'mkShapesRDF': 'mkShapesRDF.md'
       - 'Runner': 'runner.md'
-      - 'Configuration Folder Structure': 'folder.md'
+      - 'Configuration Folder Structure': 'config.md'
 theme: 
   name: readthedocs
 
