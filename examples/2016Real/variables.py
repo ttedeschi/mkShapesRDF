@@ -1,6 +1,6 @@
 variables = {}
 
-variables['prova'] = {
+variables['ttree_variable'] = {
         'tree': {'LeptonPt1': 'Lepton_pt[0]'},
         'cuts': ['sr']
         }
