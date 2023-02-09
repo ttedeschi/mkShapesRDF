@@ -109,7 +109,6 @@ samples['DY'] = {
     'subsamples': dys
 }
 
-"""
 
 ###### Top MC ######
 
@@ -253,4 +252,3 @@ for _, sd in DataRun:
     #samples['DATA']['weights'].extend([DataTrig[pd]] * len(files))
 #print(samples['DATA']['name'])
 #
-"""

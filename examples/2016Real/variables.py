@@ -1,5 +1,11 @@
 variables = {}
 
+variables['prova'] = {
+        #'tree': {'LeptonPt1': 'Lepton_pt[0]', 'weight': 'weight'},
+        'tree': {'LeptonPt1': 'Lepton_pt[0]'},
+        'cuts': ['sr']
+        }
+
 variables['ptj1'] = {
         'name': 'CleanJet_pt[0]',
         'range': (100, 30, 500),

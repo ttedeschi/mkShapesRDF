@@ -4,7 +4,7 @@
 \#*#
 **.root
 **__py*
-mkShapesRDF.*
+*.egg*
 myenv*
 examples/*/*_cc*
 examples/*/*/

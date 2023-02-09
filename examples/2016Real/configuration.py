@@ -1,4 +1,3 @@
-#tag = 'new_vbf_16_2'
 tag = 'new_vbf_16'
 
 runnerFile = 'default'
@@ -8,7 +7,8 @@ outputFolder  = "rootFiles"
 batchFolder   = 'condor'
 configsFolder = 'configs'
 
-plotPath      = "/eos/user/g/gpizzati/www/rdf/2016_new_prefit"
+# luminosity to normalize to (in 1/fb)
+lumi = 36.33
 
 
 # file with TTree aliases
@@ -31,11 +31,9 @@ structureFile = 'structure.py'
 # nuisances file for mkDatacards and for mkShape
 nuisancesFile = 'nuisances.py'
 
-# luminosity to normalize to (in 1/fb)
-#lumi = 35.9
-lumi = 36.33
 minRatio = 0.5
 maxRatio = 1.5
+plotPath      = "/eos/user/g/gpizzati/www/rdf/2016/"
 
 mountEOS=True
 
@@ -44,3 +42,4 @@ filesToExec = [samplesFile, aliasesFile, variablesFile, cutsFile,  plotFile, nui
 varsToKeep = ['outputFolder', 'batchFolder', 'configsFolder', 'outputFile', 'runnerFile', 'tag', 'samples', 'aliases', 'variables', ('cuts', {'cuts': 'cuts', 'preselections': 'preselections'} ), ('plot', {'plot' : 'plot', 'groupPlot': 'groupPlot'}), 'nuisances', 'lumi', 'mountEOS']
 batchVars = varsToKeep[varsToKeep.index('samples'):]
 
+varsToKeep += ['minRatio', 'maxRatio', 'plotPath']
