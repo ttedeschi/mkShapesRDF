@@ -35,7 +35,7 @@ minRatio = 0.5
 maxRatio = 1.5
 plotPath      = "/eos/user/g/gpizzati/www/rdf/2016/"
 
-mountEOS=True
+mountEOS=[]
 
 imports = ['os', 'glob', ('collections', 'OrderedDict'), 'ROOT']
 filesToExec = [samplesFile, aliasesFile, variablesFile, cutsFile,  plotFile, nuisancesFile]
