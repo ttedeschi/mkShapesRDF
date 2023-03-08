@@ -98,30 +98,44 @@ class BatchSubmission:
         txtsh = '#!/bin/bash\n'
         txtsh += 'source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh\n'
 
-        if self.d.get('mountEOS', False):
-            txtsh += 'export KRB5CCNAME=/gwpool/users/gpizzati/krb5cc_`id -u gpizzati`\n'
-            txtsh += 'eosfusebind -g\n'
+        mE = self.d.get('mountEOS', [])
+        for line in mE:
+            txtsh += line
 
         txtsh += 'time python runner.py\n'
+
+        outputFileTrunc = '.'.join(self.d['outputFile'].split('.')[:-1])
+
+        print('\n\nReal output path:', os.path.realpath(self.outputPath), '\n\n')
+
+        if os.path.realpath(self.outputPath).startswith('/eos'):
+            # eos is not supported -> use xrdcp 
+            fullOutfile = f'{os.path.realpath(self.outputPath)}/' 
+        else:
+            fullOutfile = f'{self.outputPath}/' 
+
+        fullOutfile += f'{outputFileTrunc}__ALL__' + '${1}.root' 
+        txtsh += f'cp output.root {fullOutfile}\n'
+
+
+        # write the run.sh file
         with open(f'{self.batchFolder}/{self.tag}/run.sh', 'w') as file:
             file.write(txtsh)
+        # make it executable
         process = subprocess.Popen(
             f'chmod +x {self.batchFolder}/{self.tag}/run.sh', shell=True)
         process.wait()
 
         txtjdl = 'universe = vanilla \n'
         txtjdl += 'executable = run.sh\n'
+        txtjdl += 'arguments = $(Folder)\n'
 
         txtjdl += f'transfer_input_files = $(Folder)/script.py, {self.headersPath}, {self.runnerPath}\n'
 
         txtjdl += 'output = $(Folder)/out.txt\n'
         txtjdl += 'error  = $(Folder)/err.txt\n'
         txtjdl += 'log    = $(Folder)/log.txt\n'
-        txtjdl += 'should_transfer_files = yes\n'
 
-        outputFileTrunc = '.'.join(self.d['outputFile'].split('.')[:-1])
-        txtjdl += f'transfer_output_remaps = "output.root = {self.outputPath}/{outputFileTrunc}__ALL__$(Folder).root"\n'
-        txtjdl += 'when_to_transfer_output = ON_EXIT\n'
         txtjdl += 'request_cpus   = 1\n'
         txtjdl += '+JobFlavour = "workday"\n'
 
