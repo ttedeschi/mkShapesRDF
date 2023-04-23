@@ -13,5 +13,10 @@
                 "queryYear": "*20UL18NanoAODv9*"
             }
         }
-    }
+    },
+	"Run2018": {
+		"string": "",
+		"samples": {
+		}
+	}
 }
