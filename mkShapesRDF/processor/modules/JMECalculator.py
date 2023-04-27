@@ -3,11 +3,12 @@ from mkShapesRDF.processor.framework.Module import Module
 
 
 class JMECalculator(Module):
-    def __init__(self, JEC_era, JER_era, p_object):
+    def __init__(self, JEC_era, JER_era, p_object, do_JER=True):
         super().__init__("JMECalculator")
         self.JEC_era = JEC_era
         self.JER_era = JER_era
         self.p_object = p_object
+        self.do_JER = do_JER
 
     def runModule(self, df, values):
         from CMSJMECalculators.jetdatabasecache import JetDatabaseCache
@@ -56,10 +57,16 @@ class JMECalculator(Module):
             jcp_unc = ROOT.JetCorrectorParameters(txtUnc, s)
             calc.addJESUncertainty(s, jcp_unc)
 
-        # Smear jets, with JER uncertainty
-        calc.setSmearing(
-            txtPtRes, txtSF, True, True, 0.2, 3.0  # decorrelate for different regions
-        )  # use hybrid recipe, matching parameters
+        if self.do_JER:
+            # Smear jets, with JER uncertainty
+            calc.setSmearing(
+                txtPtRes,
+                txtSF,
+                True,
+                True,
+                0.2,
+                3.0,  # decorrelate for different regions
+            )  # use hybrid recipe, matching parameters
 
         cols = []
         # reco jet coll
@@ -126,10 +133,12 @@ class JMECalculator(Module):
             "Jet_mass",
             "propagateVector(CleanJet_jetIdx, Take(jetVars.mass(0), CleanJet_sorting), Jet_mass_raw)",
         )
+        sources = []
+        if self.do_JER:
+            sources += [f"JER_{i}" for i in range(6)]
 
-        sources = [f"JER_{i}" for i in range(6)] + list(
-            map(lambda k: "JES_" + k, sources)
-        )
+        sources += list(map(lambda k: "JES_" + k, sources))
+
         print(sources)
         _sources = []
         for source in sources:

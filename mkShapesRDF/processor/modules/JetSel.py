@@ -34,10 +34,10 @@ class JetSel(Module):
 
         df = df.Define(
             "CleanJetMask",
-            "CleanJet_pt <= 50 \
+            "(CleanJet_pt <= 50 \
                 && (Take(Jet_puId, CleanJet_jetIdx) \
                 && ROOT::RVecI (CleanJet_pt.size(), {})) \
-                ".format(
+                ) || (CleanJet_pt > 50)".format(
                 wp_dict[self.puJetId]
             ),
         )

@@ -73,6 +73,15 @@ Steps = {
             "MCCorr2018v9",
         ],
     },
+    "MCUL18_debugJES": {
+        "isChain": True,
+        "do4MC": True,
+        "do4Data": False,
+        "subTargets": [
+            "jmeCalculator_18UL_debugJES",
+            "finalSnapshot_debugJES",
+        ],
+    },
     "leptonMaker": {
         "isChain": False,
         "do4MC": True,
@@ -114,6 +123,14 @@ Steps = {
         "declare": "baseW = lambda : BaseW(sampleName, files, xs_db)",
         "module": "baseW()",
     },
+    "jmeCalculator_18UL_debugJES": {
+        "isChain": False,
+        "do4MC": True,
+        "do4Data": False,
+        "import": "mkShapesRDF.processor.modules.JMECalculator",
+        "declare": 'jmeCalculator = lambda : JMECalculator("Summer19UL18_V5_MC", "Summer19UL18_JRV2_MC", "AK4PFchs", do_JER=False)',
+        "module": "jmeCalculator()",
+    },
     "jmeCalculator_18UL": {
         "isChain": False,
         "do4MC": True,
@@ -129,6 +146,14 @@ Steps = {
         "import": "mkShapesRDF.processor.modules.l2KinProducer",
         "declare": "l2Kin = lambda : l2KinProducer()",
         "module": "l2Kin()",
+    },
+    "finalSnapshot_debugJES": {
+        "isChain": False,
+        "do4MC": True,
+        "do4Data": True,
+        "import": "mkShapesRDF.processor.modules.Snapshot",
+        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*'])",
+        "module": "snapshot()",
     },
     "finalSnapshot": {
         "isChain": False,

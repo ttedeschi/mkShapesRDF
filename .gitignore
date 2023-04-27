@@ -8,3 +8,4 @@
 myenv*
 examples/*/*_cc*
 examples/*/*/
+**~

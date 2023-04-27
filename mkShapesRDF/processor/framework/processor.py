@@ -5,28 +5,45 @@ from mkShapesRDF.processor.framework.Productions_cfg import Productions
 import os
 from pathlib import Path
 
+
 condorDir = "/".join(os.path.abspath(".").split("/")[:-1]) + "/condor"
 
 
-def getFiles(process):
-    procString = f'dasgoclient --query="file dataset={process}"'
-    proc = subprocess.Popen(
-        procString, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    out1, err1 = proc.communicate()
-    out1 = out1.decode("utf-8")
-    out1 = out1.split("\n")
-    out1 = list(filter(lambda k: k.strip() != "", out1))
-    print(out1, len(out1))
-    err1 = err1.decode("utf-8")
-    if len(err1) != 0:
-        print("There were some errors in retriexing file:")
-        print(err1)
-        sys.exit()
+def getFiles(das, folder, process, redirector="root://cms-xrd-global.cern.ch/"):
+    files = []
+    if das:
+        procString = f'dasgoclient --query="file dataset={process}"'
+        proc = subprocess.Popen(
+            procString, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        out, err = proc.communicate()
+        out = out.decode("utf-8")
+        out = out.split("\n")
+        out = list(filter(lambda k: k.strip() != "", out))
+        print(out, len(out))
+        err = err.decode("utf-8")
+        if len(err) != 0:
+            print("There were some errors in retriexing file:")
+            print(err)
+            sys.exit()
+        files = list(map(lambda k: redirector + k, out))
+        return files[1:]
+    else:
+        import fnmatch
 
-    # FIXME limit files
-    files = out1[:1]
-    return files
+        files = []
+        listOfFiles = []
+        print("Need to query for files for folder", folder)
+
+        proc = subprocess.Popen(
+            f"xrdfs {redirector} ls {folder}", shell=True, stdout=subprocess.PIPE
+        )
+        listOfFiles = proc.communicate()[0].decode("utf-8").split("\n")
+        files = list(
+            filter(lambda k: fnmatch.fnmatch(k, folder + process), listOfFiles)
+        )
+        files = list(map(lambda k: redirector + k, files))
+        return files[:1]
 
 
 procName = "Run2018_UL2018_nAODv9_Full2018v9"
@@ -35,7 +52,10 @@ step = "DATAl1loose2018v9"
 
 procName = "Summer20UL18_106x_nAODv9_Full2018v9"
 sampleName = "EWKZ2Jets_ZToLL_M-50_MJJ-120"
+sampleName = "TTToSemiLeptonic_TuneCP5Up"
 step = "MCFull2018v9"
+step = "jmeCalculator_18UL"
+step = "MCUL18_debugJES"
 
 fPy = """
 import ROOT
@@ -76,13 +96,12 @@ for line in out.decode("utf-8").split("\n"):
         proxypath = line.split(":")[1].strip()
 print(proxypath)
 
-os.system("cp " + proxypath + " " + os.environ['HOME'] + "/.proxy")
+os.system("cp " + proxypath + " " + os.environ["HOME"] + "/.proxy")
 
 fSh = f"""#!/bin/bash
 export X509_USER_PROXY={os.environ['HOME']}/.proxy
 """
-fSh += "cd " + "/".join(frameworkPath.split("/")[:-1]) + \
-    "; . ./start.sh; cd -;\n"
+fSh += "cd " + "/".join(frameworkPath.split("/")[:-1]) + "; . ./start.sh; cd -;\n"
 
 fSh += "python script.py\n"
 
@@ -96,11 +115,26 @@ os.system("chmod +x " + jobDir + "run.sh")
 
 fPy += "sampleName = '" + sampleName + "'\n"
 
-process = Samples[sampleName]["nanoAOD"]
+getFiles_cfg = {
+    "DAS": {
+        "das": True,
+        "folder": "",
+        #'process': Samples[sampleName]["nanoAOD"],
+    },
+    "xrootd_latinos_18UL": {
+        "das": False,
+        "redirector": "root://eoscms.cern.ch/",
+        "folder": "/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer20UL18_106x_nAODv9_Full2018v9//MCl1loose2018v9__MCCorr2018v9NoJERInHorn__l2tightOR2018v9/",
+        "process": "*" + sampleName + "*.root",
+    },
+}
 
-files = getFiles(process)
-redirector = "root://cms-xrd-global.cern.ch/"
-files = list(map(lambda k: redirector + k, files))
+files = getFiles(**getFiles_cfg["xrootd_latinos_18UL"])
+if len(files) == 0:
+    print("No files found for", sampleName)
+    sys.exit()
+
+
 print(files[0])
 fPy += "files = " + str(files) + "\n"
 fPy += f"ROOT.gInterpreter.Declare('#include \"{frameworkPath}/include/headers.hh\"')\n"
