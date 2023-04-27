@@ -26,10 +26,10 @@ class l2KinProducer(Module):
                        'ROOT::Math::PtEtaPhiMVector'
                        '(TkMET_pt, 0, TkMET_phi, 0)')
 
-        df = df.Filter('(Lepton_pt[Lepton_pt > 0].size() >= 2) && '
-                       '(MET_4DV.E() > 0) && '
-                       '(TkMET_4DV.E() > 0) && '
-                       '(CleanJet_pt[CleanJet_pt > 0].size() >= 1)')
+        # df = df.Define('Lep_ok', '(Lepton_pt[Lepton_pt > 0].size() >= 2))
+        # df = df.Define(' ', '(MET_4DV.E() > 0) && '
+        #                '(TkMET_4DV.E() > 0) && '
+        #                '(CleanJet_pt[CleanJet_pt > 0].size() >= 1)')
         
         df.DropColumns('Lepton_4DV')
         df.DropColumns('CleanJet_4DV')
