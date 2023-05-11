@@ -1,13 +1,13 @@
 from copy import deepcopy
 import sys
-from collections import OrderedDict
 import ROOT
 from array import array
+
 ROOT.gROOT.SetBatch(True)
+ROOT.TH1.SetDefaultSumw2(True)
 
 
 class RunAnalysis:
-
     @staticmethod
     def splitSamples(samples, useFilesPerJob=True):
         """static methods, takes a dictionary of samples and split them based on their weights and max num. of files
@@ -22,15 +22,17 @@ class RunAnalysis:
         # will contain all the different samples splitted based on their weights and max num. of files
         splittedSamples = []
         for sampleName in list(samples.keys()):
-            types = {}  # this will contain the the different type of files with their special weights for this sampleName
+            types = (
+                {}
+            )  # this will contain the the different type of files with their special weights for this sampleName
             # recall that samples[sampleName]['name'] contain a list of tuples, where a single tuple can have a size of 2 or 3:
             # first position for name of the process (DYJetsToLL_M-50), second list of files, third a possible special weight
-            for filesType in samples[sampleName]['name']:
+            for filesType in samples[sampleName]["name"]:
                 # no special weight (will use '1'), and at least one file found
                 if len(filesType) == 2 and len(filesType[1]) > 0:
-                    if '1' not in list(types.keys()):
-                        types['1'] = []
-                    types['1'].append(filesType + ('1',))
+                    if "1" not in list(types.keys()):
+                        types["1"] = []
+                    types["1"].append(filesType + ("1.0",))
                 elif len(filesType) == 3 and len(filesType[1]) > 0:
                     if filesType[2] not in list(types.keys()):
                         types[filesType[2]] = []
@@ -38,7 +40,9 @@ class RunAnalysis:
                 else:
                     print("Error", sampleName, filesType, file=sys.stderr)
                     print(
-                        "Either the sample proc you specified has no files, or the weight had problems", file=sys.stderr)
+                        "Either the sample proc you specified has no files, or the weight had problems",
+                        file=sys.stderr,
+                    )
                     sys.exit()
 
             i = 0
@@ -48,22 +52,26 @@ class RunAnalysis:
                 # flatted list of files
                 __files = [item for sublist in __files for item in sublist]
                 if useFilesPerJob:
-                    dim = samples[sampleName].get('FilesPerJob', len(__files))
+                    dim = samples[sampleName].get("FilesPerJob", len(__files))
                 else:
                     dim = len(__files)
-                __files = [__files[j: j+dim]
-                           for j in range(0, len(__files), dim)]
+                __files = [__files[j : j + dim] for j in range(0, len(__files), dim)]
                 for ___files in __files:
                     # the weights for these files will be the product of the weight inside this sampele (i.e. samples[sampleName]['weight'])
                     # and the product of the special weights that is in common to all of those files (i.e. sampleType[0])
                     # the common special weight can be retrived from the first of the list of files with this weight
                     # remember that the tuple has always size 3 now, the last position is for the special weight
-                    weight = '( ' + samples[sampleName]['weight'] + \
-                        ' ) * ( ' + types[_type][0][2] + ' )'
-                    isData = samples[sampleName].get('isData', False)
+                    weight = (
+                        "( "
+                        + samples[sampleName]["weight"]
+                        + " ) * ( "
+                        + types[_type][0][2]
+                        + " )"
+                    )
+                    isData = samples[sampleName].get("isData", False)
                     sampleType = (sampleName, ___files, weight, i, isData)
-                    if 'subsamples' in list(samples[sampleName].keys()):
-                        sampleType += (samples[sampleName]['subsamples'],)
+                    if "subsamples" in list(samples[sampleName].keys()):
+                        sampleType += (samples[sampleName]["subsamples"],)
                     splittedSamples.append(sampleType)
                     i += 1
         return splittedSamples
@@ -79,11 +87,11 @@ class RunAnalysis:
         Returns:
             TChain: TChain with nominal files and friends files
         """
-        tnom = ROOT.TChain('Events')
+        tnom = ROOT.TChain("Events")
         for f in fnom:
             tnom.Add(f)
         for friend in friends:
-            _tfriend = ROOT.TChain('Events')
+            _tfriend = ROOT.TChain("Events")
             for f in friend:
                 _tfriend.Add(f)
             tnom.AddFriend(_tfriend)
@@ -101,18 +109,18 @@ class RunAnalysis:
         Returns:
             str: string with the expression to be used in the RDataFrame.Vary() method
         """
-        _typeString = ''
-        if _type == 'float':
-            _typeString = 'F'
-        elif _type == 'double':
-            _typeString = 'D'
-        elif _type == 'int':
-            _typeString = 'I'
-        elif _type == 'bool':
-            _typeString = 'B'
+        _typeString = ""
+        if _type == "float":
+            _typeString = "F"
+        elif _type == "double":
+            _typeString = "D"
+        elif _type == "int":
+            _typeString = "I"
+        elif _type == "bool":
+            _typeString = "B"
         else:
-            _typeString = '<' + _type + '>'
-        return f'ROOT::RVec{_typeString}' + '{' + f'{nameDown}, {nameUp}' + '}'
+            _typeString = "<" + _type + ">"
+        return f"ROOT::RVec{_typeString}" + "{" + f"{nameDown}, {nameUp}" + "}"
 
     @staticmethod
     def getNuisanceFiles(nuisance, files):
@@ -125,14 +133,41 @@ class RunAnalysis:
         Returns:
             list of list: list with the down and up varied list of files
         """
-        _files = list(map(lambda k: k.split('/')[-1], files))
+        _files = list(map(lambda k: k.split("/")[-1], files))
         nuisanceFilesDown = list(
-            map(lambda k: nuisance['folderDown'] + '/' + k, _files))
-        nuisanceFilesUp = list(
-            map(lambda k: nuisance['folderUp'] + '/' + k, _files))
+            map(lambda k: nuisance["folderDown"] + "/" + k, _files)
+        )
+        nuisanceFilesUp = list(map(lambda k: nuisance["folderUp"] + "/" + k, _files))
         return [nuisanceFilesDown, nuisanceFilesUp]
 
-    def __init__(self, samples, aliases, variables, cuts, nuisances, lumi, limit=-1, outputFileMap='output.root'):
+    @staticmethod
+    def parseCpp(string):
+        import re
+
+        vars = re.split(" |\(|\)|\+|\-|>|<|=|&&|\/|\*|\.|,|!|\|\|", string)
+        vars = list(filter(lambda k: k != "", vars))
+        vars = list(filter(lambda k: not k.isnumeric(), vars))
+
+        return vars
+
+    @staticmethod
+    def index_sub(string, sub):
+        try:
+            return string.index(sub)
+        except:
+            return -10000
+
+    def __init__(
+        self,
+        samples,
+        aliases,
+        variables,
+        cuts,
+        nuisances,
+        lumi,
+        limit=-1,
+        outputFileMap="output.root",
+    ):
         """
         Stores arguments in the class attributes and creates all the RDataFrame objects
         Args:
@@ -146,24 +181,25 @@ class RunAnalysis:
             outputFileMap (str, optional): full path + filename of the output root file. Defaults to 'output.root'.
 
         Returns:
-            (void): void 
+            (void): void
         """
         self.samples = samples
         self.aliases = aliases
         self.variables = variables
-        self.preselections = cuts['preselections']
+        self.preselections = cuts["preselections"]
         mergedCuts = {}
-        for cut in list(cuts['cuts'].keys()):
-            __cutExpr = ''
-            if type(cuts['cuts'][cut]) == dict:
-                __cutExpr = cuts['cuts'][cut]['expr']
-                for cat in list(cuts['cuts'][cut]['categories'].keys()):
-                    mergedCuts[cut + '_' + cat] = {'parent': cut}
-                    mergedCuts[cut + '_' + cat]['expr'] = __cutExpr + \
-                        ' && ' + cuts['cuts'][cut]['categories'][cat]
-            elif type(cuts['cuts'][cut]) == str:
-                __cutExpr = cuts['cuts'][cut]
-                mergedCuts[cut] = {'expr': __cutExpr, 'parent': cut}
+        for cut in list(cuts["cuts"].keys()):
+            __cutExpr = ""
+            if type(cuts["cuts"][cut]) == dict:
+                __cutExpr = cuts["cuts"][cut]["expr"]
+                for cat in list(cuts["cuts"][cut]["categories"].keys()):
+                    mergedCuts[cut + "_" + cat] = {"parent": cut}
+                    mergedCuts[cut + "_" + cat]["expr"] = (
+                        __cutExpr + " && " + cuts["cuts"][cut]["categories"][cat]
+                    )
+            elif type(cuts["cuts"][cut]) == str:
+                __cutExpr = cuts["cuts"][cut]
+                mergedCuts[cut] = {"expr": __cutExpr, "parent": cut}
         self.cuts = mergedCuts
         self.nuisances = nuisances
         self.lumi = lumi
@@ -184,6 +220,26 @@ class RunAnalysis:
                 ...
             }
         """
+        usedVariables = set()
+        usedVariables = usedVariables.union(RunAnalysis.parseCpp(self.preselections))
+        for cut in mergedCuts.keys():
+            usedVariables = usedVariables.union(
+                RunAnalysis.parseCpp(mergedCuts[cut]["expr"])
+            )
+        for var in variables.keys():
+            if "name" in variables[var].keys():
+                __var = variables[var]["name"].split(":")
+                __vars = list(map(lambda k: RunAnalysis.parseCpp(k), __var))
+                for __v in __vars:
+                    usedVariables = usedVariables.union(__v)
+
+            elif "tree" in variables[var].keys():
+                for branch in variables[var]["tree"].keys():
+                    usedVariables = usedVariables.union(
+                        RunAnalysis.parseCpp(variables[var]["tree"][branch])
+                    )
+            else:
+                print("Cannot process variable ", var, " nuisances might be faulty")
 
         # sample here is a tuple, first el is the sampleName, second list of files,
         # third the special weight, forth is the index of tuple for the same sample,
@@ -193,13 +249,17 @@ class RunAnalysis:
             sampleName = sample[0]
             print(sampleName)
             friendsFiles = []
+            usedFolders = []
             for nuisance in self.nuisances.values():
-                if sampleName not in nuisance.get('samples', {sampleName: []}):
+                if sampleName not in nuisance.get("samples", {sampleName: []}):
                     continue
-                if nuisance.get('type', '') == 'shape':
-                    if nuisance.get('kind', '') == 'suffix':
-                        friendsFiles += RunAnalysis.getNuisanceFiles(
-                            nuisance, files)
+                if nuisance.get("type", "") == "shape":
+                    if nuisance.get("kind", "") == "suffix":
+                        if nuisance["folderUp"] in usedFolders:
+                            continue
+                        usedFolders.append(nuisance["folderUp"])
+
+                        friendsFiles += RunAnalysis.getNuisanceFiles(nuisance, files)
 
             tnom = RunAnalysis.getTTreeNomAndFriends(files, friendsFiles)
 
@@ -209,319 +269,423 @@ class RunAnalysis:
             else:
                 ROOT.EnableImplicitMT()
                 df = ROOT.RDataFrame(tnom)
-            if not sampleName in self.dfs.keys():
+            if sampleName not in self.dfs.keys():
                 self.dfs[sample[0]] = {}
-            self.dfs[sampleName][sample[3]] = {'df': df, 'ttree': tnom}
+            self.dfs[sampleName][sample[3]] = {
+                "df": df,
+                "ttree": tnom,
+                "usedVariables": list(usedVariables),
+            }
+            print("accessing columns")
+            self.dfs[sampleName][sample[3]]["columnNames"] = list(
+                map(lambda k: str(k), df.GetColumnNames())
+            )
+            print("done accessing columns")
 
-        print('\n\nLoaded dataframes\n\n')
+        self.definedAliases = {}
 
-    def loadAliases(self):
+        print("\n\nLoaded dataframes\n\n")
+
+    def loadAliases(self, afterNuis=False):
         """
-        Load aliases in the dataframes. It creates also the special alias `weight` 
+        Load aliases in the dataframes. It creates also the special alias `weight`
+        """
+        aliases = self.aliases
+        for sampleName in self.dfs.keys():
+            for index in self.dfs[sampleName].keys():
+                df = self.dfs[sampleName][index]["df"]
+
+                define_string = "df"
+                usedVariables = set(self.dfs[sampleName][index]["usedVariables"])
+                for alias in list(aliases.keys()):
+                    # only load aliases needed for nuisances!
+                    # if beforeNuis
+                    if (afterNuis) != (aliases[alias].get("afterNuis", False)):
+                        continue
+
+                    if "samples" in list(aliases[alias]):
+                        if not sampleName in aliases[alias]["samples"]:
+                            continue
+                    if alias in self.dfs[sampleName][index]["columnNames"]:
+                        if alias != aliases[alias].get("expr", ""):
+                            print(
+                                f"Alias {alias} cannot be defined, column with that name already exists"
+                            )
+                            sys.exit()
+                        else:
+                            # since the alias key is equal to expr there's no need to keep the alias
+                            del self.aliases[alias]
+                            continue
+
+                    for line in aliases[alias].get("linesToAdd", []):
+                        # RPLME_nThreads is used to set the number of threads
+                        ROOT.gInterpreter.Declare(
+                            line.replace("RPLME_nThreads", str(df.GetNSlots()))
+                        )
+
+                    for line in aliases[alias].get("linesToProcess", []):
+                        # RPLME_nThreads is used to set the number of threads
+                        exec(line, globals())
+
+                    if "expr" in list(aliases[alias].keys()):
+                        define_string += (
+                            f".Define('{alias}', '{aliases[alias]['expr']}') \\\n\t"
+                        )
+                        usedVariables = usedVariables.union(
+                            RunAnalysis.parseCpp(aliases[alias]["expr"])
+                        )
+
+                    elif "exprSlot" in list(aliases[alias].keys()):
+                        nThreads = df.GetNSlots()
+                        args = aliases[alias]["exprSlot"]
+                        args[0] = args[0].replace("RPLME_nThreads", str(df.GetNSlots()))
+                        define_string += (
+                            f".DefineSlot('{alias}', '{args[0]}', [ {args[1]} ]) \\\n\t"
+                        )
+                        usedVariables = usedVariables.union(
+                            RunAnalysis.parseCpp(aliases[alias]["exprSlot"][1])
+                        )
+
+                    elif "class" in list(aliases[alias].keys()):
+                        define_string += f".Define('{alias}', '{aliases[alias]['class']} ( {aliases[alias].get('args', '')}  )') \\\n\t"
+                    else:
+                        print("empty alias", alias)
+
+                df1 = eval(define_string)
+                self.dfs[sampleName][index]["df"] = df1
+
+                stringPrint = "before nuisances"
+                if afterNuis:
+                    stringPrint = "after nuisances"
+                print(
+                    f"\n\nLoaded all aliases {stringPrint} for {sampleName} index {index}\n\n"
+                )
+
+                self.dfs[sampleName][index]["usedVariables"] = list(usedVariables)
+
+                self.dfs[sampleName][index]["columnNames"] = list(
+                    map(lambda k: str(k), df1.GetColumnNames())
+                )
+
+    def loadAliasWeight(self):
+        """
+        Load aliases in the dataframes. It creates also the special alias `weight`
         """
         samples = self.samples
         aliases = self.aliases
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                df = self.dfs[sampleName][index]['df']
-                print('accessing columns')
-                self.dfs[sampleName][index]['columnNames'] = list(
-                    map(lambda k: str(k), df.GetColumnNames()))
-                print('done accessing columns')
+                df = self.dfs[sampleName][index]["df"]
+
+                # Define the most importante alias: the weight!
                 sample = list(
-                    filter(lambda k: k[0] == sampleName and k[3] == index, samples))[0]
+                    filter(lambda k: k[0] == sampleName and k[3] == index, samples)
+                )[0]
                 weight = sample[2]
                 isData = sample[4]
+
                 if not isData:
-                    aliases['weight'] = {
-                        'expr': str(self.lumi) + ' * ' + weight
-                    }
+                    aliases["weight"] = {"expr": str(self.lumi) + " * " + weight}
                 else:
-                    aliases['weight'] = {
-                        'expr': weight
-                    }
+                    aliases["weight"] = {"expr": weight}
 
-                print('\n\n', sampleName, '\n\n', aliases['weight'])
+                print("\n\n", sampleName, "\n\n", aliases["weight"])
 
+                # load the alias weight
                 define_string = "df"
-                for alias in list(aliases.keys()):
-                    if 'samples' in list(aliases[alias]):
-                        if not sampleName in aliases[alias]['samples']:
-                            continue
-                    if alias in self.dfs[sampleName][index]['columnNames']:
-                        print(
-                            f'Alias {alias} cannot be defined, column with that name already exists')
-                        sys.exit()
 
-                    for line in aliases[alias].get('linesToAdd', []):
-                        if line.startswith('.L'):
-                            ls = line.split(' ')
-                            if len(ls) != 2:
-                                print('Don\'t know hot to read line',
-                                      line, 'from alias ', alias)
-                                sys.exit()
-                            ROOT.gInterpreter.Declare(f'#include "{ls[1]}"')
-                        else:
-                            print('Only ".L" in linesToAdd is supported')
-                            sys.exit()
+                alias = "weight"
 
-                    if 'expr' in list(aliases[alias].keys()):
-                        define_string += f".Define('{alias}', '{aliases[alias]['expr']}') \\\n\t"
+                if alias in self.dfs[sampleName][index]["columnNames"]:
+                    print(
+                        f"Alias {alias} cannot be defined, column with that name already exists"
+                    )
+                    sys.exit()
 
-                    elif 'class' in list(aliases[alias].keys()):
-                        define_string += f".Define('{alias}', '{aliases[alias]['class']} ( {aliases[alias].get('args', '')}  )') \\\n\t"
-                    else:
-                        print('empty alias')
-#                        print('Only aliases with expr or class are supported')
-#                        sys.exit()
+                define_string += (
+                    f".Define('{alias}', '{aliases[alias]['expr']}') \\\n\t"
+                )
 
                 df1 = eval(define_string)
-                self.dfs[sampleName][index]['df'] = df1
+                self.dfs[sampleName][index]["df"] = df1
 
-                print(
-                    f'\n\nLoaded all aliases for {sampleName} index {index}\n\n')
+                print(f"\n\nLoaded alias weight for {sampleName} index {index}\n\n")
 
-                self.dfs[sampleName][index]['columnNames'] = list(
-                    map(lambda k: str(k), df1.GetColumnNames()))
+                self.dfs[sampleName][index]["columnNames"].append("weight")
 
-    def loadSystematics(self):
+    def loadSystematicsSuffix(self):
         """
         Loads systematics in the dataframes. Supported nuisance types are suffix and weight.
         """
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                df = self.dfs[sampleName][index]['df']
-                columnNames = self.dfs[sampleName][index]['columnNames']
+                df = self.dfs[sampleName][index]["df"]
+                columnNames = self.dfs[sampleName][index]["columnNames"]
                 nuisances = self.nuisances
                 # nuisance key is not used
                 for _, nuisance in list(nuisances.items()):
-                    if sampleName not in nuisance.get('samples', {sampleName: []}):
+                    if sampleName not in nuisance.get("samples", {sampleName: []}):
                         continue
-                    if nuisance.get('type', '') == 'shape':
-                        if nuisance.get('kind', '') == 'suffix':
-                            variation = nuisance['mapDown']
+                    if nuisance.get("type", "") == "shape":
+                        if nuisance.get("kind", "") == "suffix":
+                            variation = nuisance["mapDown"]
                             variedCols = list(
-                                filter(lambda k: k.endswith(variation), columnNames))
+                                filter(lambda k: k.endswith(variation), columnNames)
+                            )
                             if len(variedCols) == 0:
-                                print(f'No varied columns for {variation}')
+                                print(f"No varied columns for {variation}")
                                 sys.exit()
-                            baseCols = list(map(lambda k: '_'.join(
-                                k.split('.')[-1].split('_')[:-(1 + variation.count('_'))]), variedCols))
+                            baseCols = list(
+                                map(
+                                    lambda k: k[
+                                        RunAnalysis.index_sub(k, "Events.")
+                                        + len("Events.") : -len("_" + variation)
+                                    ],
+                                    variedCols,
+                                )
+                            )
                             for baseCol in baseCols:
-                                if 'bool' not in str(df.GetColumnType(baseCol)).lower():
-                                    varNameDown = baseCol + '_' + \
-                                        nuisance['mapDown'] + '*' + \
-                                        nuisance['samples'][sampleName][1]
-                                    varNameUp = baseCol + '_' + \
-                                        nuisance['mapUp'] + '*' + \
-                                        nuisance['samples'][sampleName][0]
+                                if (
+                                    baseCol
+                                    not in self.dfs[sampleName][index]["usedVariables"]
+                                ):
+                                    continue
+                                if "bool" not in str(df.GetColumnType(baseCol)).lower():
+                                    varNameDown = (
+                                        baseCol
+                                        + "_"
+                                        + nuisance["mapDown"]
+                                        + "*"
+                                        + nuisance["samples"][sampleName][1]
+                                    )
+                                    varNameUp = (
+                                        baseCol
+                                        + "_"
+                                        + nuisance["mapUp"]
+                                        + "*"
+                                        + nuisance["samples"][sampleName][0]
+                                    )
                                 else:
-                                    varNameDown = baseCol + \
-                                        '_' + nuisance['mapDown']
-                                    varNameUp = baseCol + \
-                                        '_' + nuisance['mapUp']
+                                    varNameDown = baseCol + "_" + nuisance["mapDown"]
+                                    varNameUp = baseCol + "_" + nuisance["mapUp"]
 
                                 _type = df.GetColumnType(baseCol)
                                 expr = RunAnalysis.varyExpression(
-                                    varNameDown, varNameUp, _type)
-                                df = df.Vary(baseCol, expr, variationTags=[
-                                    "down", "up"], variationName=nuisance['name'])
+                                    varNameDown, varNameUp, _type
+                                )
+                                df = df.Vary(
+                                    baseCol,
+                                    expr,
+                                    variationTags=["Down", "Up"],
+                                    variationName=nuisance["name"],
+                                )
 
-                        elif nuisance.get('kind', '') == 'weight':
-                            weights = nuisance['samples'].get(sampleName, None)
-                            if weights != None:
+                        elif nuisance.get("kind", "") == "weight":
+                            continue
+                        else:
+                            print("Unsupported nuisance")
+                            sys.exit()
+                self.dfs[sampleName][index]["df"] = df
+
+    def loadSystematicsReweights(self):
+        """
+        Loads systematics in the dataframes. Supported nuisance types are suffix and weight.
+        """
+        for sampleName in self.dfs.keys():
+            for index in self.dfs[sampleName].keys():
+                df = self.dfs[sampleName][index]["df"]
+                columnNames = self.dfs[sampleName][index]["columnNames"]
+                nuisances = self.nuisances
+                # nuisance key is not used
+                for _, nuisance in list(nuisances.items()):
+                    if sampleName not in nuisance.get("samples", {sampleName: []}):
+                        continue
+                    if nuisance.get("type", "") == "shape":
+                        if nuisance.get("kind", "") == "weight":
+                            weights = nuisance["samples"].get(sampleName, None)
+                            if weights is not None:
                                 variedNames = []
                                 if weights[0] not in columnNames:
-                                    df = df.Define(
-                                        nuisance['name']+'_up', weights[0])
-                                    variedNames.append(
-                                        nuisance['name'] + '_up')
+                                    df = df.Define(nuisance["name"] + "_up", weights[0])
+                                    variedNames.append(nuisance["name"] + "_up")
                                 else:
                                     variedNames.append(weights[0])
 
                                 if weights[1] not in columnNames:
                                     df = df.Define(
-                                        nuisance['name']+'_down', weights[1])
-                                    variedNames.append(
-                                        nuisance['name'] + '_down')
+                                        nuisance["name"] + "_down", weights[1]
+                                    )
+                                    variedNames.append(nuisance["name"] + "_down")
                                 else:
                                     variedNames.append(weights[1])
 
-                                if df.GetColumnType('weight') == 'double':
-                                    expr = f'ROOT::RVecD' + \
-                                        '{ weight * (double)' + \
-                                        f'{variedNames[1]}, weight * (double) {variedNames[0]}' + '}'
-                                elif df.GetColumnType('weight') == 'float':
-                                    expr = f'ROOT::RVecF' + \
-                                        '{ weight * (float)' + \
-                                        f'{variedNames[1]}, weight * (float) {variedNames[0]}' + '}'
+                                if df.GetColumnType("weight") == "double":
+                                    expr = (
+                                        f"ROOT::RVecD"
+                                        + "{ weight * (double)"
+                                        + f"{variedNames[1]}, weight * (double) {variedNames[0]}"
+                                        + "}"
+                                    )
+                                elif df.GetColumnType("weight") == "float":
+                                    expr = (
+                                        f"ROOT::RVecF"
+                                        + "{ weight * (float)"
+                                        + f"{variedNames[1]}, weight * (float) {variedNames[0]}"
+                                        + "}"
+                                    )
                                 else:
-                                    print('Weight column has unknown type:', df.GetColumnType(
-                                        'weight'), 'while varied is: ', df.GetColumnType(variedNames[1]))
+                                    print(
+                                        "Weight column has unknown type:",
+                                        df.GetColumnType("weight"),
+                                        "while varied is: ",
+                                        df.GetColumnType(variedNames[1]),
+                                    )
                                     sys.exit()
 
-                                df = df.Vary('weight', expr, variationTags=[
-                                    "down", "up"], variationName=nuisance['name'])
+                                df = df.Vary(
+                                    "weight",
+                                    expr,
+                                    variationTags=["Down", "Up"],
+                                    variationName=nuisance["name"],
+                                )
+                        elif nuisance.get("kind", "") == "suffix":
+                            continue
                         else:
                             print("Unsupported nuisance")
                             sys.exit()
-                self.dfs[sampleName][index]['df'] = df
+                self.dfs[sampleName][index]["df"] = df
 
     def loadVariables(self):
         """
         Loads variables (not ones with the 'tree' key in them) and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
-        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs. This is done by gathering the largest set of column names. 
+        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs. This is done by gathering the largest set of column names.
         """
 
         bigColumnNames = set()
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                columnNames = self.dfs[sampleName][index]['columnNames']
+                columnNames = self.dfs[sampleName][index]["columnNames"]
                 bigColumnNames = bigColumnNames.union(set(columnNames))
 
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
                 for var in list(self.variables.keys()):
-                    if 'tree' in self.variables[var].keys():
+                    if "tree" in self.variables[var].keys():
                         continue
-                    if var in bigColumnNames and var != self.variables[var]['name']:
+                    if var in bigColumnNames and var != self.variables[var]["name"]:
                         # here I want to define a variable whose key is already in the column name list
                         # and its expression is different from its name
                         # therefore we will either create a Define or an Alias
 
                         # need to rename the new variable!
-                        prefix = '__'
+                        prefix = "__"
                         nVar = prefix + var
                         while nVar in bigColumnNames:
-                            prefix += '__'
+                            prefix += "__"
                             nVar = prefix + var
-                        print('changing variable', var,'to '+nVar)
+                        print("changing variable", var, "to " + nVar)
                         self.remappedVariables[nVar] = prefix
                         self.variables[nVar] = deepcopy(self.variables[var])
                         del self.variables[var]
 
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                df = self.dfs[sampleName][index]['df']
+                df = self.dfs[sampleName][index]["df"]
                 for var in list(self.variables.keys()):
-                    if 'tree' in self.variables[var].keys():
+                    if "tree" in self.variables[var].keys():
                         continue
-                    if self.variables[var]['name'] not in bigColumnNames:
-                        # the variable expr does not exist, create it
-                        df = df.Define(var, self.variables[var]['name'])
-                    elif var not in bigColumnNames:
-                        # the variable expr exists in the df, but not the variable key
-                        # use alias
-                        df = df.Alias(var, self.variables[var]['name'])
-                    elif var == self.variables[var]['name'] and var in bigColumnNames:
-                        # since the variable name and expression are equal and are already present in the df don't do anything
-                        pass
-                    else:
-                        #FIXME 
-                        print("Error, cannot define variable")
-                        sys.exit()
-                self.dfs[sampleName][index]['df'] = df
-                self.dfs[sampleName][index]['columnNames'] = list(
-                    map(lambda k: str(k), df.GetColumnNames()))
+                    for i, _var in enumerate(self.variables[var]["name"].split(":")):
+                        n = var if i == 0 else var + f"_{i}"
 
+                        if _var not in bigColumnNames:
+                            # the variable expr does not exist, create it
+                            df = df.Define(n, _var)
+                        elif n not in bigColumnNames:
+                            # the variable expr exists in the df, but not the variable key
+                            # use alias
+                            df = df.Alias(n, _var)
+                        elif n == _var and n in bigColumnNames:
+                            # since the variable name and expression are equal and are already present in the df don't do anything
+                            pass
+                        else:
+                            # FIXME
+                            print("Error, cannot define variable")
+                            sys.exit()
+                self.dfs[sampleName][index]["df"] = df
+                self.dfs[sampleName][index]["columnNames"] = list(
+                    map(lambda k: str(k), df.GetColumnNames())
+                )
 
     def loadBranches(self):
         """
         Loads variables (not ones with the 'tree' key in them) and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
-        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs. This is done by gathering the largest set of column names. 
+        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs. This is done by gathering the largest set of column names.
         """
 
         bigColumnNames = set()
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                columnNames = self.dfs[sampleName][index]['columnNames']
+                columnNames = self.dfs[sampleName][index]["columnNames"]
                 bigColumnNames = bigColumnNames.union(set(columnNames))
 
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
                 for var in list(self.variables.keys()):
-                    if not 'tree' in self.variables[var].keys():
+                    if not "tree" in self.variables[var].keys():
                         continue
-                    for branch in self.variables[var]['tree'].keys():
-                        if branch in bigColumnNames and branch != self.variables[var]['tree'][branch]: 
+                    for branch in self.variables[var]["tree"].keys():
+                        if (
+                            branch in bigColumnNames
+                            and branch != self.variables[var]["tree"][branch]
+                        ):
                             # here I want to define a variable whose key is already in the column name list
                             # and its expression is different from its name
                             # therefore we will either create a Define or an Alias
 
                             # need to rename the new variable!
-                            prefix = '__'
+                            prefix = "__"
                             nVar = prefix + branch
                             while nVar in bigColumnNames:
-                                prefix += '__'
+                                prefix += "__"
                                 nVar = prefix + branch
-                            print('changing variable', branch, 'to '+nVar)
+                            print("changing variable", branch, "to " + nVar)
                             self.remappedVariables[nVar] = prefix
-                            self.variables[var]['tree'][nVar] = self.variables[var]['tree'][branch]
-                            del self.variables[var]['tree'][branch]
+                            self.variables[var]["tree"][nVar] = self.variables[var][
+                                "tree"
+                            ][branch]
+                            del self.variables[var]["tree"][branch]
 
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                df = self.dfs[sampleName][index]['df']
+                df = self.dfs[sampleName][index]["df"]
                 for var in list(self.variables.keys()):
-                    if not 'tree' in self.variables[var].keys():
+                    if not "tree" in self.variables[var].keys():
                         continue
-                    for branch in self.variables[var]['tree'].keys():
-                        print('working on defining branch', branch)
-                        if self.variables[var]['tree'][branch] not in bigColumnNames:
+                    for branch in self.variables[var]["tree"].keys():
+                        print("working on defining branch", branch)
+                        if self.variables[var]["tree"][branch] not in bigColumnNames:
                             # the variable expr does not exist, create it
-                            print('define the branch')
-                            df = df.Define(branch, self.variables[var]['tree'][branch])
+                            print("define the branch")
+                            df = df.Define(branch, self.variables[var]["tree"][branch])
                         elif branch not in bigColumnNames:
                             # the variable expr exists in the df, but not the variable key
                             # use alias
-                            print('define an alias to the branch')
-                            df = df.Alias(branch, self.variables[var]['tree'][branch])
-                        elif branch == self.variables[var]['tree'][branch] and branch in bigColumnNames:
+                            print("define an alias to the branch")
+                            df = df.Alias(branch, self.variables[var]["tree"][branch])
+                        elif (
+                            branch == self.variables[var]["tree"][branch]
+                            and branch in bigColumnNames
+                        ):
                             # since the variable name and expression are equal and are already present in the df don't do anything
-                            print('boh')
                             pass
                         else:
-                            #FIXME 
+                            # FIXME
                             print("Error, cannot define variable")
                             sys.exit()
-                self.dfs[sampleName][index]['df'] = df
-                self.dfs[sampleName][index]['columnNames'] = list(
-                    map(lambda k: str(k), df.GetColumnNames()))
-
-
-
-#    def loadBranches(self):
-#        """
-#        Loads branches for TTrees/SnapShots and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
-#        """
-#        for sampleName in self.dfs.keys():
-#            for index in self.dfs[sampleName].keys():
-#                df = self.dfs[sampleName][index]['df']
-#                columnNames = self.dfs[sampleName][index]['columnNames']
-#                for var in list(self.variables.keys()):
-#                    if not 'tree' in self.variables[var].keys():
-#                        continue
-#                    for branchName in self.variables[var]['tree'].keys():
-#
-#                        if branchName in columnNames:
-#                            _var = '__' + branchName
-#                            self.variables[_var] = self.variables[var]
-#                            del self.variables[var]
-#
-#                print(self.variables)
-#                for var in list(self.variables.keys()):
-#                    if 'tree' in self.variables[var].keys():
-#                        continue
-#                    if self.variables[var]['name'] not in columnNames:
-#                        df = df.Define(var, self.variables[var]['name'])
-#                    elif var not in columnNames:
-#                        df = df.Alias(var, self.variables[var]['name'])
-#                    else:
-#                        print("Error, cannot define variable")
-#                        sys.exit()
-#                self.dfs[sampleName][index]['df'] = df
-
-
+                self.dfs[sampleName][index]["df"] = df
+                self.dfs[sampleName][index]["columnNames"] = list(
+                    map(lambda k: str(k), df.GetColumnNames())
+                )
 
     def createResults(self):
         """
@@ -538,20 +702,25 @@ class RunAnalysis:
         Split samples into subsamples if needed
         """
         sampleNames = set(
-            list(map(lambda k: k[0], list(filter(lambda k: len(k) == 6, self.samples)))))
+            list(map(lambda k: k[0], list(filter(lambda k: len(k) == 6, self.samples))))
+        )
         for sampleName in sampleNames:
-            _sample = list(
-                filter(lambda k: k[0] == sampleName, self.samples))[0]
+            _sample = list(filter(lambda k: k[0] == sampleName, self.samples))[0]
             for subsample in list(_sample[5].keys()):
-                self.dfs[sampleName + '_' + subsample] = {}
+                self.dfs[sampleName + "_" + subsample] = {}
                 for index in self.dfs[sampleName].keys():
-                    self.dfs[sampleName + '_' + subsample][index] = {'parent': sampleName}
-                    self.dfs[sampleName + '_' + subsample][index]['df'] = self.dfs[sampleName][index]['df'].Filter(
-                        _sample[5][subsample])
-                    self.dfs[sampleName + '_' +
-                             subsample][index]['columnNames'] = self.dfs[sampleName][index]['columnNames']
-                    self.dfs[sampleName + '_' +
-                             subsample][index]['ttree'] = self.dfs[sampleName][index]['ttree']
+                    self.dfs[sampleName + "_" + subsample][index] = {
+                        "parent": sampleName
+                    }
+                    self.dfs[sampleName + "_" + subsample][index]["df"] = self.dfs[
+                        sampleName
+                    ][index]["df"].Filter(_sample[5][subsample])
+                    self.dfs[sampleName + "_" + subsample][index][
+                        "columnNames"
+                    ] = self.dfs[sampleName][index]["columnNames"]
+                    self.dfs[sampleName + "_" + subsample][index]["ttree"] = self.dfs[
+                        sampleName
+                    ][index]["ttree"]
 
             del self.dfs[sampleName]
 
@@ -563,49 +732,84 @@ class RunAnalysis:
         variables = self.variables
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                df = self.dfs[sampleName][index]['df']
+                df = self.dfs[sampleName][index]["df"]
 
                 for cut in mergedCuts.keys():
-                    df_cat = df.Filter(mergedCuts[cut]['expr'])
-                    opts = ROOT.RDF.RSnapshotOptions() 
+                    df_cat = df.Filter(mergedCuts[cut]["expr"])
+                    opts = ROOT.RDF.RSnapshotOptions()
                     opts.fLazy = True
 
                     for var in list(variables.keys()):
-                        if 'tree' in variables[var].keys():
-                            if not mergedCuts[cut]['parent'] in variables[var]['cuts']:
-                                #del df_cat
+                        if "tree" in variables[var].keys():
+                            if not mergedCuts[cut]["parent"] in variables[var]["cuts"]:
+                                # del df_cat
                                 continue
 
-                            outpath = self.outputFileMap 
-                            if self.outputFileMap != 'output.root':
-                                outfileName = '.'.join(self.outputFileMap.split('/')[-1].split('.')[:-1]) + f'__ALL__{cut}_{sampleName}_{str(index)}.root'
-                                outpath = '/'.join(self.outputFileMap.split('/')[:-1]) + '/' + outfileName
+                            outpath = self.outputFileMap
+                            if self.outputFileMap != "output.root":
+                                outfileName = (
+                                    ".".join(
+                                        self.outputFileMap.split("/")[-1].split(".")[
+                                            :-1
+                                        ]
+                                    )
+                                    + f"__ALL__{cut}_{sampleName}_{str(index)}.root"
+                                )
+                                outpath = (
+                                    "/".join(self.outputFileMap.split("/")[:-1])
+                                    + "/"
+                                    + outfileName
+                                )
                             else:
-                                outpath = f'output_{cut}_{sampleName}_{str(index)}.root'
+                                outpath = f"output_{cut}_{sampleName}_{str(index)}.root"
 
-                            #_h = df_cat.Snapshot(cut + '/' + sampleName, outpath, list(self.variables[var]['tree'].keys()), opts)
+                            # _h = df_cat.Snapshot(cut + '/' + sampleName, outpath, list(self.variables[var]['tree'].keys()), opts)
 
                             # FIXME always save the weight!
-                            _h = df_cat.Snapshot('Events', outpath, list(self.variables[var]['tree'].keys()) + ['weight'], opts)
+                            _h = df_cat.Snapshot(
+                                "Events",
+                                outpath,
+                                list(self.variables[var]["tree"].keys()) + ["weight"],
+                                opts,
+                            )
                         else:
+                            vs = variables[var]["name"].split(":")
+
                             histRange = []
-                            if len(variables[var]['range']) == 1:
+                            if len(variables[var]["range"]) == len(vs):
                                 # bin endges are provided by the user
-                                histRange = [len(variables[var]['range'][0])-1, array('d', variables[var]['range'][0])]
+                                for ax in variables[var]["range"]:
+                                    histRange.extend([len(ax) - 1, array("d", ax)])
                             else:
-                                histRange = variables[var]['range']
+                                histRange = variables[var]["range"]
 
                             histRange = tuple(histRange)
 
-                            _h = df_cat.Histo1D((cut + '_' + var, '') +
-                                                histRange, var, "weight")
+                            if len(vs) == 1:
+                                _h = df_cat.Histo1D(
+                                    (cut + "_" + var, "") + histRange, var, "weight"
+                                )
+                            elif len(vs) == 2:
+                                varNames = []
+                                for i, _var in enumerate(vs):
+                                    n = var if i == 0 else var + f"_{i}"
+                                    varNames.append(n)
+
+                                _h = df_cat.Histo2D(
+                                    (cut + "_" + var, "") + histRange,
+                                    *varNames,
+                                    "weight",
+                                )
+                            else:
+                                print("Unknown dimension of histo for variable", var)
+                                sys.exit()
                         if sampleName not in self.results[cut][var].keys():
                             self.results[cut][var][sampleName] = {}
                         self.results[cut][var][sampleName][index] = _h
 
                 for cut in mergedCuts.keys():
                     for var in list(variables.keys()):
-                        if not 'tree' in variables[var].keys():
+                        if not "tree" in variables[var].keys():
                             _s = self.results[cut][var][sampleName][index]
                             _s_var = ROOT.RDF.Experimental.VariationsFor(_s)
                             self.results[cut][var][sampleName][index] = _s_var
@@ -617,35 +821,37 @@ class RunAnalysis:
             for index in self.dfs[sampleName].keys():
                 for cut in mergedCuts.keys():
                     for var in list(variables.keys()):
-                        if 'tree' in variables[var].keys():
+                        if "tree" in variables[var].keys():
                             # no need to process SnapShots
                             continue
                         _s_var = self.results[cut][var][sampleName][index]
                         _histos = {}
                         for _variation in list(map(lambda k: str(k), _s_var.GetKeys())):
-                            _h_name = _variation.replace(':', '_')
+                            _h_name = _variation.replace(":", "")
                             _h = 0
                             _h = _s_var[_variation]
-                            fold = variables[var].get('fold', 0)
-                            print(sampleName, index, _h.Integral())
+                            fold = variables[var].get("fold", 0)
                             if fold == 1 or fold == 3:
-                                _h.SetBinContent(1, _h.GetBinContent(
-                                    0) + _h.GetBinContent(1))
+                                _h.SetBinContent(
+                                    1, _h.GetBinContent(0) + _h.GetBinContent(1)
+                                )
                                 _h.SetBinContent(0, 0)
                             if fold == 2 or fold == 3:
                                 lastBin = _h.GetNbinsX()
                                 _h.SetBinContent(
-                                    lastBin, _h.GetBinContent(lastBin) + _h.GetBinContent(lastBin+1))
-                                _h.SetBinContent(lastBin+1, 0)
+                                    lastBin,
+                                    _h.GetBinContent(lastBin)
+                                    + _h.GetBinContent(lastBin + 1),
+                                )
+                                _h.SetBinContent(lastBin + 1, 0)
                             _histos[_h_name] = _h.Clone()
                             # del _h
-                        #del self.results[cut][var][sampleName]['object']
+                        # del self.results[cut][var][sampleName]['object']
                         # replace the object with the dictionary of histos
                         self.results[cut][var][sampleName][index] = _histos
 
     def saveResults(self):
-        files = []
-        f = ROOT.TFile(self.outputFileMap, 'recreate')
+        f = ROOT.TFile(self.outputFileMap, "recreate")
 
         toBeDeleted = []
         openedFiles = []
@@ -654,131 +860,175 @@ class RunAnalysis:
             for index in self.dfs[sampleName].keys():
                 for cut in self.cuts.keys():
                     for var in list(self.variables.keys()):
-                        if 'tree' in self.variables[var].keys():
-                            if not self.cuts[cut]['parent'] in self.variables[var]['cuts']:
+                        if "tree" in self.variables[var].keys():
+                            if (
+                                not self.cuts[cut]["parent"]
+                                in self.variables[var]["cuts"]
+                            ):
                                 continue
 
-                            if self.outputFileMap != 'output.root':
-                                outfileName = '.'.join(self.outputFileMap.split('/')[-1].split('.')[:-1]) + f'__ALL__{cut}_{sampleName}_{str(index)}.root'
-                                outpath = '/'.join(self.outputFileMap.split('/')[:-1]) + '/' + outfileName
+                            if self.outputFileMap != "output.root":
+                                outfileName = (
+                                    ".".join(
+                                        self.outputFileMap.split("/")[-1].split(".")[
+                                            :-1
+                                        ]
+                                    )
+                                    + f"__ALL__{cut}_{sampleName}_{str(index)}.root"
+                                )
+                                outpath = (
+                                    "/".join(self.outputFileMap.split("/")[:-1])
+                                    + "/"
+                                    + outfileName
+                                )
                             else:
-                                outpath = f'output_{cut}_{sampleName}_{str(index)}.root'
+                                outpath = f"output_{cut}_{sampleName}_{str(index)}.root"
                             _f = ROOT.TFile(outpath)
                             openedFiles.append(_f)
 
-                            t = _f.Get('Events')
-                            openedTrees.append(t)
-                            f.cd('/')
-                            folder = f'trees/{cut}/{sampleName}/{str(index)}'
-                            print('Creating dir', folder, outpath)
-                            toBeDeleted.append(outpath)
-                            ROOT.gDirectory.mkdir(folder, '', True)
-                            ROOT.gDirectory.cd('/'+folder)
-                            t.CloneTree().Write()
+                            if _f.GetListOfKeys().Contains("Events"):
+                                t = _f.Get("Events")
+                                openedTrees.append(t)
+                                f.cd("/")
+                                folder = f"trees/{cut}/{sampleName}/"
+                                print("Creating dir", folder, outpath)
+                                toBeDeleted.append(outpath)
+                                ROOT.gDirectory.mkdir(folder, "", True)
+                                ROOT.gDirectory.cd("/" + folder)
+                                t.CloneTree().Write()
+                            else:
+                                print(
+                                    "No TTree was created for",
+                                    cut,
+                                    var,
+                                    sampleName,
+                                    index,
+                                    "even if requested",
+                                    file=sys.stderr,
+                                )
 
-        f.cd('/')
+        f.cd("/")
 
         for cut_cat in list(self.results.keys()):
             _cut_cat = f.mkdir(cut_cat)
             for var in list(self.results[cut_cat].keys()):
-                if 'tree' in self.variables[var].keys():
+                if "tree" in self.variables[var].keys():
                     continue
-                _var = ''
+                _var = ""
                 if var in list(self.remappedVariables.keys()):
-                    # remove the __ at the beginning 
-                    _var = var[len(self.remappedVariables[var]):] 
+                    # remove the __ at the beginning
+                    _var = var[len(self.remappedVariables[var]) :]
                 else:
                     _var = var
 
                 _cut_cat.mkdir(_var)
-                f.cd('/' + cut_cat + '/' + _var)
+                f.cd("/" + cut_cat + "/" + _var)
                 for sampleName in list(self.results[cut_cat][var].keys()):
                     # should first merge histos
                     mergedHistos = {}
                     for index in list(self.results[cut_cat][var][sampleName].keys()):
-                        for hname in list(self.results[cut_cat][var][sampleName][index].keys()):
+                        for hname in list(
+                            self.results[cut_cat][var][sampleName][index].keys()
+                        ):
                             if hname not in mergedHistos.keys():
-                                mergedHistos[hname] = self.results[cut_cat][var][sampleName][index][hname].Clone()
+                                mergedHistos[hname] = self.results[cut_cat][var][
+                                    sampleName
+                                ][index][hname].Clone()
                             else:
                                 mergedHistos[hname].Add(
-                                    self.results[cut_cat][var][sampleName][index][hname])
+                                    self.results[cut_cat][var][sampleName][index][hname]
+                                )
 
                     for hname in mergedHistos.keys():
-                        if hname == 'nominal':
-                            mergedHistos[hname].SetName('histo_' + sampleName)
+                        if hname == "nominal":
+                            mergedHistos[hname].SetName("histo_" + sampleName)
                         else:
                             mergedHistos[hname].SetName(
-                                'histo_' + sampleName + '_' + hname)
+                                "histo_" + sampleName + "_" + hname
+                            )
                         mergedHistos[hname].Write()
         f.Close()
 
         # clean snapshot files
-        proc = ''
+        proc = ""
         for _file in toBeDeleted:
-            proc += f' rm {_file}; '
+            proc += f" rm {_file}; "
         import subprocess
+
         _proc = subprocess.Popen(proc, shell=True)
         _proc.wait()
 
         print(proc)
 
     def mergeSaveResults(self):
-        f = ROOT.TFile(self.outputFileMap, 'recreate')
+        f = ROOT.TFile(self.outputFileMap, "recreate")
         for cut_cat in list(self.results.keys()):
             _cut_cat = f.mkdir(cut_cat)
             for var in list(self.results[cut_cat].keys()):
-                if 'tree' in self.variables[var].keys():
+                if "tree" in self.variables[var].keys():
                     # no need to process SnapShots
                     continue
                 _cut_cat.mkdir(var)
-                f.cd('/' + cut_cat + '/' + var)
+                f.cd("/" + cut_cat + "/" + var)
                 for sampleName in list(self.results[cut_cat][var].keys()):
                     # should first merge histos
                     mergedHistos = {}
                     for index in list(self.results[cut_cat][var][sampleName].keys()):
-                        for hname in list(self.results[cut_cat][var][sampleName][index].keys()):
+                        for hname in list(
+                            self.results[cut_cat][var][sampleName][index].keys()
+                        ):
                             if hname not in mergedHistos.keys():
-                                mergedHistos[hname] = self.results[cut_cat][var][sampleName][index][hname].Clone()
+                                mergedHistos[hname] = self.results[cut_cat][var][
+                                    sampleName
+                                ][index][hname].Clone()
                             else:
                                 mergedHistos[hname].Add(
-                                    self.results[cut_cat][var][sampleName][index][hname])
+                                    self.results[cut_cat][var][sampleName][index][hname]
+                                )
 
                     for hname in mergedHistos.keys():
-                        if hname == 'nominal':
-                            mergedHistos[hname].SetName('histo_' + sampleName)
+                        if hname == "nominal":
+                            mergedHistos[hname].SetName("histo_" + sampleName)
                         else:
                             mergedHistos[hname].SetName(
-                                'histo_' + sampleName + '_' + hname)
+                                "histo_" + sampleName + "_" + hname
+                            )
                         mergedHistos[hname].Write()
         f.Close()
 
     def mergeAndSaveResults(self):
-        f = ROOT.TFile(self.outputFileMap, 'recreate')
+        f = ROOT.TFile(self.outputFileMap, "recreate")
         for cut_cat in list(self.results.keys()):
             _cut_cat = f.mkdir(cut_cat)
             for var in list(self.results[cut_cat].keys()):
-                if 'tree' in self.variables[var].keys():
+                if "tree" in self.variables[var].keys():
                     # no need to process SnapShots
                     continue
                 _cut_cat.mkdir(var)
-                f.cd('/' + cut_cat + '/' + var)
+                f.cd("/" + cut_cat + "/" + var)
                 for sampleName in list(self.results[cut_cat][var].keys()):
                     # should first merge histos
                     mergedHistos = {}
                     for index in list(self.results[cut_cat][var][sampleName].keys()):
-                        for hname in list(self.results[cut_cat][var][sampleName][index].keys()):
+                        for hname in list(
+                            self.results[cut_cat][var][sampleName][index].keys()
+                        ):
                             if hname not in mergedHistos.keys():
-                                mergedHistos[hname] = self.results[cut_cat][var][sampleName][index][hname].Clone()
+                                mergedHistos[hname] = self.results[cut_cat][var][
+                                    sampleName
+                                ][index][hname].Clone()
                             else:
                                 mergedHistos[hname].Add(
-                                    self.results[cut_cat][var][sampleName][index][hname])
+                                    self.results[cut_cat][var][sampleName][index][hname]
+                                )
 
                     for hname in mergedHistos.keys():
-                        if hname == 'nominal':
-                            mergedHistos[hname].SetName('histo_' + sampleName)
+                        if hname == "nominal":
+                            mergedHistos[hname].SetName("histo_" + sampleName)
                         else:
                             mergedHistos[hname].SetName(
-                                'histo_' + sampleName + '_' + hname)
+                                "histo_" + sampleName + "_" + hname
+                            )
                         mergedHistos[hname].Write()
         f.Close()
 
@@ -788,26 +1038,35 @@ class RunAnalysis:
         loads variables, creates the results dict, splits the samples, creates the cuts/var histos, runs the analysis
         and saves results.
         """
-        # FIXME should handle subsamples, but how can it work with sampleName?
+        # load all aliases needed before nuisances of type suffix
         self.loadAliases()
+        self.loadSystematicsSuffix()
+
+        # load alias weight needed before nuisances of type weight
+        self.loadAliasWeight()
+        self.loadSystematicsReweights()
+
+        # load all aliases remaining
+        self.loadAliases(True)
+
         # apply preselections
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                self.dfs[sampleName][index]['df'] = self.dfs[sampleName][index]['df'].Filter(
-                    self.preselections)
+                self.dfs[sampleName][index]["df"] = self.dfs[sampleName][index][
+                    "df"
+                ].Filter(self.preselections)
 
-        self.loadSystematics()
         self.loadVariables()
         self.loadBranches()
-        print('loaded all variables')
+        print("loaded all variables")
         self.createResults()
-        print('created empty results dict')
+        print("created empty results dict")
         self.splitSubsamples()
-        print('splitted samples')
+        print("splitted samples")
         self.create_cuts_vars()
-        print('created cuts')
+        print("created cuts")
 
-        '''
+        """
         # FIXME RunGraphs can't handle results of VaraitionsFor, ask Vincenzo about it
 
         # collect all the dataframes and run them
@@ -820,31 +1079,41 @@ class RunAnalysis:
                         dfs.extend(
                             list(self.results[cut][var][sampleName][index].values()))
         ROOT.RDF.RunGraphs(dfs)
-        '''
+        """
+
+        counts = []
+        # register number of events in each df
+        for sampleName in self.dfs.keys():
+            for index in self.dfs[sampleName].keys():
+                counts.append(self.dfs[sampleName][index]["df"].Count())
 
         snapshots = []
         for cut in self.cuts.keys():
             for var in self.variables.keys():
-                if len(self.results[cut].get(var, [])) == 0 or not 'tree' in self.variables[var].keys():
+                if (
+                    len(self.results[cut].get(var, [])) == 0
+                    or not "tree" in self.variables[var].keys()
+                ):
                     # no snapshots for this combination of cut variable
                     continue
 
                 for sampleName in self.dfs.keys():
                     for index in self.dfs[sampleName].keys():
                         # dfs.append(self.results[cut][var][sampleName][index])
-                        snapshots.append(
-                            self.results[cut][var][sampleName][index])
+                        snapshots.append(self.results[cut][var][sampleName][index])
 
         if len(snapshots) != 0:
             ROOT.RDF.RunGraphs(snapshots)
+
+        for count in counts:
+            print("Number of events passing preselections:", count.GetValue())
 
         self.convertResults()
         self.saveResults()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ROOT.gInterpreter.Declare(f'#include "headers.hh"')
-    exec(open('script.py').read())
-    runner = RunAnalysis(samples, aliases, variables,
-                         cuts, nuisances, lumi)
+    exec(open("script.py").read())
+    runner = RunAnalysis(samples, aliases, variables, cuts, nuisances, lumi)
     runner.run()
