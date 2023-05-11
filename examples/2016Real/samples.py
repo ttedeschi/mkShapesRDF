@@ -17,8 +17,12 @@ dataDirectory = os.path.join(treeBaseDir, dataReco, dataSteps)
 
 samples = {}
 
+from mkShapesRDF.shapeAnalysis.libs.SearchFiles import SearchFiles
+s = SearchFiles()
+
+
 def nanoGetSampleFiles(path, name):
-    _files = glob.glob(path + f"/nanoLatino_{name}__part*.root")
+    _files = s.searchFiles(path,  f"/nanoLatino_{name}__part*.root", True)
     if limitFiles != -1 and len(_files) > limitFiles:
         return [(name, _files[:limitFiles])]
     else:
