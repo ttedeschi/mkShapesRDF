@@ -349,12 +349,12 @@ class RunAnalysis:
 
                                 if df.GetColumnType('weight') == 'double':
                                     expr = f'ROOT::RVecD' + \
-                                        '{(double)' + \
-                                        f'{variedNames[1]},(double) {variedNames[0]}' + '}'
+                                        '{ weight * (double)' + \
+                                        f'{variedNames[1]}, weight * (double) {variedNames[0]}' + '}'
                                 elif df.GetColumnType('weight') == 'float':
                                     expr = f'ROOT::RVecF' + \
-                                        '{(float)' + \
-                                        f'{variedNames[1]},(float) {variedNames[0]}' + '}'
+                                        '{ weight * (float)' + \
+                                        f'{variedNames[1]}, weight * (float) {variedNames[0]}' + '}'
                                 else:
                                     print('Weight column has unknown type:', df.GetColumnType(
                                         'weight'), 'while varied is: ', df.GetColumnType(variedNames[1]))
