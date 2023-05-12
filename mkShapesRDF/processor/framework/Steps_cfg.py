@@ -44,7 +44,7 @@ Steps = {
             # "JetPUID_SF_UL",
             # "rochesterMC",
             # "trigMC",
-            # "LeptonSF",
+            "leptonSF",
             # "puW",
             "l2Kin",
             # # "l3Kin",
@@ -146,6 +146,14 @@ Steps = {
         "import": "mkShapesRDF.processor.modules.l2KinProducer",
         "declare": "l2Kin = lambda : l2KinProducer()",
         "module": "l2Kin()",
+    },
+    "leptonSF": {
+        "isChain": False,
+        "do4MC": False,
+        "do4Data": True,
+        "import": "mkShapesRDF.processor.modules.LeptonSF",
+        "declare": "leptonSF = lambda : LeptonSF(('RPLME_FW/processor/data/scale_factor/Full2018v9/electron.json.gz'))",
+        "module": "leptonSF()",
     },
     "finalSnapshot_debugJES": {
         "isChain": False,

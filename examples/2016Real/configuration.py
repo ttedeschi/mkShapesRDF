@@ -33,7 +33,8 @@ nuisancesFile = "nuisances.py"
 
 minRatio = 0.5
 maxRatio = 1.5
-plotPath = "/eos/user/g/gpizzati/www/rdf/2016/"
+#plotPath = "/eos/user/g/gpizzati/www/rdf/2016/"
+plotPath = "plots"
 
 # this lines are executed right before the runner on the condor node
 mountEOS = [

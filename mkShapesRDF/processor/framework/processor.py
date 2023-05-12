@@ -54,8 +54,9 @@ procName = "Summer20UL18_106x_nAODv9_Full2018v9"
 sampleName = "EWKZ2Jets_ZToLL_M-50_MJJ-120"
 sampleName = "TTToSemiLeptonic_TuneCP5Up"
 step = "MCFull2018v9"
-step = "jmeCalculator_18UL"
-step = "MCUL18_debugJES"
+step = "leptonSF"
+#step = "jmeCalculator_18UL"
+#step = "MCUL18_debugJES"
 
 fPy = """
 import ROOT
@@ -81,26 +82,30 @@ Path(jobDir).mkdir(parents=True, exist_ok=True)
 
 frameworkPath = "/".join(os.path.abspath(".").split("/")[:-2])
 
-cmd = "voms-proxy-info"
-proc = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-out, err = proc.communicate()
+fSh = "#!/bin/bash\n"
 
-if "Proxy not found" in err.decode("utf-8"):
-    print("WARNING: No GRID proxy -> Get one first with:")
-    print("voms-proxy-init -voms cms -rfc --valid 168:0")
-    sys.exit()
+useProxy = False
+if useProxy:
+    cmd = "voms-proxy-info"
+    proc = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+    out, err = proc.communicate()
 
-proxypath = " xxx "
-for line in out.decode("utf-8").split("\n"):
-    if "path" in line:
-        proxypath = line.split(":")[1].strip()
-print(proxypath)
+    if "Proxy not found" in err.decode("utf-8"):
+        print("WARNING: No GRID proxy -> Get one first with:")
+        print("voms-proxy-init -voms cms -rfc --valid 168:0")
+        sys.exit()
 
-os.system("cp " + proxypath + " " + os.environ["HOME"] + "/.proxy")
+    proxypath = " xxx "
+    for line in out.decode("utf-8").split("\n"):
+        if "path" in line:
+            proxypath = line.split(":")[1].strip()
+    print(proxypath)
 
-fSh = f"""#!/bin/bash
-export X509_USER_PROXY={os.environ['HOME']}/.proxy
-"""
+    os.system("cp " + proxypath + " " + os.environ["HOME"] + "/.proxy")
+
+    fSh = f"export X509_USER_PROXY={os.environ['HOME']}/.proxy\n"
+
+
 fSh += "cd " + "/".join(frameworkPath.split("/")[:-1]) + "; . ./start.sh; cd -;\n"
 
 fSh += "python script.py\n"
@@ -155,7 +160,7 @@ def addDeclareLines(step):
             addDeclareLines(subtarget)
     elif "declare" in Steps[step].keys():
         fPy += "from " + Steps[step]["import"] + " import *\n"
-        fPy += Steps[step]["declare"] + "\n"
+        fPy += Steps[step]["declare"].replace('RPLME_FW', frameworkPath) + "\n"
         fPy += "module = " + Steps[step]["module"] + "\n"
         fPy += "df = module.run(df, values) \n"
 

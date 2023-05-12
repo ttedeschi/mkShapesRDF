@@ -4,35 +4,41 @@
 
 Git clone the project and work with the `v0.0.1` 
 
-``` bash
+```bash
 
 git clone https://github.com/giorgiopizz/mkShapesRDF.git
 git checkout v0.0.1
 
 ```
 
-Lxplus is currently the only supported machine.
+Lxplus is currently the suggested machine to work with.
+In general one should need `cvmfs` with `sft.cern.ch` and `cms.cern.ch`.
 In order to install the package it's first necessary to source the right LCG release:
-``` bash
-source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh
+```bash
+source /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/setup.sh
 ```
 now the right python version (3.9) and it's bindings with ROOT are setup.
 It's highly reccomended to create a virtual environment for the installation:
-``` bash
+```bash
 python -m venv --system-site-packages myenv
 ```
 and of course activate it:
-``` bash
+```bash
 source myenv/bin/activate
 ```
 
 Now you can proceed to the simple installation:
-```
+```bash
 pip install -e .
 ```
 
-From now on, when you will login again on lxplus you will just have to run the setup command:
+Now to work with `mkShapes.processor` one should also install correctionlib and compile it:
+```bash
+python -m pip install --no-binary=correctionlib correctionlib
 ```
+
+From now on, when you will login again on lxplus you will just have to run the setup command:
+```bash
 . ./start.sh
 ```
 
@@ -47,6 +53,14 @@ Documentation on the configuration folder structure at [this page](config.md)
 - plot.py
 - samples.py
 - variables.py -->
+
+## Compile the configuration folder:
+Inside a configuration folder one can compile it into `.json` and `.pkl`.
+The compiled version are used across all the operating modes of mkShapesRDF
+``` bash
+mkShapesRDF -c 1
+```
+
 
 ## Run the analysis:
 ``` bash
@@ -63,21 +77,25 @@ For the provided example (2016Real) it's estimated an execution time of ~ 10 min
 
 It's highly recommended to limit input ROOT files at the first run to check for errors. The following command will only take 1 event for each sample type:
 ``` bash
-python mkShapesRDF.py -o 0 -f . -l 1
+mkShapesRDF -o 0 -f . -l 1
 ```
 
 ## Check for errors
-After all the jobs finished (or most of them did) you can run `mkShapesRDF.py -o 1 -f .` to know which jobs failed and why
+After all the jobs finished (or most of them did) you can run `mkShapesRDF -o 1 -f .` to know which jobs failed and why.
+
+One can resubmit failed jobs with `mkShapesRDF -o 1 -f . -r 1`.
+
+While if one wants to resubmit jobs that are still running, the option `-r 2` should be used.
 
 ## Merge files
 If all the jobs succeeded run the merger with the option: 
 ```bash
-python mkShapesRDF.py -o 2 -f .
+mkShapesRDF -o 2 -f .
 ```
 
 ## Plots
 Plot with 
 ```bash
-python mkShapesRDF.py -o 3 -f .
+mkShapesRDF -o 3 -f .
 ```
 which will create the plots to the specified paths provided in `configuration.py` 

@@ -203,7 +203,7 @@ def main():
         fileNameJson = configsFolder + "/config"
 
         ConfigLib.dumpConfigDict(d, fileName)
-        # ConfigLib.dumpConfigDict(d, fileNameJson, doJson=True)
+        ConfigLib.dumpConfigDict(d, fileNameJson, doJson=True)
 
         ConfigLib.loadDict(d, globals())
 
