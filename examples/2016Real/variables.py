@@ -1,9 +1,9 @@
 variables = {}
 
-variables['ttree_variable'] = {
-        'tree': {'LeptonPt1': 'Lepton_pt[0]'},
-        'cuts': ['sr']
-        }
+# variables['ttree_variable'] = {
+#         'tree': {'LeptonPt1': 'Lepton_pt[0]'},
+#         'cuts': ['sr']
+#         }
 
 variables['ptj1'] = {
         'name': 'CleanJet_pt[0]',

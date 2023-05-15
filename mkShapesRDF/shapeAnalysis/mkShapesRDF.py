@@ -322,6 +322,7 @@ def main():
         sys
         run locally
         No TTree was created for
+        Warning in <Snapshot>: A lazy Snapshot action was booked but never triggered.
         """
         normalErrs = normalErrs.split("\n")
         normalErrs = list(map(lambda k: k.strip(" ").strip("\t"), normalErrs))

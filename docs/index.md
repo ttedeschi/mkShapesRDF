@@ -13,6 +13,21 @@ git checkout v0.0.1
 
 Lxplus is currently the suggested machine to work with.
 In general one should need `cvmfs` with `sft.cern.ch` and `cms.cern.ch`.
+### Automatic installation
+
+mkShapesRDF has its own install script: `install.sh`: it first sources the correct python environment (it should contain a recent python3 and ROOT bindings) and then proceeds with the creation of a virtual environment `myenv` where all the needed packages and the framework scripts will be installed.
+
+You're free to change the environment with conda/mamba insted of a LCG release inside `install.sh`.
+
+When you're ready just run:
+```bash
+./install.sh
+```
+It will create a `start.sh` script that should be run everytime to activate the environment.
+
+
+### Manual installation
+
 In order to install the package it's first necessary to source the right LCG release:
 ```bash
 source /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/setup.sh

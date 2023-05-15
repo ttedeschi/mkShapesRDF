@@ -38,8 +38,7 @@ plotPath = "plots"
 
 # this lines are executed right before the runner on the condor node
 mountEOS = [
-    "export KRB5CCNAME=/gwpool/users/gpizzati/krb5cc_`id -u gpizzati`\n",
-    "eosfusebind -g\n",
+#     "export KRB5CCNAME=/home/gpizzati/krb5\n",
 ]
 
 imports = ["os", "glob", ("collections", "OrderedDict"), "ROOT"]

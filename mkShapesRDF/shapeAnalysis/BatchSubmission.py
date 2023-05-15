@@ -95,8 +95,11 @@ class BatchSubmission:
 
     def submit(self, dryRun=0):
 
-        txtsh = '#!/bin/bash\n'
-        txtsh += 'source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh\n'
+        # txtsh = '#!/bin/bash\n'
+        # txtsh += 'source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh\n'
+        txtsh = ''
+        with open('../../start.sh') as file:
+            txtsh += file.read()
 
         mE = self.d.get('mountEOS', [])
         for line in mE:
@@ -130,6 +133,8 @@ class BatchSubmission:
         txtjdl += 'executable = run.sh\n'
         txtjdl += 'arguments = $(Folder)\n'
 
+
+        txtjdl += 'should_transfer_files = YES\n'
         txtjdl += f'transfer_input_files = $(Folder)/script.py, {self.headersPath}, {self.runnerPath}\n'
 
         txtjdl += 'output = $(Folder)/out.txt\n'

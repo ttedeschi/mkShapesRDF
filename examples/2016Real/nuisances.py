@@ -9,10 +9,13 @@ treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano'
 #limitFiles = -1
 
 def makeMCDirectory(var=''):
+    prefix = ''
+    if useXROOTD:
+        prefix += redirector
     if var== '':
-        return os.path.join(treeBaseDir, mcProduction, mcSteps)
+        return '/'.join([prefix, treeBaseDir, mcProduction, mcSteps])
     else:
-        return os.path.join(treeBaseDir, mcProduction, mcSteps + '__' + var)
+        return '/'.join([prefix, treeBaseDir, mcProduction, mcSteps + '__' + var])
 
 
 # merge cuts
@@ -43,7 +46,6 @@ nuisances['lumi_correlated'] = {
         'type': 'lnN',
         'samples': dict((skey, '1.006') for skey in mc if skey not in ['WW', 'top', 'DY'])
 }
-"""
 
 nuisances['fake_syst_e'] = {
     'name': 'CMS_fake_syst_e',
@@ -51,7 +53,6 @@ nuisances['fake_syst_e'] = {
     'samples': {
         'Fake_e': '1.3'
     },
-    'cutspost': lambda self, cuts: [cut for cut in cuts if 'mm' not in cut],
 }
 
 nuisances['fake_syst_m'] = {
@@ -60,7 +61,6 @@ nuisances['fake_syst_m'] = {
     'samples': {
         'Fake_m': '1.3'
     },
-    'cutspost': lambda self, cuts: [cut for cut in cuts if 'ee' not in cut],
 }
 
 
@@ -100,6 +100,7 @@ nuisances['fake_mu_stat'] = {
     }
 }
 
+"""
 ###### B-tagger
 #
 #for shift in ['jes', 'lf', 'hfstats1', 'hfstats2', 'lfstats1', 'lfstats2', 'cferr1', 'cferr2']:
@@ -116,6 +117,7 @@ nuisances['fake_mu_stat'] = {
 #        'samples': dict((skey, btag_syst) for skey in mc),
 #    }
 
+"""
 ##### Trigger Efficiency
 
 trig_syst = ['((TriggerEffWeight_2l_u)/(TriggerEffWeight_2l))*(TriggerEffWeight_2l>0.02) + (TriggerEffWeight_2l<=0.02)', '(TriggerEffWeight_2l_d)/(TriggerEffWeight_2l)']
@@ -258,6 +260,7 @@ nuisances['PU'] = {
     },
     'AsLnN': '1',
 }
+"""
 
 ##### PS
 nuisances['PS_ISR']  = {

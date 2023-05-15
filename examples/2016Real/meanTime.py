@@ -1,7 +1,7 @@
 import glob
 
 
-files = glob.glob('condor/new_vbf_16_oneR/*/err*')
+files = glob.glob('condor/new_vbf_16/*/err*')
 
 def parseTime(t):
     m = t.index('m')
@@ -12,7 +12,7 @@ def parseTime(t):
 
 samples = list(set(list(map(lambda k: k.split('/')[2].split('_')[0], files))))
 print(samples)
-L = len('condor/new_vbf_16_oneR/')
+L = len('condor/new_vbf_16/')
 d = {}
 for f in files:
     sample = list(filter(lambda k: f[L:].startswith(k), samples))[0]
