@@ -9,3 +9,5 @@ myenv*
 examples/*/*_cc*
 examples/*/*/
 **~
+mkShapesRDF/processor/condor/*
+start.sh

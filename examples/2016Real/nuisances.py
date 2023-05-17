@@ -9,13 +9,12 @@ treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano'
 #limitFiles = -1
 
 def makeMCDirectory(var=''):
-    prefix = ''
     if useXROOTD:
-        prefix += redirector
+        treeBaseDir = redirector + treeBaseDir
     if var== '':
-        return '/'.join([prefix, treeBaseDir, mcProduction, mcSteps])
+        return '/'.join([treeBaseDir, mcProduction, mcSteps])
     else:
-        return '/'.join([prefix, treeBaseDir, mcProduction, mcSteps + '__' + var])
+        return '/'.join([treeBaseDir, mcProduction, mcSteps + '__' + var])
 
 
 # merge cuts
@@ -47,6 +46,7 @@ nuisances['lumi_correlated'] = {
         'samples': dict((skey, '1.006') for skey in mc if skey not in ['WW', 'top', 'DY'])
 }
 
+"""
 nuisances['fake_syst_e'] = {
     'name': 'CMS_fake_syst_e',
     'type': 'lnN',
@@ -100,7 +100,6 @@ nuisances['fake_mu_stat'] = {
     }
 }
 
-"""
 ###### B-tagger
 #
 #for shift in ['jes', 'lf', 'hfstats1', 'hfstats2', 'lfstats1', 'lfstats2', 'cferr1', 'cferr2']:
@@ -117,7 +116,6 @@ nuisances['fake_mu_stat'] = {
 #        'samples': dict((skey, btag_syst) for skey in mc),
 #    }
 
-"""
 ##### Trigger Efficiency
 
 trig_syst = ['((TriggerEffWeight_2l_u)/(TriggerEffWeight_2l))*(TriggerEffWeight_2l>0.02) + (TriggerEffWeight_2l<=0.02)', '(TriggerEffWeight_2l_d)/(TriggerEffWeight_2l)']
@@ -146,6 +144,7 @@ nuisances['eff_e'] = {
     'type': 'shape',
     'samples': dict((skey, ['SFweightEleUp', 'SFweightEleDown']) for skey in mc_emb)
 }
+"""
 
 nuisances['electronpt'] = {
     'name': 'CMS_scale_e_2016',
@@ -159,6 +158,7 @@ nuisances['electronpt'] = {
     'AsLnN': '1'
 }
 
+"""
 
 ##### Muon Efficiency and energy scale
 
@@ -260,7 +260,6 @@ nuisances['PU'] = {
     },
     'AsLnN': '1',
 }
-"""
 
 ##### PS
 nuisances['PS_ISR']  = {

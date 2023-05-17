@@ -119,6 +119,8 @@ class BatchSubmission:
 
         fullOutfile += f'{outputFileTrunc}__ALL__' + '${1}.root' 
         txtsh += f'cp output.root {fullOutfile}\n'
+        txtsh += 'rm output.root\n'
+        txtsh += 'rm script.py\n'
 
 
         # write the run.sh file

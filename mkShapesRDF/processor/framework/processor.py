@@ -6,9 +6,6 @@ import os
 from pathlib import Path
 
 
-condorDir = "/".join(os.path.abspath(".").split("/")[:-1]) + "/condor"
-
-
 def getFiles(das, folder, process, redirector="root://cms-xrd-global.cern.ch/"):
     files = []
     if das:
@@ -28,7 +25,9 @@ def getFiles(das, folder, process, redirector="root://cms-xrd-global.cern.ch/"):
             sys.exit()
         files = list(map(lambda k: redirector + k, out))
         return files[1:]
-    else:
+
+    elif redirector != "":
+        # not das and use redirector provided 
         import fnmatch
 
         files = []
@@ -43,20 +42,63 @@ def getFiles(das, folder, process, redirector="root://cms-xrd-global.cern.ch/"):
             filter(lambda k: fnmatch.fnmatch(k, folder + process), listOfFiles)
         )
         files = list(map(lambda k: redirector + k, files))
-        return files[:1]
+        return files[:]
 
+    else:
+        import glob
+        # not das and no redirector provided -> use direct access
+        files = []
+        listOfFiles = []
+        print("Need to query for files for folder", folder)
+        files = glob.glob(folder + '/' + process)
+        return files[:]
+
+def getFiles_cfg(sampleName):
+    if inputFolder == "":
+        return  {
+                "das": True,
+                "folder": "",
+                'process': Samples[sampleName]["nanoAOD"],
+            }
+    else:
+        return {
+            "das": False,
+            "redirector": redirector,
+            "folder": inputFolder,
+            "process": "*" + sampleName + "*.root",
+        }
+
+
+condorDir = "/".join(os.path.abspath(".").split("/")[:-1]) + "/condor"
+eosDir = '/eos/user/g/gpizzati/mkShapesRDF_nanoAOD'
 
 procName = "Run2018_UL2018_nAODv9_Full2018v9"
 sampleName = "DoubleMuon_Run2018A-UL2018-v1"
 step = "DATAl1loose2018v9"
 
 procName = "Summer20UL18_106x_nAODv9_Full2018v9"
-sampleName = "EWKZ2Jets_ZToLL_M-50_MJJ-120"
-sampleName = "TTToSemiLeptonic_TuneCP5Up"
+sampleName = "DYJetsToLL_M-50"
 step = "MCFull2018v9"
-step = "leptonSF"
-#step = "jmeCalculator_18UL"
-#step = "MCUL18_debugJES"
+#sampleName = "EWKZ2Jets_ZToLL_M-50_MJJ-120"
+
+submit = True
+
+default = True
+if default:
+    inputFolder = ""
+    redirector = ""
+    useProxy = True
+    maxFilesPerJob = 1
+    limitFiles = 4
+
+else:
+    inputFolder = "/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer20UL18_106x_nAODv9_Full2018v9//MCl1loose2018v9__MCCorr2018v9NoJERInHorn__l2tightOR2018v9/"
+    redirector = ""
+    useProxy = False
+    maxFilesPerJob = 1
+    limitFiles = -1
+
+
 
 fPy = """
 import ROOT
@@ -77,14 +119,19 @@ with open(Productions[procName]["samples"]) as file:
     exec(file.read())
 
 
-jobDir = condorDir + "/" + procName + "/" + step + "/" + sampleName + "/"
-Path(jobDir).mkdir(parents=True, exist_ok=True)
+files = getFiles(**getFiles_cfg(sampleName))[:limitFiles]
 
-frameworkPath = "/".join(os.path.abspath(".").split("/")[:-2])
+if len(files) == 0:
+    print("No files found for", sampleName)
+    sys.exit()
 
-fSh = "#!/bin/bash\n"
+print(files[0])
 
-useProxy = False
+
+fSh = ''
+with open('../../../start.sh') as file:
+    fSh += file.read()
+
 if useProxy:
     cmd = "voms-proxy-info"
     proc = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
@@ -103,45 +150,58 @@ if useProxy:
 
     os.system("cp " + proxypath + " " + os.environ["HOME"] + "/.proxy")
 
-    fSh = f"export X509_USER_PROXY={os.environ['HOME']}/.proxy\n"
+    fSh += f"export X509_USER_PROXY={os.environ['HOME']}/.proxy\n"
 
 
-fSh += "cd " + "/".join(frameworkPath.split("/")[:-1]) + "; . ./start.sh; cd -;\n"
 
-fSh += "python script.py\n"
+fSh += "time python script.py\n"
+
+folderPathEos = eosDir + '/' + procName + "/" + step 
+Path(folderPathEos).mkdir(parents=True, exist_ok=True)
+
+fSh += 'cp output.root ' + folderPathEos + "/" + "${1}.root\n"
+fSh += 'rm output.root\n'
 
 print(fSh)
+
+jobDir = condorDir + "/" + procName + "/" + step + "/" 
+Path(jobDir).mkdir(parents=True, exist_ok=True)
 
 with open(jobDir + "run.sh", "w") as file:
     file.write(fSh)
 
 os.system("chmod +x " + jobDir + "run.sh")
 
+from math import ceil
+nParts = ceil(len(files)/maxFilesPerJob)
+
+fJdl = '''\
+universe = vanilla
+executable = run.sh
+arguments = $(Folder)
+
+should_transfer_files = YES
+transfer_input_files = $(Folder)/script.py
+
+output = $(Folder)/out.txt
+error  = $(Folder)/err.txt
+log    = $(Folder)/log.txt
+
+request_cpus   = 1
++JobFlavour = "workday"
+
+queue 1 Folder in ''' + ', '.join(list(map(lambda k: sampleName + '__part' + str(k), list(range(nParts)))))
+
+with open(jobDir + '/submit.jdl', 'w') as f:
+    f.write(fJdl)
+
+
+
+frameworkPath = "/".join(os.path.abspath(".").split("/")[:-2])
 
 fPy += "sampleName = '" + sampleName + "'\n"
 
-getFiles_cfg = {
-    "DAS": {
-        "das": True,
-        "folder": "",
-        #'process': Samples[sampleName]["nanoAOD"],
-    },
-    "xrootd_latinos_18UL": {
-        "das": False,
-        "redirector": "root://eoscms.cern.ch/",
-        "folder": "/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer20UL18_106x_nAODv9_Full2018v9//MCl1loose2018v9__MCCorr2018v9NoJERInHorn__l2tightOR2018v9/",
-        "process": "*" + sampleName + "*.root",
-    },
-}
-
-files = getFiles(**getFiles_cfg["xrootd_latinos_18UL"])
-if len(files) == 0:
-    print("No files found for", sampleName)
-    sys.exit()
-
-
-print(files[0])
-fPy += "files = " + str(files) + "\n"
+fPy += "files = RPLME_FILES\n"
 fPy += f"ROOT.gInterpreter.Declare('#include \"{frameworkPath}/include/headers.hh\"')\n"
 
 fPy += "df = mRDF()\n"
@@ -160,7 +220,7 @@ def addDeclareLines(step):
             addDeclareLines(subtarget)
     elif "declare" in Steps[step].keys():
         fPy += "from " + Steps[step]["import"] + " import *\n"
-        fPy += Steps[step]["declare"].replace('RPLME_FW', frameworkPath) + "\n"
+        fPy += Steps[step]["declare"] + "\n"
         fPy += "module = " + Steps[step]["module"] + "\n"
         fPy += "df = module.run(df, values) \n"
 
@@ -197,5 +257,30 @@ from tabulate import tabulate
 print(tabulate(data, headers=["desc.", "value"]))
 """
 
-with open(jobDir + "/script.py", "w") as f:
-    f.write(fPy)
+
+
+fPy = fPy.replace('RPLME_FW', frameworkPath)
+
+if 'RPLME_genEventSumw' in fPy:
+    import ROOT
+    ROOT.gROOT.SetBatch(True)
+    ROOT.EnableImplicitMT()
+    df2 = ROOT.RDataFrame("Runs", files)
+    genEventSumw = df2.Sum("genEventSumw").GetValue()
+    fPy = fPy.replace('RPLME_genEventSumw', str(genEventSumw))
+
+for part in range(nParts):
+    _files = files[ part * maxFilesPerJob : (part +1) * maxFilesPerJob]
+    _fPy = fPy.replace('RPLME_FILES', str(_files))
+
+
+    jobDirPart = jobDir + sampleName + "__part" + str(part) + "/"
+    Path(jobDirPart).mkdir(parents=True, exist_ok=True)
+
+    with open(jobDirPart + "/script.py", "w") as f:
+        f.write(_fPy)
+
+
+if submit:
+    proc = subprocess.Popen(f'cd {jobDir}; condor_submit submit.jdl;', shell=True)
+    proc.wait()

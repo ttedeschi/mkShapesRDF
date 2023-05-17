@@ -1054,7 +1054,7 @@ class RunAnalysis:
             for index in self.dfs[sampleName].keys():
                 self.dfs[sampleName][index]["df"] = self.dfs[sampleName][index][
                     "df"
-                ].Filter(self.preselections)
+                ].Filter('(' + self.preselections + ') && abs(weight) > 0.0')
 
         self.loadVariables()
         self.loadBranches()

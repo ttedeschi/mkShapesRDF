@@ -97,8 +97,8 @@ class mRDF:
         if not a in (c.cols + c.cols_d):
             c.df = c.df.Define(a, b)
         else:
-            if a in c.cols:
-                print(f"Warning, {a} was already defined, redefining it")
+            # if a in c.cols:
+            #     print(f"Warning, {a} was already defined, redefining it")
             c.df = c.df.Redefine(a, b)
         # print('Defined col', a)
         c.cols = list(set(c.cols + [a]))

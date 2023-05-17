@@ -16,6 +16,7 @@ Steps = {
             # "l4Kin",
             # "trigData",
             # "formulasDATA",
+            "finalSnapshot_DATA"
         ],
     },
     "MCl1loose2018v9": {
@@ -36,7 +37,7 @@ Steps = {
         "do4Data": False,
         "subTargets": [
             "baseW",
-            "jmeCalculator_18UL",
+            #"jmeCalculator_18UL",
             # "JERsMCUL",
             # # "FatJERsMCUL",
             # "btagPerJet_DeepCSV_UL",
@@ -44,7 +45,7 @@ Steps = {
             # "JetPUID_SF_UL",
             # "rochesterMC",
             # "trigMC",
-            "leptonSF",
+            #"leptonSF",
             # "puW",
             "l2Kin",
             # # "l3Kin",
@@ -61,7 +62,6 @@ Steps = {
             # # "CleanFatJet",
             # # "BoostedWtagSF",
             # "leptonMVAFiller",
-            "finalSnapshot",
         ],
     },
     "MCFull2018v9": {
@@ -71,6 +71,7 @@ Steps = {
         "subTargets": [
             "MCl1loose2018v9",
             "MCCorr2018v9",
+            "finalSnapshot_MC",
         ],
     },
     "MCUL18_debugJES": {
@@ -120,7 +121,7 @@ Steps = {
         "do4MC": True,
         "do4Data": False,
         "import": "mkShapesRDF.processor.modules.BaseW",
-        "declare": "baseW = lambda : BaseW(sampleName, files, xs_db)",
+        "declare": "baseW = lambda : BaseW(sampleName, files, xs_db, RPLME_genEventSumw)",
         "module": "baseW()",
     },
     "jmeCalculator_18UL_debugJES": {
@@ -163,9 +164,17 @@ Steps = {
         "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*'])",
         "module": "snapshot()",
     },
-    "finalSnapshot": {
+    "finalSnapshot_MC": {
         "isChain": False,
         "do4MC": True,
+        "do4Data": False,
+        "import": "mkShapesRDF.processor.modules.Snapshot",
+        "declare": "snapshot = lambda : Snapshot('output.root', ['Lepton_*', 'CleanJet_*', 'Jet_*', 'Electron_*', 'Muon_*', 'baseW', 'genWeight'])",
+        "module": "snapshot()",
+    },
+    "finalSnapshot_DATA": {
+        "isChain": False,
+        "do4MC": False,
         "do4Data": True,
         "import": "mkShapesRDF.processor.modules.Snapshot",
         "declare": "snapshot = lambda : Snapshot('output.root', ['Lepton_*', 'CleanJet_*', 'Jet_*', 'Electron_*', 'Muon_*'])",

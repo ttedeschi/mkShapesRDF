@@ -1,4 +1,7 @@
 
+#ifndef ngenjet
+#define ngenjet
+
 #include <vector>
 
 #include "TVector2.h"
@@ -114,3 +117,5 @@ double CountGenJet(
   }
   return n;
 }
+
+#endif
