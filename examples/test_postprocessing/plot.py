@@ -19,7 +19,7 @@ plot['dyll']  = {
     'color'    : 418,    # kGreen+2
     'isSignal' : 0,
     'isData'   : 0, 
-    'scale'    : 1.0,
+    'scale'    : 17000.0,
 }
 
 

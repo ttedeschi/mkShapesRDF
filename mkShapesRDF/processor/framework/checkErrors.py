@@ -3,6 +3,7 @@ import os
 import subprocess
 
 folder = '../condor/Run2018_UL2018_nAODv9_Full2018v9/DATAl1loose2018v9'
+folder = '../condor/Summer20UL18_106x_nAODv9_Full2018v9/MCFull2018v9/'
 resubmit = 1
 
 

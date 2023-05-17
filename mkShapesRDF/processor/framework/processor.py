@@ -89,7 +89,7 @@ if default:
     redirector = ""
     useProxy = True
     maxFilesPerJob = 1
-    limitFiles = 4
+    limitFiles = 10
 
 else:
     inputFolder = "/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer20UL18_106x_nAODv9_Full2018v9//MCl1loose2018v9__MCCorr2018v9NoJERInHorn__l2tightOR2018v9/"
