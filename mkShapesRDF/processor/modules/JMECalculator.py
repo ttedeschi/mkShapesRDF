@@ -109,7 +109,6 @@ class JMECalculator(Module):
 
         # df = df.Redefine('CleanJet_pt', 'Jet_pt_nominal')
 
-        # df.Display(['tmp_Jet_pt_nominal', 'Jet_pt_nominal', 'pt_sort'], 3).Print()
         resortCols = ["CleanJet_" + prop for prop in ["pt", "eta", "phi", "jetIdx"]]
         print(resortCols)
         for col in resortCols:
@@ -133,24 +132,20 @@ class JMECalculator(Module):
             "Jet_mass",
             "propagateVector(CleanJet_jetIdx, Take(jetVars.mass(0), CleanJet_sorting), Jet_mass_raw)",
         )
-        sources = []
-        if self.do_JER:
-            sources += [f"JER_{i}" for i in range(6)]
 
-        sources += list(map(lambda k: "JES_" + k, sources))
-
-        print(sources)
+        sources = list(map(lambda k: "JES_" + k, sources))
         _sources = []
-        for source in sources:
-            _sources.append(source + "_up")
-            _sources.append(source + "_do")
+        if self.do_JER:
+            _sources = [f"JER_{i}" for i in range(6)]
+        _sources += sources
+        sources = _sources.copy()
+
 
         for variable in ["CleanJet_pt", "Jet_mass"]:
-            for i, source in enumerate(_sources):
-                df = df.Define(
-                    f"{variable}_{source}",
-                    f"Take(jetVars.{variable.split('_')[-1]}({i+1}), CleanJet_sorting)",
-                )
+            for i, source in enumerate(sources):
+                up = f"Take(jetVars.{variable.split('_')[-1]}({2*i+1}), CleanJet_sorting)"
+                do = f"Take(jetVars.{variable.split('_')[-1]}({2*i+1+1}), CleanJet_sorting)"
+                df = df.Vary(variable, "ROOT::RVec<ROOT::RVecF>{" + up + ", " + do + "}", ["up", "down"], source) 
 
         df.DropColumns("jetVars")
         df.DropColumns("CleanJet_sorting")

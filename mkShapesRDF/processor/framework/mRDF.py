@@ -23,7 +23,7 @@ class mRDF:
     def parseCpp(string):
         import re
 
-        vars = re.split(" |\(|\)|\+|\-|>|<|=|&&|\/|\*|\.|,|!|\|\|", string)
+        vars = re.split(" |\(|\)|\+|\-|>|<|=|&&|\/|\*|\.|,|!|\[|\]|\|\|", string)
         vars = list(filter(lambda k: k != "", vars))
         vars = list(filter(lambda k: not k.isnumeric(), vars))
 
@@ -52,15 +52,16 @@ class mRDF:
             _typeString = "<" + _type + ">"
         return f"ROOT::RVec{_typeString}"
 
-    def setNode(self, dfNode, cols, cols_d):
+    def setNode(self, dfNode, cols, cols_d, variations):
         self.df = dfNode
         self.cols = cols
         self.cols_d = cols_d
+        self.variations = variations
         return self
 
     def Copy(self):
         c = mRDF()
-        c.setNode(self.df, self.cols.copy(), self.cols_d.copy())
+        c.setNode(self.df, self.cols.copy(), self.cols_d.copy(), self.variations.copy())
         return c
 
     def readRDF(self, *ar, **kw):
@@ -71,11 +72,20 @@ class mRDF:
     def Define(self, a, b):
         c = self.Copy()
 
+        if not a in (c.cols + c.cols_d):
+            c.df = c.df.Define(a, b)
+        else:
+            # if a in c.cols:
+            #     print(f"Warning, {a} was already defined, redefining it")
+            c.df = c.df.Redefine(a, b)
+        # print('Defined col', a)
+        c.cols = list(set(c.cols + [a]))
+
         # check variations
         depVars = mRDF.parseCpp(b)
         variations = {}
         for variationName in c.variations.keys():
-            s = list(filter(lambda k: k in depVars, c.variations[variationName].keys()))
+            s = list(filter(lambda k: k in depVars, c.variations[variationName]))
             if len(s) > 0:
                 # only register variations if they have an impact on "a" variable
                 variations[variationName] = s
@@ -94,14 +104,6 @@ class mRDF:
             expression = mRDF.RVecExpression(_type) + " {" + ", ".join(varied_bs) + "}"
             c = c.Vary(a, expression, tags, variationName)
 
-        if not a in (c.cols + c.cols_d):
-            c.df = c.df.Define(a, b)
-        else:
-            # if a in c.cols:
-            #     print(f"Warning, {a} was already defined, redefining it")
-            c.df = c.df.Redefine(a, b)
-        # print('Defined col', a)
-        c.cols = list(set(c.cols + [a]))
 
         return c
 
