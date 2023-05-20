@@ -16,8 +16,19 @@ Steps = {
             # "l4Kin",
             # "trigData",
             # "formulasDATA",
-            "finalSnapshot_DATA"
+            "finalSnapshot_DATA",
         ],
+    },
+    "jmeCalculator_18_debug": {
+        "isChain": True,
+        "do4MC": True,
+        "do4Data": False,
+        "selection": '"((nElectron+nMuon)>0)"',
+        "subTargets": [
+            "jmeCalculator_18UL",
+            "l2Kin",
+            "finalSnapshot_MC",
+        ]
     },
     "MCl1loose2018v9": {
         "isChain": True,
@@ -37,7 +48,7 @@ Steps = {
         "do4Data": False,
         "subTargets": [
             "baseW",
-            #"jmeCalculator_18UL",
+            # "jmeCalculator_18UL",
             # "JERsMCUL",
             # # "FatJERsMCUL",
             # "btagPerJet_DeepCSV_UL",
@@ -45,7 +56,7 @@ Steps = {
             # "JetPUID_SF_UL",
             # "rochesterMC",
             # "trigMC",
-            #"leptonSF",
+            # "leptonSF",
             # "puW",
             "l2Kin",
             # # "l3Kin",
@@ -72,15 +83,6 @@ Steps = {
             "MCl1loose2018v9",
             "MCCorr2018v9",
             "finalSnapshot_MC",
-        ],
-    },
-    "MCUL18_debugJES": {
-        "isChain": True,
-        "do4MC": True,
-        "do4Data": False,
-        "subTargets": [
-            "jmeCalculator_18UL_debugJES",
-            "finalSnapshot_debugJES",
         ],
     },
     "leptonMaker": {
@@ -137,7 +139,7 @@ Steps = {
         "do4MC": True,
         "do4Data": False,
         "import": "mkShapesRDF.processor.modules.JMECalculator",
-        "declare": 'jmeCalculator = lambda : JMECalculator("Summer19UL18_V5_MC", "Summer19UL18_JRV2_MC", "AK4PFchs")',
+        "declare": 'jmeCalculator = lambda : JMECalculator("Summer19UL18_V5_MC", "Summer19UL18_JRV2_MC", "AK4PFchs", False)',
         "module": "jmeCalculator()",
     },
     "l2Kin": {
@@ -161,7 +163,7 @@ Steps = {
         "do4MC": True,
         "do4Data": True,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*'])",
+        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', 'CUT'])",
         "module": "snapshot()",
     },
     "finalSnapshot_MC": {
@@ -169,7 +171,7 @@ Steps = {
         "do4MC": True,
         "do4Data": False,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['Lepton_*', 'CleanJet_*', 'Jet_*', 'Electron_*', 'Muon_*', 'baseW', 'genWeight'])",
+        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', 'mjj_test', 'baseW', 'genWeight', 'CUT'])",
         "module": "snapshot()",
     },
     "finalSnapshot_DATA": {
@@ -177,7 +179,7 @@ Steps = {
         "do4MC": False,
         "do4Data": True,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['Lepton_*', 'CleanJet_*', 'Jet_*', 'Electron_*', 'Muon_*'])",
+        "declare": "snapshot = lambda : Snapshot('output.root', ['Lepton_*', 'CleanJet_*', 'Jet_*', 'Electron_*', 'Muon_*', 'CUT'])",
         "module": "snapshot()",
     },
 }

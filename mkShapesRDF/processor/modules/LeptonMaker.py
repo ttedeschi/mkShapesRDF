@@ -57,23 +57,23 @@ class LeptonMaker(Module):
 
         values.append(
             [
-                df.Define("prova", "Sum(Electron_pt) + Sum(Muon_pt)").Sum("prova"),
+                df.Define("test", "Sum(Electron_pt) + Sum(Muon_pt)").Sum("test"),
                 "Sum of Ele_pt and Muon_pt",
             ]
         )
         values.append(
             [
-                df.Define("prova", "Electron_pt.size() + Muon_pt.size()").Sum("prova"),
+                df.Define("test", "Electron_pt.size() + Muon_pt.size()").Sum("test"),
                 "Sum of size of Ele_pt and Muon_pt",
             ]
         )
 
         values.append(
-            [df.Define("prova", "Sum(Lepton_pt)").Sum("prova"), "sum lepton pt"]
+            [df.Define("test", "Sum(Lepton_pt)").Sum("test"), "sum lepton pt"]
         )
 
         values.append(
-            [df.Define("prova", "Lepton_pt.size()").Sum("prova"), "lepton pt size"]
+            [df.Define("test", "Lepton_pt.size()").Sum("test"), "lepton pt size"]
         )
 
         # df = df.Define("isCleanJet", " Jet_pt > 9 && ROOT::VecOps::abs(Jet_eta) < 4.7 ")
@@ -93,23 +93,23 @@ class LeptonMaker(Module):
                 f"CleanJet_{prop}", f"Take(CleanJet_{prop}, CleanJet_sorting)"
             )
 
-        values.append([df.Define("prova", "Sum(Jet_pt)").Sum("prova"), "Sum of Jet pt"])
+        values.append([df.Define("test", "Sum(Jet_pt)").Sum("test"), "Sum of Jet pt"])
         values.append(
-            [df.Define("prova", "Jet_pt.size()").Sum("prova"), "Size of Jet pt"]
+            [df.Define("test", "Jet_pt.size()").Sum("test"), "Size of Jet pt"]
         )
 
         values.append(
-            [df.Define("prova", "Sum(CleanJet_pt)").Sum("prova"), "Sum of CleanJet pt"]
+            [df.Define("test", "Sum(CleanJet_pt)").Sum("test"), "Sum of CleanJet pt"]
         )
         values.append(
             [
-                df.Define("prova", "CleanJet_pt.size()").Sum("prova"),
+                df.Define("test", "CleanJet_pt.size()").Sum("test"),
                 "Size of CleanJet pt",
             ]
         )
 
-        df.DropColumns("Lepton_sorting")
-        df.DropColumns("isCleanJet")
-        df.DropColumns("CleanJet_sorting")
+        df = df.DropColumns("Lepton_sorting")
+        df = df.DropColumns("isCleanJet")
+        df = df.DropColumns("CleanJet_sorting")
 
         return df

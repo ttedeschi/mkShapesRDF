@@ -1,4 +1,5 @@
 from mkShapesRDF.processor.framework.Module import Module
+import ROOT
 
 
 class l2KinProducer(Module):
@@ -28,21 +29,73 @@ class l2KinProducer(Module):
             "TkMET_4DV", "ROOT::Math::PtEtaPhiMVector" "(TkMET_pt, 0, TkMET_phi, 0)"
         )
 
-        df = df.Define("_lepOk", "Lepton_pt[Lepton_pt > 0].size() >= 2 ")
-        df = df.Define("_metOk", "MET_4DV.E() > 0")
+        df = df.Define("_isOk", "Lepton_pt[Lepton_pt > 0].size() >= 2 && MET_4DV.E()>0")
+        df = df.Define("_lepOk", "Lepton_pt[Lepton_pt > 0].size()")
         df = df.Define("_tkMetOk", "TkMET_4DV.E() > 0")
-        df = df.Define("_jetOk", "CleanJet_pt[CleanJet_pt > 0].size() >= 1")
+        df = df.Define("_jetOk", "CleanJet_pt[CleanJet_pt > 0].size()")
 
         # FIXME complete l2kin module!
 
-        df.DropColumns("Lepton_4DV")
-        df.DropColumns("CleanJet_4DV")
-        df.DropColumns("MET_4DV")
-        df.DropColumns("TkMET_4DV")
+        # dilepton variables
+        prefix = "new_fw_"
+        df = df.Define(
+            prefix + "ptll", "_isOk ? (Lepton_4DV[0] + Lepton_4DV[1]).Pt() : -9999.0"
+        )
+        df = df.Define(
+            prefix + "mll", "_isOk ? (Lepton_4DV[0] + Lepton_4DV[1]).M() : -9999.0"
+        )
+        df = df.Define(
+            prefix + "dphill",
+            "_isOk ? DeltaPhi(Lepton_phi[0], Lepton_phi[1]) : -9999.0",
+        )
+        df = df.Define(
+            prefix + "drll",
+            "_isOk ? DeltaR(Lepton_eta[0], Lepton_eta[1], Lepton_phi[0], Lepton_phi[1]) : -9999.0",
+        )
+        df = df.Define(
+            prefix + "detall", "_isOk ? abs(Lepton_eta[0] - Lepton_eta[1]) : -9999.0"
+        )
 
-        df.DropColumns("_lepOk")
-        df.DropColumns("_metOk")
-        df.DropColumns("_tkMetOk")
-        df.DropColumns("_jetOk")
+        df = df.Define(prefix + "pt1", "Lepton_pt[0] > 0 ? Lepton_pt[0] : -9999.0")
+        df = df.Define(prefix + "eta1", "Lepton_pt[0] > 0 ? Lepton_eta[0] : -9999.0")
+        df = df.Define(prefix + "phi1", "Lepton_pt[0] > 0 ? Lepton_phi[0] : -9999.0")
+        df = df.Define(prefix + "pt2", "_isOk ? Lepton_pt[1] : -9999.0")
+        df = df.Define(prefix + "eta2", "_isOk ? Lepton_eta[1] : -9999.0")
+        df = df.Define(prefix + "phi2", "_isOk ? Lepton_phi[1] : -9999.0")
+
+        # dijets variables
+        df = df.Define(
+            prefix + "njet",
+            "CleanJet_pt [CleanJet_pt > 30 && CleanJet_eta < 4.7].size()",
+        )
+        df = df.Define(
+            prefix + "ptjj",
+            "_jetOk >=2 ? (CleanJet_4DV[0] + CleanJet_4DV[1]).Pt() : -9999.0",
+        )
+        df = df.Define(
+            prefix + "mjj",
+            "_jetOk >=2 ? (CleanJet_4DV[0] + CleanJet_4DV[1]).M() : -9999.0",
+        )
+        df = df.Define(
+            prefix + "dphijj",
+            "_jetOk >= 2 ? DeltaPhi(CleanJet_phi[0], CleanJet_phi[1]) : -9999.0",
+        )
+        df = df.Define(
+            prefix + "drjj",
+            "_isOk ? DeltaR(CleanJet_eta[0], CleanJet_eta[1], CleanJet_phi[0], CleanJet_phi[1]) : -9999.0",
+        )
+        df = df.Define(
+            prefix + "detajj",
+            "_jetOk >=2 ? abs(CleanJet_eta[0] - CleanJet_eta[1]) : -9999.0",
+        )
+        df = df.DropColumns("Lepton_4DV")
+        df = df.DropColumns("CleanJet_4DV")
+        df = df.DropColumns("MET_4DV")
+        df = df.DropColumns("TkMET_4DV")
+
+        df = df.DropColumns("_isOk")
+        df = df.DropColumns("_lepOk")
+        df = df.DropColumns("_tkMetOk")
+        df = df.DropColumns("_jetOk")
 
         return df

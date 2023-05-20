@@ -27,11 +27,9 @@ class JMECalculator(Module):
         txtUnc = jecDBCache.getPayload(
             JEC_era, "UncertaintySources", p_object, "RegroupedV2_"
         )
-        # print(txtUnc)
         txtPtRes = jrDBCache.getPayload(JER_era, "PtResolution", p_object)
         txtSF = jrDBCache.getPayload(JER_era, "SF", p_object)
         print("Path for SF:", txtSF)
-        # print(pl)
 
         from CMSJMECalculators import loadJMESystematicsCalculators
 
@@ -45,13 +43,10 @@ class JMECalculator(Module):
         calc.setJEC(jecParams)
         # calculate JES uncertainties (repeat for all sources)
 
-        # uncert_sources = ['Total']
         with open(txtUnc) as f:
             lines = f.read().split("\n")
             sources = [x for x in lines if x.startswith("[") and x.endswith("]")]
             sources = [x[1:-1] for x in sources]
-            # sources = list(filter(lambda source: source in , sources))
-        # print(sources)
 
         for s in sources:
             jcp_unc = ROOT.JetCorrectorParameters(txtUnc, s)
@@ -68,7 +63,9 @@ class JMECalculator(Module):
                 3.0,  # decorrelate for different regions
             )  # use hybrid recipe, matching parameters
 
+        # list of columns to be passed to myJetVarCal produce
         cols = []
+
         # reco jet coll
         cols.append("CleanJet_pt")
         cols.append("CleanJet_eta")
@@ -77,6 +74,7 @@ class JMECalculator(Module):
         cols.append("Take(Jet_rawFactor, CleanJet_jetIdx)")
         cols.append("Take(Jet_area, CleanJet_jetIdx)")
         cols.append("Take(Jet_jetId, CleanJet_jetIdx)")
+
         # rho
         cols.append("fixedGridRhoFastjetAll")
 
@@ -95,8 +93,6 @@ class JMECalculator(Module):
 
         df = df.Define("jetVars", f'myJetVarCalc.produce({", ".join(cols)})')
 
-        # resortCols = getColumnsNamesRegex(df, 'Jet_*')
-
         df = df.Define("CleanJet_pt_raw", "CleanJet_pt")
         df = df.Define("CleanJet_pt", "jetVars.pt(0)")
 
@@ -106,8 +102,6 @@ class JMECalculator(Module):
         )
 
         df = df.Redefine("CleanJet_pt", "Take(CleanJet_pt, CleanJet_sorting)")
-
-        # df = df.Redefine('CleanJet_pt', 'Jet_pt_nominal')
 
         resortCols = ["CleanJet_" + prop for prop in ["pt", "eta", "phi", "jetIdx"]]
         print(resortCols)
@@ -140,14 +134,18 @@ class JMECalculator(Module):
         _sources += sources
         sources = _sources.copy()
 
-
         for variable in ["CleanJet_pt", "Jet_mass"]:
             for i, source in enumerate(sources):
                 up = f"Take(jetVars.{variable.split('_')[-1]}({2*i+1}), CleanJet_sorting)"
                 do = f"Take(jetVars.{variable.split('_')[-1]}({2*i+1+1}), CleanJet_sorting)"
-                df = df.Vary(variable, "ROOT::RVec<ROOT::RVecF>{" + up + ", " + do + "}", ["up", "down"], source) 
+                df = df.Vary(
+                    variable,
+                    "ROOT::RVec<ROOT::RVecF>{" + up + ", " + do + "}",
+                    ["up", "down"],
+                    source,
+                )
 
-        df.DropColumns("jetVars")
-        df.DropColumns("CleanJet_sorting")
+        df = df.DropColumns("jetVars")
+        df = df.DropColumns("CleanJet_sorting")
 
         return df

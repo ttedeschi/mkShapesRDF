@@ -58,7 +58,7 @@ class LeptonSel(Module):
         )
         values.append(
             [
-                df.Define("prova", "Lepton_pt.size()").Sum("prova"),
+                df.Define("test", "Lepton_pt.size()").Sum("test"),
                 "Original size of leptons",
             ]
         )
@@ -105,15 +105,17 @@ class LeptonSel(Module):
 
         values.append(
             [
-                df.Define("prova", "Lepton_pt[LeptonMask_minPt_pass].size()").Sum(
-                    "prova"),
+                df.Define("test", "Lepton_pt[LeptonMask_minPt_pass].size()").Sum(
+                    "test"
+                ),
                 "Size of leptons passing hyg mask and minPt",
             ]
         )
 
         # this LeptonMask is used for leptons inside Jet cones
         df = df.Define(
-            "LeptonMask_JC", "LeptonMaskHyg_Ele && LeptonMaskHyg_Mu && (Lepton_pt >= 10)"
+            "LeptonMask_JC",
+            "LeptonMaskHyg_Ele && LeptonMaskHyg_Mu && (Lepton_pt >= 10)",
         )
 
         df = df.Define("CleanJetMask", "CleanJet_eta <= 5.0")
@@ -130,7 +132,8 @@ class LeptonSel(Module):
             Take(CleanJet_phi, CleanJet_Lepton_comb[0]), \
             Take(Lepton_eta, CleanJet_Lepton_comb[1]), \
             Take(Lepton_phi, CleanJet_Lepton_comb[1]) \
-        )")
+        )",
+        )
 
         df = df.Define(
             "CleanJet_pass",
@@ -140,7 +143,8 @@ class LeptonSel(Module):
         branches = ["pt", "eta", "phi", "pdgId", "electronIdx", "muonIdx"]
         for prop in branches:
             df = df.Redefine(
-                f"Lepton_{prop}", f"Lepton_{prop}[LeptonMaskHyg_Ele && LeptonMaskHyg_Mu]"
+                f"Lepton_{prop}",
+                f"Lepton_{prop}[LeptonMaskHyg_Ele && LeptonMaskHyg_Mu]",
             )
 
         branches = ["jetIdx", "pt", "eta", "phi"]
@@ -149,10 +153,10 @@ class LeptonSel(Module):
                 f"CleanJet_{prop}", f"CleanJet_{prop}[CleanJetMask][CleanJet_pass]"
             )
 
-        df.DropColumns("Lepton*Mask*")
+        df = df.DropColumns("Lepton*Mask*")
 
-        df.DropColumns("CleanJetMask")
-        df.DropColumns("CleanJet_Lepton_comb")
-        df.DropColumns("CleanJet_pass")
+        df = df.DropColumns("CleanJetMask")
+        df = df.DropColumns("CleanJet_Lepton_comb")
+        df = df.DropColumns("CleanJet_pass")
 
         return df

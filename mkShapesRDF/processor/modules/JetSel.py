@@ -2,9 +2,8 @@ from mkShapesRDF.processor.framework.Module import Module
 
 
 class JetSel(Module):
-
     def __init__(self, jetId, puJetId, minPt, maxEta, UL2016fix=False):
-        super().__init__('JetSel')
+        super().__init__("JetSel")
         self.jetId = jetId
         self.puJetId = puJetId
         self.minPt = minPt
@@ -12,7 +11,6 @@ class JetSel(Module):
         self.UL2016fix = UL2016fix
 
     def runModue(self, df, values):
-
         # jetId = 2
         # wp = "loose"
         # minPt = 15.0
@@ -49,7 +47,7 @@ class JetSel(Module):
 
         values.append(
             [
-                df.Define("prova", "CleanJet_pt.size()").Sum("prova"),
+                df.Define("test", "CleanJet_pt.size()").Sum("test"),
                 "Original size of CleanJet",
             ]
         )
@@ -58,11 +56,11 @@ class JetSel(Module):
         for prop in branches:
             df = df.Redefine(f"CleanJet_{prop}", f"CleanJet_{prop}[CleanJetMask]")
 
-        df.DropColumns("CleanJetMask")
+        df = df.DropColumns("CleanJetMask")
 
         values.append(
             [
-                df.Define("prova", "CleanJet_pt.size()").Sum("prova"),
+                df.Define("test", "CleanJet_pt.size()").Sum("test"),
                 "Final size of CleanJet",
             ]
         )
