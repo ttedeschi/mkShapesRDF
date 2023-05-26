@@ -5,11 +5,11 @@ import sys
 class types:
     @staticmethod
     def isStr(t):
-        return type(t) == type("")
+        return isinstance(t, str)
 
     @staticmethod
     def isTuple(t):
-        return type(t) == type((0,))
+        return isinstance(t, tuple)
 
     @staticmethod
     def isOrderedDict(t):

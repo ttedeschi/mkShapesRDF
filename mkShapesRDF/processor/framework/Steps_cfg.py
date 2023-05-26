@@ -1,3 +1,4 @@
+# flake8: noqa E262, E265, E266
 Steps = {
     "DATAl1loose2018v9": {
         "isChain": True,
@@ -23,12 +24,11 @@ Steps = {
         "isChain": True,
         "do4MC": True,
         "do4Data": False,
-        "selection": '"((nElectron+nMuon)>0)"',
         "subTargets": [
             "jmeCalculator_18UL",
             "l2Kin",
-            "finalSnapshot_MC",
-        ]
+            "finalSnapshot_debugJES",
+        ],
     },
     "MCl1loose2018v9": {
         "isChain": True,
@@ -48,7 +48,7 @@ Steps = {
         "do4Data": False,
         "subTargets": [
             "baseW",
-            # "jmeCalculator_18UL",
+            "jmeCalculator_18UL",
             # "JERsMCUL",
             # # "FatJERsMCUL",
             # "btagPerJet_DeepCSV_UL",
@@ -126,20 +126,13 @@ Steps = {
         "declare": "baseW = lambda : BaseW(sampleName, files, xs_db, RPLME_genEventSumw)",
         "module": "baseW()",
     },
-    "jmeCalculator_18UL_debugJES": {
-        "isChain": False,
-        "do4MC": True,
-        "do4Data": False,
-        "import": "mkShapesRDF.processor.modules.JMECalculator",
-        "declare": 'jmeCalculator = lambda : JMECalculator("Summer19UL18_V5_MC", "Summer19UL18_JRV2_MC", "AK4PFchs", do_JER=False)',
-        "module": "jmeCalculator()",
-    },
     "jmeCalculator_18UL": {
         "isChain": False,
         "do4MC": True,
         "do4Data": False,
         "import": "mkShapesRDF.processor.modules.JMECalculator",
-        "declare": 'jmeCalculator = lambda : JMECalculator("Summer19UL18_V5_MC", "Summer19UL18_JRV2_MC", "AK4PFchs", False)',
+        "declare": 'jmeCalculator = lambda : JMECalculator("Summer19UL18_V5_MC", "Summer19UL18_JRV2_MC", \
+            jet_object="AK4PFchs", do_Jets=True, do_MET=True, do_JER=False, store_nominal=False, store_variations=True)',
         "module": "jmeCalculator()",
     },
     "l2Kin": {
@@ -163,7 +156,7 @@ Steps = {
         "do4MC": True,
         "do4Data": True,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', 'CUT'])",
+        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', 'MET_*', 'PuppiMET_*', 'CUT'])",
         "module": "snapshot()",
     },
     "finalSnapshot_MC": {
@@ -171,7 +164,8 @@ Steps = {
         "do4MC": True,
         "do4Data": False,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', 'mjj_test', 'baseW', 'genWeight', 'CUT'])",
+        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', \
+            'Lepton_*', 'Electron_*', 'Muon_*', 'NewMet*', 'baseW', 'genWeight', 'CUT'])",
         "module": "snapshot()",
     },
     "finalSnapshot_DATA": {
@@ -179,7 +173,7 @@ Steps = {
         "do4MC": False,
         "do4Data": True,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['Lepton_*', 'CleanJet_*', 'Jet_*', 'Electron_*', 'Muon_*', 'CUT'])",
+        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', 'Lepton_*', 'Electron_*', 'Muon_*',, 'CUT'])",
         "module": "snapshot()",
     },
 }

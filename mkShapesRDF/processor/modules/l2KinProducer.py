@@ -1,5 +1,4 @@
 from mkShapesRDF.processor.framework.Module import Module
-import ROOT
 
 
 class l2KinProducer(Module):

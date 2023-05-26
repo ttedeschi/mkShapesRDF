@@ -2,6 +2,7 @@ from copy import deepcopy
 import sys
 import ROOT
 from array import array
+from mkShapesRDF.lib.parseCpp import ParseCpp
 
 ROOT.gROOT.SetBatch(True)
 ROOT.TH1.SetDefaultSumw2(True)
@@ -98,31 +99,6 @@ class RunAnalysis:
         return tnom
 
     @staticmethod
-    def varyExpression(nameDown, nameUp, _type):
-        """Creates a string with the expression to be used in the RDataFrame.Vary() method
-
-        Args:
-            nameDown (str): down varied branch name
-            nameUp (str): up varied branch name
-            _type (str): string version of nominal column type
-
-        Returns:
-            str: string with the expression to be used in the RDataFrame.Vary() method
-        """
-        _typeString = ""
-        if _type == "float":
-            _typeString = "F"
-        elif _type == "double":
-            _typeString = "D"
-        elif _type == "int":
-            _typeString = "I"
-        elif _type == "bool":
-            _typeString = "B"
-        else:
-            _typeString = "<" + _type + ">"
-        return f"ROOT::RVec{_typeString}" + "{" + f"{nameDown}, {nameUp}" + "}"
-
-    @staticmethod
     def getNuisanceFiles(nuisance, files):
         """Searches in the provided nuisance folder for the files with the same name of the nominal files
 
@@ -141,20 +117,10 @@ class RunAnalysis:
         return [nuisanceFilesDown, nuisanceFilesUp]
 
     @staticmethod
-    def parseCpp(string):
-        import re
-
-        vars = re.split(" |\(|\)|\+|\-|>|<|=|&&|\/|\*|\.|,|!|\|\|", string)
-        vars = list(filter(lambda k: k != "", vars))
-        vars = list(filter(lambda k: not k.isnumeric(), vars))
-
-        return vars
-
-    @staticmethod
     def index_sub(string, sub):
         try:
             return string.index(sub)
-        except:
+        except ValueError:
             return -10000
 
     def __init__(
@@ -221,22 +187,28 @@ class RunAnalysis:
             }
         """
         usedVariables = set()
-        usedVariables = usedVariables.union(RunAnalysis.parseCpp(self.preselections))
+        usedVariables = usedVariables.union(
+            ParseCpp.listOfVariables(ParseCpp.parse(self.preselections))
+        )
         for cut in mergedCuts.keys():
             usedVariables = usedVariables.union(
-                RunAnalysis.parseCpp(mergedCuts[cut]["expr"])
+                ParseCpp.listOfVariables(ParseCpp.parse(mergedCuts[cut]["expr"]))
             )
         for var in variables.keys():
             if "name" in variables[var].keys():
                 __var = variables[var]["name"].split(":")
-                __vars = list(map(lambda k: RunAnalysis.parseCpp(k), __var))
+                __vars = list(
+                    map(lambda k: ParseCpp.listOfVariables(ParseCpp.parse(k)), __var)
+                )
                 for __v in __vars:
                     usedVariables = usedVariables.union(__v)
 
             elif "tree" in variables[var].keys():
                 for branch in variables[var]["tree"].keys():
                     usedVariables = usedVariables.union(
-                        RunAnalysis.parseCpp(variables[var]["tree"][branch])
+                        ParseCpp.listOfVariables(
+                            ParseCpp.parse(variables[var]["tree"][branch])
+                        )
                     )
             else:
                 print("Cannot process variable ", var, " nuisances might be faulty")
@@ -247,7 +219,6 @@ class RunAnalysis:
         for sample in samples:
             files = sample[1]
             sampleName = sample[0]
-            print(sampleName)
             friendsFiles = []
             usedFolders = []
             for nuisance in self.nuisances.values():
@@ -276,11 +247,9 @@ class RunAnalysis:
                 "ttree": tnom,
                 "usedVariables": list(usedVariables),
             }
-            print("accessing columns")
             self.dfs[sampleName][sample[3]]["columnNames"] = list(
                 map(lambda k: str(k), df.GetColumnNames())
             )
-            print("done accessing columns")
 
         self.definedAliases = {}
 
@@ -301,10 +270,16 @@ class RunAnalysis:
                     # only load aliases needed for nuisances!
                     # if beforeNuis
                     if (afterNuis) != (aliases[alias].get("afterNuis", False)):
+                        if "expr" in aliases[alias]:
+                            usedVariables = usedVariables.union(
+                                ParseCpp.listOfVariables(
+                                    ParseCpp.parse(aliases[alias]["expr"])
+                                )
+                            )
                         continue
 
                     if "samples" in list(aliases[alias]):
-                        if not sampleName in aliases[alias]["samples"]:
+                        if sampleName not in aliases[alias]["samples"]:
                             continue
                     if alias in self.dfs[sampleName][index]["columnNames"]:
                         if alias != aliases[alias].get("expr", ""):
@@ -332,24 +307,25 @@ class RunAnalysis:
                             f".Define('{alias}', '{aliases[alias]['expr']}') \\\n\t"
                         )
                         usedVariables = usedVariables.union(
-                            RunAnalysis.parseCpp(aliases[alias]["expr"])
+                            ParseCpp.listOfVariables(
+                                ParseCpp.parse(aliases[alias]["expr"])
+                            )
                         )
 
                     elif "exprSlot" in list(aliases[alias].keys()):
-                        nThreads = df.GetNSlots()
                         args = aliases[alias]["exprSlot"]
                         args[0] = args[0].replace("RPLME_nThreads", str(df.GetNSlots()))
                         define_string += (
                             f".DefineSlot('{alias}', '{args[0]}', [ {args[1]} ]) \\\n\t"
                         )
                         usedVariables = usedVariables.union(
-                            RunAnalysis.parseCpp(aliases[alias]["exprSlot"][1])
+                            ParseCpp.listOfVariables(
+                                ParseCpp.parse(aliases[alias]["exprSlot"][1])
+                            )
                         )
 
                     elif "class" in list(aliases[alias].keys()):
                         define_string += f".Define('{alias}', '{aliases[alias]['class']} ( {aliases[alias].get('args', '')}  )') \\\n\t"
-                    else:
-                        print("empty alias", alias)
 
                 df1 = eval(define_string)
                 self.dfs[sampleName][index]["df"] = df1
@@ -375,7 +351,7 @@ class RunAnalysis:
         aliases = self.aliases
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
-                df = self.dfs[sampleName][index]["df"]
+                df = self.dfs[sampleName][index]["df"]  # noqa: F841
 
                 # Define the most importante alias: the weight!
                 sample = list(
@@ -449,6 +425,7 @@ class RunAnalysis:
                                     baseCol
                                     not in self.dfs[sampleName][index]["usedVariables"]
                                 ):
+                                    # baseCol is never used -> useless to register variation
                                     continue
                                 if "bool" not in str(df.GetColumnType(baseCol)).lower():
                                     varNameDown = (
@@ -470,8 +447,11 @@ class RunAnalysis:
                                     varNameUp = baseCol + "_" + nuisance["mapUp"]
 
                                 _type = df.GetColumnType(baseCol)
-                                expr = RunAnalysis.varyExpression(
-                                    varNameDown, varNameUp, _type
+                                expr = (
+                                    ParseCpp.RVecExpression(_type)
+                                    + "{"
+                                    + f"{varNameDown}, {varNameUp}"
+                                    + "}"
                                 )
                                 df = df.Vary(
                                     baseCol,
@@ -521,14 +501,14 @@ class RunAnalysis:
 
                                 if df.GetColumnType("weight") == "double":
                                     expr = (
-                                        f"ROOT::RVecD"
+                                        "ROOT::RVecD"
                                         + "{ weight * (double)"
                                         + f"{variedNames[1]}, weight * (double) {variedNames[0]}"
                                         + "}"
                                     )
                                 elif df.GetColumnType("weight") == "float":
                                     expr = (
-                                        f"ROOT::RVecF"
+                                        "ROOT::RVecF"
                                         + "{ weight * (float)"
                                         + f"{variedNames[1]}, weight * (float) {variedNames[0]}"
                                         + "}"
@@ -583,7 +563,7 @@ class RunAnalysis:
                         while nVar in bigColumnNames:
                             prefix += "__"
                             nVar = prefix + var
-                        print("changing variable", var, "to " + nVar)
+                        # print("changing variable", var, "to " + nVar)
                         self.remappedVariables[nVar] = prefix
                         self.variables[nVar] = deepcopy(self.variables[var])
                         del self.variables[var]
@@ -631,9 +611,9 @@ class RunAnalysis:
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
                 for var in list(self.variables.keys()):
-                    if not "tree" in self.variables[var].keys():
+                    if "tree" not in self.variables[var].keys():
                         continue
-                    for branch in self.variables[var]["tree"].keys():
+                    for branch in list(self.variables[var]["tree"].keys()):
                         if (
                             branch in bigColumnNames
                             and branch != self.variables[var]["tree"][branch]
@@ -648,7 +628,7 @@ class RunAnalysis:
                             while nVar in bigColumnNames:
                                 prefix += "__"
                                 nVar = prefix + branch
-                            print("changing variable", branch, "to " + nVar)
+                            # print("changing variable", branch, "to " + nVar)
                             self.remappedVariables[nVar] = prefix
                             self.variables[var]["tree"][nVar] = self.variables[var][
                                 "tree"
@@ -659,18 +639,18 @@ class RunAnalysis:
             for index in self.dfs[sampleName].keys():
                 df = self.dfs[sampleName][index]["df"]
                 for var in list(self.variables.keys()):
-                    if not "tree" in self.variables[var].keys():
+                    if "tree" not in self.variables[var].keys():
                         continue
                     for branch in self.variables[var]["tree"].keys():
-                        print("working on defining branch", branch)
+                        # print("working on defining branch", branch)
                         if self.variables[var]["tree"][branch] not in bigColumnNames:
                             # the variable expr does not exist, create it
-                            print("define the branch")
+                            # print("define the branch")
                             df = df.Define(branch, self.variables[var]["tree"][branch])
                         elif branch not in bigColumnNames:
                             # the variable expr exists in the df, but not the variable key
                             # use alias
-                            print("define an alias to the branch")
+                            # print("define an alias to the branch")
                             df = df.Alias(branch, self.variables[var]["tree"][branch])
                         elif (
                             branch == self.variables[var]["tree"][branch]
@@ -809,7 +789,7 @@ class RunAnalysis:
 
                 for cut in mergedCuts.keys():
                     for var in list(variables.keys()):
-                        if not "tree" in variables[var].keys():
+                        if "tree" not in variables[var].keys():
                             _s = self.results[cut][var][sampleName][index]
                             _s_var = ROOT.RDF.Experimental.VariationsFor(_s)
                             self.results[cut][var][sampleName][index] = _s_var
@@ -891,7 +871,7 @@ class RunAnalysis:
                                 openedTrees.append(t)
                                 f.cd("/")
                                 folder = f"trees/{cut}/{sampleName}/"
-                                print("Creating dir", folder, outpath)
+                                # print("Creating dir", folder, outpath)
                                 toBeDeleted.append(outpath)
                                 ROOT.gDirectory.mkdir(folder, "", True)
                                 ROOT.gDirectory.cd("/" + folder)
@@ -958,7 +938,7 @@ class RunAnalysis:
         _proc = subprocess.Popen(proc, shell=True)
         _proc.wait()
 
-        print(proc)
+        # print(proc)
 
     def mergeSaveResults(self):
         f = ROOT.TFile(self.outputFileMap, "recreate")
@@ -1054,7 +1034,7 @@ class RunAnalysis:
             for index in self.dfs[sampleName].keys():
                 self.dfs[sampleName][index]["df"] = self.dfs[sampleName][index][
                     "df"
-                ].Filter('(' + self.preselections + ') && abs(weight) > 0.0')
+                ].Filter("(" + self.preselections + ") && abs(weight) > 0.0")
 
         self.loadVariables()
         self.loadBranches()
@@ -1092,7 +1072,7 @@ class RunAnalysis:
             for var in self.variables.keys():
                 if (
                     len(self.results[cut].get(var, [])) == 0
-                    or not "tree" in self.variables[var].keys()
+                    or "tree" not in self.variables[var].keys()
                 ):
                     # no snapshots for this combination of cut variable
                     continue
@@ -1113,7 +1093,7 @@ class RunAnalysis:
 
 
 if __name__ == "__main__":
-    ROOT.gInterpreter.Declare(f'#include "headers.hh"')
+    ROOT.gInterpreter.Declare('#include "headers.hh"')
     exec(open("script.py").read())
     runner = RunAnalysis(samples, aliases, variables, cuts, nuisances, lumi)
     runner.run()

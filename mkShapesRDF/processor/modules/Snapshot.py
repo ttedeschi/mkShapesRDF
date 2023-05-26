@@ -16,10 +16,10 @@ class Snapshot(Module):
         cols = list(map(lambda k: str(k), df.GetColumnNames()))
         saveColumns = []
         for col in self.columns:
-            l = list(filter(lambda k: fnmatch(k, col), cols))
-            if len(l) == 0:
+            tmp_cols = list(filter(lambda k: fnmatch(k, col), cols))
+            if len(tmp_cols) == 0:
                 print("Warning: no columns found to snapshot with pattern", col)
-            saveColumns.extend(l)
+            saveColumns.extend(tmp_cols)
 
         if self.includeVariations:
             variations = df.GetVariations()

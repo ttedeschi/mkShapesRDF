@@ -53,7 +53,6 @@ class LeptonSel(Module):
         return r;
         */
         }
-        
         """
         )
         values.append(

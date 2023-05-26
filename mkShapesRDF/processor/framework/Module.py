@@ -4,7 +4,7 @@ class Module:
 
     def runModule(self, df, values):
         return df
-    
+
     def run(self, df, values):
         values.append([df.Count(), "begin count of " + self.name])
         a = len(values) - 1

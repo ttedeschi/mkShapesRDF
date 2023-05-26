@@ -1,0 +1,19 @@
+
+mkPostProc -o 0 -p Run2018_UL2018_nAODv9_Full2018v9 -s DATAl1loose2018v9 -sN DoubleMuon_Run2018A-UL2018-v1 --dryRun 1
+
+mkPostProc -o 0 -p Summer20UL18_106x_nAODv9_Full2018v9 -s MCFull2018v9 -sN DYJetsToLL_M-50 --limitFiles 30 --dryRun 1
+mkPostProc -o 1 -p Summer20UL18_106x_nAODv9_Full2018v9 -s MCFull2018v9 -sN DYJetsToLL_M-50 -r 0
+
+mkPostProc -o 1 -p Summer20UL18_106x_nAODv9_Full2018v9 -s MCFull2018v9 -sN DYJetsToLL_M-50 -r 0
+
+mkPostProc -o 0 -p Summer20UL18_106x_nAODv9_Full2018v9 -s MCFull2018v9 -sN EWKZ2Jets_ZToLL_M-50_MJJ-120 --dryRun 1
+
+
+# run on post processed data
+mkPostProc -o 0 -p Summer20UL18_106x_nAODv9_Full2018v9 -s jmeCalculator_18_debug -sN DYJetsToLL_M-50 \
+--inputFolder /eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer20UL18_106x_nAODv9_Full2018v9/MCl1loose2018v9__MCCorr2018v9NoJERInHorn__l2tightOR2018v9/ \
+--limitFiles 1 --dryRun 1
+
+mkPostProc -o 0 -p Summer20UL18_106x_nAODv9_Full2018v9 -s MCFull2018v9 -sN EWKZ2Jets_ZToLL_M-50_MJJ-120_herwig7_angular \
+--inputFolder /eos/cms/store/group/phys_smp/Latinos/vbfz/nanoAOD/20UL18/ \
+--limitFiles 1 --dryRun 1

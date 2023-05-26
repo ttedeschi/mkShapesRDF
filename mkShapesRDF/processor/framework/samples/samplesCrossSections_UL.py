@@ -33,7 +33,13 @@
 #       Y       https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageBSMAt13TeV
 #       A1      https://indico.cern.ch/event/673253/contributions/2756806/attachments/1541203/2416962/20171016_VJetsXsecsUpdate_PH-GEN.pdf
 # 	X	Unknown! - Cross section not yet there
+
 xs_db = {}
 xs_db["DYJetsToLL_M-50"] = ["xsec=6077.22", "kfact=1.000", "ref=E"]
 xs_db["EWKZ2Jets_ZToLL_M-50"] = ["xsec=6.215", "kfact=1.000", "ref=W"]
 xs_db["EWKZ2Jets_ZToLL_M-50_MJJ-120"] = ["xsec=1.723", "kfact=1.000", "ref=N"]
+xs_db["EWKZ2Jets_ZToLL_M-50_MJJ-120_herwig7_angular"] = [
+    "xsec=1.723",
+    "kfact=1.000",
+    "ref=N",
+]

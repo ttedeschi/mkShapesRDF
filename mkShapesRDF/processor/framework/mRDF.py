@@ -1,15 +1,6 @@
 import ROOT
 from fnmatch import fnmatch
-
-
-def searchList(l, pattern):
-    return list(filter(lambda k: fnmatch(k, pattern), l))
-
-
-def searchListReg(l, pattern):
-    import re
-
-    return list(filter(lambda k: re.match(pattern, k), l))
+from mkShapesRDF.lib.parseCpp import ParseCpp
 
 
 class mRDF:
@@ -18,39 +9,6 @@ class mRDF:
         self.cols = []
         self.cols_d = []
         self.variations = {}
-
-    @staticmethod
-    def parseCpp(string):
-        import re
-
-        vars = re.split(" |\(|\)|\+|\-|>|<|=|&&|\/|\*|\.|,|!|\[|\]|\|\|", string)
-        vars = list(filter(lambda k: k != "", vars))
-        vars = list(filter(lambda k: not k.isnumeric(), vars))
-
-        return vars
-
-    @staticmethod
-    def RVecExpression(_type):
-        """Creates a string for RVec with the specified _type
-
-        Args:
-            _type (str): string version of the type of the RVec
-
-        Returns:
-            str: string with the expression to be used for RVec<type>
-        """
-        _typeString = ""
-        if _type == "float":
-            _typeString = "F"
-        elif _type == "double":
-            _typeString = "D"
-        elif _type == "int":
-            _typeString = "I"
-        elif _type == "bool":
-            _typeString = "B"
-        else:
-            _typeString = "<" + _type + ">"
-        return f"ROOT::RVec{_typeString}"
 
     def setNode(self, dfNode, cols, cols_d, variations):
         self.df = dfNode
@@ -82,7 +40,7 @@ class mRDF:
 
         if includeVariations:
             # check variations
-            depVars = mRDF.parseCpp(b)
+            depVars = ParseCpp.listOfVariables(ParseCpp.parse(b))
             variations = {}
             for variationName in c.variations.keys():
                 s = list(
@@ -100,15 +58,17 @@ class mRDF:
             for variationName in variations.keys():
                 varied_bs = []
                 for tag in variations[variationName]["tags"]:
-                    varied_b = b + ""
+                    varied_b = ParseCpp.parse(b)
                     for variable in variations[variationName]["variables"]:
-                        varied_b = varied_b.replace(
-                            variable, variable + "__" + variationName + "_" + tag
+                        varied_b = ParseCpp.replace(
+                            varied_b,
+                            variable,
+                            variable + "__" + variationName + "_" + tag,
                         )
-                    varied_bs.append(varied_b)
+                    varied_bs.append(ParseCpp.format(varied_b))
                 _type = c.df.GetColumnType(colName)
                 expression = (
-                    mRDF.RVecExpression(_type) + " {" + ", ".join(varied_bs) + "}"
+                    ParseCpp.RVecExpression(_type) + " {" + ", ".join(varied_bs) + "}"
                 )
                 c = c.Vary(
                     a, expression, variations[variationName]["tags"], variationName

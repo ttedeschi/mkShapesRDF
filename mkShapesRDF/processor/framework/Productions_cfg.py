@@ -1,3 +1,4 @@
+# flake8: noqa E265, E266
 # IMPORTANT: all paths are relative to the mkShapesRDF/mkShapesRDF/processor/framework folder
 Productions = {
     #################################### nAODv9 UL DATA  ##############################################

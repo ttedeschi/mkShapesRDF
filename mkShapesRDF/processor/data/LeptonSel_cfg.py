@@ -1,10 +1,10 @@
 LepFilter_dict = {
-   'Loose': 'isLoose',
-   'Veto': 'isVeto',
-   'WgStar': 'isWgs',
-   'isLoose': 'FakeObjWP',
-   'isVeto': 'VetoObjWP',
-   'isWgs': 'WgStarObjWP'
+    "Loose": "isLoose",
+    "Veto": "isVeto",
+    "WgStar": "isWgs",
+    "isLoose": "FakeObjWP",
+    "isVeto": "VetoObjWP",
+    "isWgs": "WgStarObjWP",
 }
 
 ElectronWP = {
@@ -44,13 +44,13 @@ ElectronWP = {
         },
         "TightObjWP": {
             # ----- mvaFall17V2Iso
-                        "mvaFall17V2Iso_WP90": {
+            "mvaFall17V2Iso_WP90": {
                 "cuts": {
                     # Common cuts
                     "ROOT::RVecB (Electron_pt.size(), true)": [
                         "ROOT::VecOps::abs(Electron_eta) < 2.5",
-                        'Electron_mvaFall17V2Iso_WP90',
-                        'Electron_convVeto',
+                        "Electron_mvaFall17V2Iso_WP90",
+                        "Electron_convVeto",
                         "Electron_pfRelIso03_all < 0.06",
                     ],
                     # Barrel
@@ -70,16 +70,16 @@ ElectronWP = {
 }
 
 MuonWP = {
-    ###____________________Full2018v9__________________________
+    # ____________________Full2018v9__________________________
     "Full2018v9": {
-        ## ------------
+        # ------------
         "VetoObjWP": {
             "HLTsafe": {
                 "cuts": {
                     # Common cuts
                     "ROOT::RVecB (Muon_pt.size(), true)": [
                         "ROOT::VecOps::abs(Muon_eta) < 2.4",
-                        'Muon_pt > 10.0',
+                        "Muon_pt > 10.0",
                     ]
                 },
             }
