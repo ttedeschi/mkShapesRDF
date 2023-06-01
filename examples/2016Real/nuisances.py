@@ -1,49 +1,33 @@
-mcProduction = 'Summer16_102X_nAODv7_Full2016v7'
-dataReco = 'Run2016_102X_nAODv7_Full2016v7'
-mcSteps = 'MCl1loose2016v7__MCCorr2016v7__l2loose__l2tightOR2016v7'
-fakeSteps = 'DATAl1loose2016v7__l2loose__fakeW'
-dataSteps = 'DATAl1loose2016v7__l2loose__l2tightOR2016v7'
-
-
-treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano'
-#limitFiles = -1
-
-def makeMCDirectory(var=''):
-    if useXROOTD:
-        treeBaseDir = redirector + treeBaseDir
-    if var== '':
-        return '/'.join([treeBaseDir, mcProduction, mcSteps])
-    else:
-        return '/'.join([treeBaseDir, mcProduction, mcSteps + '__' + var])
+# flake8: noqa E266
 
 
 # merge cuts
 _mergedCuts = []
 for cut in list(cuts.keys()):
-    __cutExpr = ''
+    __cutExpr = ""
     if type(cuts[cut]) == dict:
-        __cutExpr = cuts[cut]['expr']
-        for cat in list(cuts[cut]['categories'].keys()):
-            _mergedCuts.append(cut + '_' + cat)
+        __cutExpr = cuts[cut]["expr"]
+        for cat in list(cuts[cut]["categories"].keys()):
+            _mergedCuts.append(cut + "_" + cat)
     elif type(cuts[cut]) == str:
         _mergedCuts.append(cut)
 
 cuts2j = _mergedCuts
-cuts2j_ee = list(filter(lambda k: k.endswith('ee'), cuts2j))
-cuts2j_mm = list(filter(lambda k: k.endswith('mm'), cuts2j))
+cuts2j_ee = list(filter(lambda k: k.endswith("ee"), cuts2j))
+cuts2j_mm = list(filter(lambda k: k.endswith("mm"), cuts2j))
 
 nuisances = {}
 
-nuisances['lumi_Uncorrelated'] = {
-        'name': 'lumi_13TeV_2016',
-        'type': 'lnN',
-        'samples': dict((skey, '1.01') for skey in mc if skey not in ['WW', 'top', 'DY'])
+nuisances["lumi_Uncorrelated"] = {
+    "name": "lumi_13TeV_2016",
+    "type": "lnN",
+    "samples": dict((skey, "1.01") for skey in mc if skey not in ["WW", "top", "DY"]),
 }
 
-nuisances['lumi_correlated'] = {
-        'name': 'lumi_13TeV_correlated',
-        'type': 'lnN',
-        'samples': dict((skey, '1.006') for skey in mc if skey not in ['WW', 'top', 'DY'])
+nuisances["lumi_correlated"] = {
+    "name": "lumi_13TeV_correlated",
+    "type": "lnN",
+    "samples": dict((skey, "1.006") for skey in mc if skey not in ["WW", "top", "DY"]),
 }
 
 """
@@ -144,22 +128,21 @@ nuisances['eff_e'] = {
     'type': 'shape',
     'samples': dict((skey, ['SFweightEleUp', 'SFweightEleDown']) for skey in mc_emb)
 }
-"""
 
-nuisances['electronpt'] = {
-    'name': 'CMS_scale_e_2016',
-    'kind': 'suffix',
-    'type': 'shape',
-    'mapUp' : 'ElepTup',
-    'mapDown': 'ElepTdo',
-    'samples': dict((skey, ['1', '1']) for skey in mc),
-    'folderUp': makeMCDirectory('ElepTup_suffix'),
-    'folderDown': makeMCDirectory('ElepTdo_suffix'),
-    'AsLnN': '1'
+"""
+nuisances["electronpt"] = {
+    "name": "CMS_scale_e_2016",
+    "kind": "suffix",
+    "type": "shape",
+    "mapUp": "ElepTup",
+    "mapDown": "ElepTdo",
+    "samples": dict((skey, ["1", "1"]) for skey in mc),
+    "folderUp": makeMCDirectory("ElepTup_suffix"),
+    "folderDown": makeMCDirectory("ElepTdo_suffix"),
+    "AsLnN": "1",
 }
 
 """
-
 ##### Muon Efficiency and energy scale
 
 nuisances['eff_m'] = {
@@ -542,58 +525,57 @@ nuisances['stat'] = {
 
 autoStats = False
 if autoStats:
-    ## Use the following if you want to apply the automatic combine MC stat nuisances.
-    nuisances['stat'] = {
-        'type': 'auto',
-        'maxPoiss': '10',
-        'includeSignal': '0',
+    # Use the following if you want to apply the automatic combine MC stat nuisances.
+    nuisances["stat"] = {
+        "type": "auto",
+        "maxPoiss": "10",
+        "includeSignal": "0",
         #  nuisance ['maxPoiss'] =  Number of threshold events for Poisson modelling
         #  nuisance ['includeSignal'] =  Include MC stat nuisances on signal processes (1=True, 0=False)
-        'samples': {}
+        "samples": {},
     }
 
 for dy in dys.keys():
-    nuisances[f'DYnorm2j_ee_{dy}']  = {
-                     'name'  : f'CMS_hww_DYnorm2j_ee_{dy}',
-                     'samples'  : {
-                       f'DY_{dy}' : '1.00',
-                         },
-                     'type'  : 'rateParam',
-                     'cuts'  : cuts2j_ee
-                    }
-    nuisances[f'DYnorm2j_mm_{dy}']  = {
-                     'name'  : f'CMS_hww_DYnorm2j_mm_{dy}',
-                     'samples'  : {
-                       f'DY_{dy}' : '1.00',
-                         },
-                     'type'  : 'rateParam',
-                     'cuts'  : cuts2j_mm
-                    }
+    nuisances[f"DYnorm2j_ee_{dy}"] = {
+        "name": f"CMS_hww_DYnorm2j_ee_{dy}",
+        "samples": {
+            f"DY_{dy}": "1.00",
+        },
+        "type": "rateParam",
+        "cuts": cuts2j_ee,
+    }
+    nuisances[f"DYnorm2j_mm_{dy}"] = {
+        "name": f"CMS_hww_DYnorm2j_mm_{dy}",
+        "samples": {
+            f"DY_{dy}": "1.00",
+        },
+        "type": "rateParam",
+        "cuts": cuts2j_mm,
+    }
 
 
-nuisances['VVnorm2j']  = {
-               'name'  : 'CMS_hww_VVnorm2j',
-               'samples'  : {
-                   'WW' : '1.00',
-                   'ggWW' : '1.00',
-                   'Vg' : '1.00',
-                   'VgS_L' : '1.00',
-                   'VgS_H' : '1.00',
-                   'VZ' : '1.00',
-                   'VVV' : '1.00',
-                   'WWewk' : '1.00',
-                   },
-               'type'  : 'rateParam',
-               'cuts'  : cuts2j
-              }
+nuisances["VVnorm2j"] = {
+    "name": "CMS_hww_VVnorm2j",
+    "samples": {
+        "WW": "1.00",
+        "ggWW": "1.00",
+        "Vg": "1.00",
+        "VgS_L": "1.00",
+        "VgS_H": "1.00",
+        "VZ": "1.00",
+        "VVV": "1.00",
+        "WWewk": "1.00",
+    },
+    "type": "rateParam",
+    "cuts": cuts2j,
+}
 
 
-nuisances['Topnorm2j']  = {
-               'name'  : 'CMS_hww_Topnorm2j',
-               'samples'  : {
-                   'top' : '1.00',
-                   },
-               'type'  : 'rateParam',
-               'cuts'  : cuts2j
-              }
-
+nuisances["Topnorm2j"] = {
+    "name": "CMS_hww_Topnorm2j",
+    "samples": {
+        "top": "1.00",
+    },
+    "type": "rateParam",
+    "cuts": cuts2j,
+}

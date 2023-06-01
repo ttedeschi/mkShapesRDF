@@ -9,7 +9,12 @@ class SearchFiles:
         # cache result of `glob.glob(folder)` and `xrdfs redirector ls folder`
         self.cached_list_of_files = {}
 
-    def searchFiles(self, folder, process, redirector="root://eoscms.cern.ch/"):
+    def searchFiles(
+        self, folder, process, redirector="root://eoscms.cern.ch/", isLatino=True
+    ):
+        if not folder.endswith("/"):
+            folder += "/"
+
         listOfFiles = []
         if len(self.cached_list_of_files.get(folder, [])) == 0:
             print("Need to query for files for folder", folder)
@@ -22,11 +27,12 @@ class SearchFiles:
                 )
                 listOfFiles = proc.communicate()[0].decode("utf-8").split("\n")
             else:
-                listOfFiles = glob.glob(folder + "/*")
+                listOfFiles = glob.glob(folder + "*")
             self.cached_list_of_files[folder] = listOfFiles
         else:
             listOfFiles = self.cached_list_of_files[folder]
-
+        if isLatino:
+            process = "nanoLatino_" + process + "__part*.root"
         files = list(
             filter(lambda k: fnmatch.fnmatch(k, folder + process), listOfFiles)
         )
