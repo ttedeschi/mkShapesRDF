@@ -2,14 +2,19 @@ import sys
 import subprocess
 from mkShapesRDF.processor.framework.Steps_cfg import Steps
 from mkShapesRDF.processor.framework.Productions_cfg import Productions
-from mkShapesRDF.lib.SearchFiles import SearchFiles
+from mkShapesRDF.lib.search_files import SearchFiles
 import os
 from pathlib import Path
 from math import ceil
 from textwrap import dedent
+from mkShapesRDF.lib.utils import getFrameworkPath
 
 
 class Processor:
+    """
+    The ``Processor`` class is used to create the folder structure for batch submission and the scripts to run the processing.
+    """
+
     def __init__(
         self,
         condorDir,
@@ -17,26 +22,76 @@ class Processor:
         prodName,
         step,
         sampleName,
+        isLatino=True,
         inputFolder="",
         redirector="",
         maxFilesPerJob=1,
         limitFiles=-1,
         dryRun=0,
     ):
+        """
+        Initialize the processor object
+
+        Parameters
+        ----------
+
+        condorDir : str
+            Path to the directory to use for condor jobs
+
+        eosDir : str
+            Path to the directory to use for eos (output files)
+
+        prodName : str
+            Production name (must be in ``Productions_cfg.py``)
+
+        step : str
+            Step name (must be in ``Steps_cfg.py``)
+
+        sampleName : str
+            Sample name (must be in the sample file associated to the production)
+
+        isLatino : bool
+            If True, use the latino naming convention (e.g. ``nanoLatino_DYJetsToLL_M-50__part*.root``)
+
+        inputFolder : str, optional, default: ""
+            Path to the input folder (where input files are searched, if empty, DAS is used)
+
+        redirector : str, optional, default: ""
+            Redirector to use (if empty, use direct access)
+
+        maxFilesPerJob : int, optional, default: 1
+            Maximum number of files per job (If 20 files and maxFilesPerJob=10, 2 jobs will be created)
+
+        limitFiles : int, optional, default: -1
+            Limit the number of input files to consider (if -1, all files are considered)
+
+        dryRun : int, optional, default: 0
+            If 1, do not submit jobs, just create the folder structure and the scripts
+
+        """
         self.condorDir = condorDir
         self.eosDir = eosDir
         self.searchFiles = SearchFiles()
         self.prodName = prodName
         self.sampleName = sampleName
+        self.isLatino = isLatino
         self.step = step
         self.inputFolder = inputFolder
         self.redirector = redirector
         self.maxFilesPerJob = maxFilesPerJob
         self.limitFiles = limitFiles
         self.dryRun = dryRun
-        self.path = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) + "/"
+        self.path = getFrameworkPath() + "mkShapesRDF/processor/framework/"
 
     def getFiles_cfg(self):
+        """
+        Utility function to get a dictionary to be passed to the proper function of ``SearchFiles``
+
+        Returns
+        -------
+        dict
+            Dictionary to be passed to the proper function of ``SearchFiles``
+        """
         if self.inputFolder == "":
             # if no inputFolder is given -> DAS
             return {
@@ -48,9 +103,19 @@ class Processor:
                 "redirector": self.redirector,
                 "folder": self.inputFolder,
                 "process": "*" + self.sampleName + "*.root",
+                "isLatino": self.isLatino,
             }
 
     def addDeclareLines(self, step):
+        """
+        Add the declare lines to the python script file
+
+        Parameters
+        ----------
+        step : str
+            the step name to consider. Must be in ``Steps_cfg.py``. If the step is a chain, the declare lines of the substeps are added recursively.
+            The imports, the declaration and the module call are added to the python script file.
+        """
         if step not in Steps.keys():
             print(f"Error, step {step} not found in Steps")
             sys.exit()
@@ -66,6 +131,7 @@ class Processor:
             self.fPy += "df = module.run(df, values) \n"
 
     def run(self):
+        """Create the folder structure and the scripts to run the processing. Submit if dryRun==0"""
         global fPy
         self.fPy = dedent(
             """

@@ -1,5 +1,5 @@
 import json
-from mkShapesRDF.processor.framework.Module import Module
+from mkShapesRDF.processor.framework.module import Module
 
 
 class LumiMask(Module):

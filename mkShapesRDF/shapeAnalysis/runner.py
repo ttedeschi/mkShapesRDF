@@ -2,23 +2,30 @@ from copy import deepcopy
 import sys
 import ROOT
 from array import array
-from mkShapesRDF.lib.parseCpp import ParseCpp
+from mkShapesRDF.lib.parse_cpp import ParseCpp
 
 ROOT.gROOT.SetBatch(True)
 ROOT.TH1.SetDefaultSumw2(True)
 
 
 class RunAnalysis:
+    r"""Class athat craeates ``dfs`` and runs the analysiss"""
+
     @staticmethod
     def splitSamples(samples, useFilesPerJob=True):
-        """static methods, takes a dictionary of samples and split them based on their weights and max num. of files
+        r"""static methods, takes a dictionary of samples and split them based on their weights and max num. of files
 
-        Args:
-            samples (dict): dictionary of samples
-            useFilesPerJob (bool, optional): if you want to further split the samples based on max num. of files. Defaults to True.
+        Parameters
+        ----------
+            samples : dict
+                dictionary of samples
+            useFilesPerJob : bool, optional, default: True
+                if you want to further split the samples based on max num. of files.
 
-        Returns:
-            (list of tuples): each tuple will have a lenght of 5 (6 if subsamples are present), where the first element is the name of the sample, the second the list of files, the third the weight, and the fourth the index of this tuple compared to the other tuples of the same sample type, the fifth will be the isData flag (True if the sample is data, False otherwise). If subsamples are present, the sixth element will be the dict of subsamples
+        Returns
+        -------
+            `list of tuple`
+                each tuple will have a lenght of 5 (6 if subsamples are present), where the first element is the name of the sample, the second the list of files, the third the weight, and the fourth the index of this tuple compared to the other tuples of the same sample type, the fifth will be the isData flag (True if the sample is data, False otherwise). If subsamples are present, the sixth element will be the dict of subsamples
         """
         # will contain all the different samples splitted based on their weights and max num. of files
         splittedSamples = []
@@ -134,20 +141,33 @@ class RunAnalysis:
         limit=-1,
         outputFileMap="output.root",
     ):
-        """
+        r"""
         Stores arguments in the class attributes and creates all the RDataFrame objects
-        Args:
-            samples (list of tuples): same type as the return of the splitSamples method
-            aliases (dict): dict of aliases
-            variables (dict): dict of variables
-            cuts (dict): dict of cuts, contains two keys (preselections: str, cuts: dict)
-            nuisances (dict): dict of nuisances
-            lumi (float): lumi in fb-1
-            limit (int, optional): limit of events to be processed. Defaults to -1.
-            outputFileMap (str, optional): full path + filename of the output root file. Defaults to 'output.root'.
 
-        Returns:
-            (void): void
+        Parameters
+        ----------
+
+            samples : `list of tuple`
+                same type as the return of the splitSamples method
+            aliases : dict
+                dict of aliases
+            variables : dict
+                dict of variables
+            cuts : dict
+                dict of cuts, contains two keys (preselections: str, cuts: dict)
+            nuisances : dict
+                dict of nuisances
+            lumi : float
+                lumi in fb-1
+            limit : int, optional, default: -1
+                limit of events to be processed
+            outputFileMap : str, optional, defaults: 'output.root'
+                full path + filename of the output root file.
+
+        Returns
+        -------
+            None
+
         """
         self.samples = samples
         self.aliases = aliases
@@ -174,18 +194,24 @@ class RunAnalysis:
         self.remappedVariables = {}
 
         self.dfs = {}
-        """
+        r"""
         dfs is a dictionary containing as keys the sampleNames. The structure should look like this:
-        dfs = {
-            'DY':{
-                0: {
-                    'df': obj,
-                    'columnNames': [...],
-                    'ttree': obj2, # needed otherwise seg fault in root
-                },
-                ...
+
+        ..  code-block:: python
+
+            dfs = {
+                'DY':{
+                    0: {
+                        'df': obj,
+                        'columnNames': [...],
+                        'usedVariables': [...],
+                        'ttree': obj2, # needed otherwise seg fault in root
+                    },
+                }
             }
+
         """
+
         usedVariables = set()
         usedVariables = usedVariables.union(
             ParseCpp.listOfVariables(ParseCpp.parse(self.preselections))
@@ -257,7 +283,13 @@ class RunAnalysis:
 
     def loadAliases(self, afterNuis=False):
         """
-        Load aliases in the dataframes. It creates also the special alias `weight`
+        Load aliases in the dataframes. It does not create the special alias ``weight`` for which a special method is used.
+
+        Parameters
+        ----------
+            afterNuis : bool, optional, default: False
+                if True, only aliases with the key ``afterNuis`` set to True will be loaded
+
         """
         aliases = self.aliases
         for sampleName in self.dfs.keys():
@@ -345,7 +377,7 @@ class RunAnalysis:
 
     def loadAliasWeight(self):
         """
-        Load aliases in the dataframes. It creates also the special alias `weight`
+        Loads only the special alias ``weight`` in the dataframes.
         """
         samples = self.samples
         aliases = self.aliases
@@ -391,7 +423,7 @@ class RunAnalysis:
 
     def loadSystematicsSuffix(self):
         """
-        Loads systematics in the dataframes. Supported nuisance types are suffix and weight.
+        Loads systematics of type ``suffix`` in the dataframes.
         """
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
@@ -469,7 +501,7 @@ class RunAnalysis:
 
     def loadSystematicsReweights(self):
         """
-        Loads systematics in the dataframes. Supported nuisance types are suffix and weight.
+        Loads systematics of type ``suffix`` in the dataframes.
         """
         for sampleName in self.dfs.keys():
             for index in self.dfs[sampleName].keys():
@@ -537,8 +569,16 @@ class RunAnalysis:
 
     def loadVariables(self):
         """
-        Loads variables (not ones with the 'tree' key in them) and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
-        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs. This is done by gathering the largest set of column names.
+        Loads variables (not the ones with the 'tree' key in them),
+        and checks if they are already in the dataframe columns,
+        if so it adds ``__`` at the beginning of the name.
+
+        Since variables are shared but not the aliases,
+        it could happen that a variable's name or expression is already defined
+        for a given df but not for another one ->
+        need to determine a common and compatible set of variables for all the many dfs.
+
+        This is done by gathering the largest set of column names.
         """
 
         bigColumnNames = set()
@@ -598,8 +638,16 @@ class RunAnalysis:
 
     def loadBranches(self):
         """
-        Loads variables (not ones with the 'tree' key in them) and checks if they are already in the dataframe columns, if so it adds `__` at the beginning of the name.
-        Since variables are shared but not the aliases, it could happen that a variable's name or expression is already defined for a given df but not for another one -> need to determine a common and compatible set of variables for all the many dfs. This is done by gathering the largest set of column names.
+        Loads branches (the ones specified in an ``alias`` with the ``tree`` key in them),
+        and checks if they are already in the dataframe columns,
+        if so it adds ``__`` at the beginning of the name.
+
+        Since variables are shared but not the aliases,
+        it could happen that a variable's name or expression is already defined
+        for a given df but not for another one ->
+        need to determine a common and compatible set of variables for all the many dfs.
+
+        This is done by gathering the largest set of column names.
         """
 
         bigColumnNames = set()
@@ -680,6 +728,8 @@ class RunAnalysis:
     def splitSubsamples(self):
         """
         Split samples into subsamples if needed
+
+        After this method the ``dfs`` attribute will be modified to contain the subsamples names instead of the original sample name
         """
         sampleNames = set(
             list(map(lambda k: k[0], list(filter(lambda k: len(k) == 6, self.samples))))
@@ -706,7 +756,7 @@ class RunAnalysis:
 
     def create_cuts_vars(self):
         """
-        Defines Histo1D for each variable and cut and dataframe. It also creates dictionary for variations through `VariationsFor()`
+        Defines ``Histo1D`` for each variable and cut and dataframe. It also creates dictionary for variations through ``VariationsFor()``
         """
         mergedCuts = self.cuts
         variables = self.variables
@@ -795,6 +845,11 @@ class RunAnalysis:
                             self.results[cut][var][sampleName][index] = _s_var
 
     def convertResults(self):
+        """
+        Gather resulting histograms and fold them if needed.
+
+        Systematics are also saved.
+        """
         mergedCuts = self.cuts
         variables = self.variables
         for sampleName in self.dfs.keys():
@@ -831,6 +886,13 @@ class RunAnalysis:
                         self.results[cut][var][sampleName][index] = _histos
 
     def saveResults(self):
+        """
+        Save results in a root file.
+
+        If ``Snapshot`` were created will merge them in a output file.
+
+        """
+
         f = ROOT.TFile(self.outputFileMap, "recreate")
 
         toBeDeleted = []
@@ -1014,8 +1076,19 @@ class RunAnalysis:
 
     def run(self):
         """
-        Runs the analysis, first loads the aliases, filters with preselection the many dfs, loads systematics
-        loads variables, creates the results dict, splits the samples, creates the cuts/var histos, runs the analysis
+        Runs the analysis:
+
+        1. load the aliases without the ``afterNuis`` option
+        2. load the ``suffix`` systematics
+
+        3. load the alias ``weight``
+        4. load the reweight systematics (they need the ``weight`` to be defined)
+
+        5. finally load the suffix systematics with the ``afterNuis`` option
+
+
+        After this important procedure it filters with ``preselection`` the many ``dfs``, loads systematics
+        loads ``variables``, creates the results dict, splits the samples, creates the cuts/var histos, runs the dataframes
         and saves results.
         """
         # load all aliases needed before nuisances of type suffix

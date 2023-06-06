@@ -2,25 +2,18 @@ import os
 import sys
 
 
-class types:
-    @staticmethod
-    def isStr(t):
-        return isinstance(t, str)
-
-    @staticmethod
-    def isTuple(t):
-        return isinstance(t, tuple)
-
-    @staticmethod
-    def isOrderedDict(t):
-        return "OrderedDict" in str(type(t))
-
-
 class ConfigLib:
     @staticmethod
     def loadConfig(filesToExec, globs, imports=[]):
+        """Given a list of files to execute, load them into memory
+
+        Args:
+            filesToExec (list of str): list of files to execute
+            globs (globals): python globals()
+            imports (list, optional): List of packages to import. If an element is tuple will do from tuple[0] import tuple[1]. Defaults to [].
+        """
         for i in imports:
-            if types.isStr(i):
+            if isinstance(i, str):
                 exec(f"import {i}", globs, globs)
             else:
                 exec(f"from {i[0]} import {i[1]}", globs, globs)
@@ -29,14 +22,22 @@ class ConfigLib:
 
     @staticmethod
     def createConfigDict(varsToKeep, objects):
-        # given all the variables stored in memory, dump the ones the user wants to keep to a dictionary
+        """Given all the variables stored in memory, dump the ones the user wants to keep to a dictionary
+        Args:
+            varsToKeep (list of str or tuple): list of variables to keep. If tuple, the first element is the name of the variable, the second is a dictionary of variables to keep inside the variable
+            objects (dict): dictionary of objects in memory
+
+        Returns:
+            (dict): dictionary of variables to keep (and their subvariables)
+        """
+
         from collections import OrderedDict
 
         config = OrderedDict()
         for var in varsToKeep:
-            if types.isStr(var):
+            if isinstance(var, str):
                 config[var] = objects[var]
-            elif types.isTuple(var):
+            elif isinstance(var, tuple):
                 d = {}
                 if len(var) != 2:
                     print("Tuple should have lenght = 2! (nameOfVar, dict)")
@@ -77,9 +78,9 @@ class ConfigLib:
 
         config = OrderedDict()
         for var in varsToKeep:
-            if types.isStr(var):
+            if isinstance(var, str):
                 config[var] = objects[var]
-            elif types.isTuple(var):
+            elif isinstance(var, tuple):
                 d = {}
                 if len(var) != 2:
                     print("Tuple should have lenght = 2! (nameOfVar, dict)")

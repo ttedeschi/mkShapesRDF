@@ -110,8 +110,6 @@ class BatchSubmission:
             self.createBatch(sample)
 
     def submit(self, dryRun=0):
-        # txtsh = '#!/bin/bash\n'
-        # txtsh += 'source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh\n'
         txtsh = ""
         with open("../../start.sh") as file:
             txtsh += file.read()

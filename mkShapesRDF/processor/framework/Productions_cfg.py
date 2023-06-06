@@ -1,4 +1,3 @@
-# flake8: noqa E265, E266
 # IMPORTANT: all paths are relative to the mkShapesRDF/mkShapesRDF/processor/framework folder
 Productions = {
     #################################### nAODv9 UL DATA  ##############################################
@@ -40,7 +39,7 @@ Productions = {
         "samples": "../framework/samples/Summer20UL16_106x_HIPM_nAODv9.py",
         "cmssw": "Full2016v9HIPM",
         "year": "2016",
-        #'JESGT'   : 'Summer16_07Aug2017_V11_MC' ,
+        # 'JESGT'   : 'Summer16_07Aug2017_V11_MC' ,
         "xsFile": "../framework/samples/samplesCrossSections_UL.py",
         "YRver": ["YR4", "13TeV"],
     },
@@ -49,7 +48,7 @@ Productions = {
         "samples": "../framework/samples/Summer20UL16_106x_noHIPM_nAODv9.py",
         "cmssw": "Full2016v9noHIPM",
         "year": "2016",
-        #'JESGT'   : 'Summer16_07Aug2017_V11_MC' ,
+        # 'JESGT'   : 'Summer16_07Aug2017_V11_MC' ,
         "xsFile": "../framework/samples/samplesCrossSections_UL.py",
         "YRver": ["YR4", "13TeV"],
     },

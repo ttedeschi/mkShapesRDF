@@ -1,3 +1,14 @@
+"""
+Main script for the creation of shapes, starting from a configuration folder.
+
+It gives the option to compile the configuration folder and save it as both JSON and pickle file.
+
+It also gives the option to run the analysis in batch mode, or to check for errors in the batch submission.
+
+The analysis can be run in batch mode or locally.
+
+If run in batch mode it gives the ability to merge the output root files.
+"""
 import sys
 from pathlib import Path
 import argparse
@@ -12,7 +23,7 @@ headersPath = os.path.dirname(os.path.dirname(__file__)) + "/include/headers.hh"
 ROOT.gInterpreter.Declare(f'#include "{headersPath}"')
 
 
-def main():
+def defaultParser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -91,7 +102,11 @@ def main():
         required=False,
         default="0",
     )
+    return parser
 
+
+def main():
+    parser = defaultParser()
     args = parser.parse_args()
 
     compileFolder = args.compile

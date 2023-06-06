@@ -1,5 +1,4 @@
-# flake8: noqa E266
-from mkShapesRDF.lib.SearchFiles import SearchFiles
+from mkShapesRDF.lib.search_files import SearchFiles
 
 searchFiles = SearchFiles()
 # redirector = "root://eoscms.cern.ch/"
@@ -120,8 +119,7 @@ samples["Zjj"] = {
 ###### DY MC ######
 dys = {
     "DY_hardJets": "hardJets",
-    "DY_PU1Jets": "PU1Jets",
-    "DY_PU2Jets": "PU2Jets",
+    "DY_PUJets": "PUJets",
 }
 
 

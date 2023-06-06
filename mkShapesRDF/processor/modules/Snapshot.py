@@ -1,6 +1,6 @@
 import ROOT
 from fnmatch import fnmatch
-from mkShapesRDF.processor.framework.Module import Module
+from mkShapesRDF.processor.framework.module import Module
 
 
 class Snapshot(Module):

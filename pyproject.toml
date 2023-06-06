@@ -11,4 +11,5 @@ testpaths = [
 line-length = 88
 target-version = ['py39']
 #include = 'tests\.pyi?$'
-include = 'examples\/*\/.*\.py$|mkShapesRDF.*\.py$|tests\/.+\.py$'
+# include = 'examples\/*\/.*\.py$|mkShapesRDF.*\.py$|tests\/.+\.py$'
+include = 'mkShapesRDF.*\.py$|tests\/.+\.py$'

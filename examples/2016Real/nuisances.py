@@ -1,6 +1,3 @@
-# flake8: noqa E266
-
-
 # merge cuts
 _mergedCuts = []
 for cut in list(cuts.keys()):

@@ -1,8 +1,12 @@
 import ROOT
-from mkShapesRDF.processor.framework.Module import Module
+from mkShapesRDF.processor.framework.module import Module
 
 
 class JMECalculator(Module):
+    """
+    This module calculates the JES/JER for jets and MET objects and stores the nominal values and the variations (up/down) in the output tree.
+    """
+
     def __init__(
         self,
         JEC_era,
@@ -15,6 +19,30 @@ class JMECalculator(Module):
         store_nominal=True,
         store_variations=True,
     ):
+        """
+        JMECalculator module
+
+        Parameters
+        ----------
+        JEC_era : str
+            JEC era to use
+        JER_era : str
+            JER era to use
+        jet_object : str
+            Jet Collection to use (e.g. ``CleanJet``)
+        met_collections : list, optional, default: ``["PuppiMET", "MET"]``
+            MET collections to use
+        do_Jets : bool, optional, default: ``True``
+            Whether to calculate JES/JER for jets
+        do_MET : bool, optional, default: ``True``
+            Whether to calculate JES/JER for MET objects
+        do_JER : bool, optional, default: ``True``
+            Whether to calculate JER
+        store_nominal : bool, optional, default: ``True``
+            Whether to store the nominal values (corrected or smeared)
+        store_variations : bool, optional
+            Whether to store the variations (up/down) for JES/JER
+        """
         super().__init__("JMECalculator")
         self.JEC_era = JEC_era
         self.JER_era = JER_era

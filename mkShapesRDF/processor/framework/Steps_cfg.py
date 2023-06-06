@@ -1,4 +1,3 @@
-# flake8: noqa E262, E265, E266
 Steps = {
     "DATAl1loose2018v9": {
         "isChain": True,
@@ -40,7 +39,7 @@ Steps = {
             "lepSel",
             "jetSelUL",
         ]
-        #'PromptParticlesGenVars','GenVar','GenLeptonMatch', 'HiggsGenVars', 'TopGenVars', 'wwNLL','WGammaStar', 'ggHTheoryUncertainty', 'qqHTheoryUncertainty', 'DressedLeptons','EFTGen'],
+        # 'PromptParticlesGenVars','GenVar','GenLeptonMatch', 'HiggsGenVars', 'TopGenVars', 'wwNLL','WGammaStar', 'ggHTheoryUncertainty', 'qqHTheoryUncertainty', 'DressedLeptons','EFTGen'],
     },
     "MCCorr2018v9": {
         "isChain": True,

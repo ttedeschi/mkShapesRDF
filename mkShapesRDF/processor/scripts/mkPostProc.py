@@ -6,14 +6,16 @@ import glob
 import subprocess
 import tabulate
 
+#: condorDir is the path to use for condor submission, user might want to change it -> edit ``mkPostProc.py``
 condorDir = (
     "/".join(os.path.abspath(os.path.dirname(__file__)).split("/")[:-1]) + "/condor"
 )
-print(condorDir)
-eosDir = "/eos/user/g/gpizzati/mkShapesRDF_nanoAOD"
+
+#: eosDir is the path to use for eos submission, user might want to change it -> edit ``mkPostProc.py``
+eosDir = "/eos/cms/store/group/phys_smp/Latinos/vbfz/mkShapesRDF_nanoAOD"
 
 
-def main():
+def defaultParser():
     parser = argparse.ArgumentParser(add_help=False)
 
     parser.add_argument(
@@ -29,7 +31,7 @@ def main():
         "-p",
         "--prod",
         type=str,
-        help="Production to run on",
+        help="Production name to run",
         required=True,
     )
 
@@ -37,7 +39,7 @@ def main():
         "-s",
         "--step",
         type=str,
-        help="Step to run",
+        help="Step name to run",
         required=True,
     )
 
@@ -45,10 +47,92 @@ def main():
         "-sN",
         "--sampleName",
         type=str,
-        help="Sample to process",
+        help="Sample name to process",
         required=True,
     )
+    return parser
 
+
+def operationMode0Parser(parser=None):
+    if parser is None:
+        parser = argparse.ArgumentParser(add_help=False)
+    parser0 = argparse.ArgumentParser(parents=[parser])
+
+    parser0.add_argument(
+        "-iL",
+        "--isLatino",
+        type=bool,
+        help="If the files in input follow the latino naming convention",
+        required=False,
+        default=True,
+    )
+
+    parser0.add_argument(
+        "-i",
+        "--inputFolder",
+        help="Input folder to search for files",
+        required=False,
+        default="",
+    )
+
+    parser0.add_argument(
+        "--maxFilesPerJob",
+        type=int,
+        help="Max number of input files per job (will merge input files)",
+        required=False,
+        default=1,
+    )
+
+    parser0.add_argument(
+        "-l",
+        "--limitFiles",
+        type=int,
+        help="Limit number of files to process",
+        required=False,
+        default=-1,
+    )
+
+    parser0.add_argument(
+        "-dR",
+        "--dryRun",
+        choices=[0, 1],
+        type=int,
+        help="1 do not submit to condor",
+        required=False,
+        default=0,
+    )
+
+    parser0.add_argument(
+        "--useRedirector",
+        choices=[0, 1],
+        type=int,
+        help="0 do not use redirector, 1 use it",
+        required=False,
+        default=0,
+    )
+    return parser0
+
+
+def operationMode1Parser(parser=None):
+    if parser is None:
+        parser = argparse.ArgumentParser(add_help=False)
+    parser1 = argparse.ArgumentParser(parents=[parser])
+
+    parser1.add_argument(
+        "-r",
+        "--resubmit",
+        type=int,
+        choices=[0, 1],
+        help="0 do not resubmit, 1 resubmit",
+        required=True,
+        default=0,
+    )
+
+    return parser1
+
+
+def main():
+    parser = defaultParser()
     if len(argv) < 1 + 2 * 4:
         # just give the parser error
         args = parser.parse_args()
@@ -62,54 +146,10 @@ def main():
     sampleName = args.sampleName
 
     if opMode == 0:
-        parser0 = argparse.ArgumentParser(parents=[parser])
-
-        parser0.add_argument(
-            "-i",
-            "--inputFolder",
-            help="Input folder to search for files",
-            required=False,
-            default="",
-        )
-
-        parser0.add_argument(
-            "--maxFilesPerJob",
-            type=int,
-            help="Max number of input files per job (will merge input files)",
-            required=False,
-            default=1,
-        )
-
-        parser0.add_argument(
-            "-l",
-            "--limitFiles",
-            type=int,
-            help="Limit number of files to process",
-            required=False,
-            default=-1,
-        )
-
-        parser0.add_argument(
-            "-dR",
-            "--dryRun",
-            choices=[0, 1],
-            type=int,
-            help="1 do not submit to condor",
-            required=False,
-            default=0,
-        )
-
-        parser0.add_argument(
-            "--useRedirector",
-            choices=[0, 1],
-            type=int,
-            help="0 do not use redirector, 1 use it",
-            required=False,
-            default=0,
-        )
-
+        parser0 = operationMode0Parser(parser)
         args = parser0.parse_args()
 
+        isLatino = args.isLatino
         inputFolder = args.inputFolder
         maxFilesPerJob = args.maxFilesPerJob
         limitFiles = args.limitFiles
@@ -124,8 +164,9 @@ def main():
             condorDir=condorDir,
             eosDir=eosDir,
             prodName=prodName,
-            sampleName=sampleName,
             step=step,
+            sampleName=sampleName,
+            isLatino=isLatino,
             inputFolder=inputFolder,
             redirector=redirector,
             maxFilesPerJob=maxFilesPerJob,
@@ -135,17 +176,7 @@ def main():
 
         a.run()
     elif opMode == 1:
-        parser1 = argparse.ArgumentParser(parents=[parser])
-
-        parser1.add_argument(
-            "-r",
-            "--resubmit",
-            type=int,
-            choices=[0, 1],
-            help="0 do not resubmit, 1 resubmit",
-            required=True,
-            default=0,
-        )
+        parser1 = operationMode1Parser(parser)
         args = parser1.parse_args()
         resubmit = args.resubmit
         print("Should check for errors")

@@ -1,7 +1,7 @@
 import ROOT
 
 from mkShapesRDF.processor.data.LeptonSel_cfg import LepFilter_dict, ElectronWP, MuonWP
-from mkShapesRDF.processor.framework.Module import Module
+from mkShapesRDF.processor.framework.module import Module
 
 
 class LeptonSel(Module):

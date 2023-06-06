@@ -1,6 +1,5 @@
 #*
 .#
-.*
 \#*#
 **.root
 **__py*
@@ -11,3 +10,5 @@ examples/*/*/
 **~
 mkShapesRDF/processor/condor/*
 start.sh
+*build*
+*html*
