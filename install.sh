@@ -18,3 +18,7 @@ source `pwd`/myenv/bin/activate
 EOF
 
 chmod +x start.sh
+
+
+git clone https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration.git
+mv jsonpog-integration mkShapesRDF/processor/data/
