@@ -18,6 +18,7 @@
    processor/index
    lib/index
    tests/index
+   development/index
 
 ********************
  Indices and tables

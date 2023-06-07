@@ -1,28 +1,14 @@
 #!/bin/bash
 
 
-source /home/gpizzati/.bashrc
+sourceCommand="source /home/gpizzati/.bashrc; mamba activate latest-mkShapesRDF"
 
-mamba env create --quiet -n latest-mkShapesRDF --file environment.yml
+cp install.sh install2.sh
+sed -i -E "s|(^sourceCommand=).+$|\1\"${sourceCommand}\"|g" install2.sh
 
-mamba activate latest-mkShapesRDF
-
-python -m venv --system-site-packages myenv
-source myenv/bin/activate
-
-
-cat << EOF > start.sh
-#!/bin/bash
-source /home/gpizzati/.bashrc
-pushd /cvmfs/cms.cern.ch/ > /dev/null; source cmsset_default.sh; popd > /dev/null
-mamba activate latest-mkShapesRDF
-source `pwd`/myenv/bin/activate
-EOF
-
-chmod +x start.sh
+./install2.sh
 
 source start.sh
-
 
 python -m pip install -e .[dev]
 pipStatus=$?
@@ -54,8 +40,6 @@ deactivate
 
 mamba deactivate
 
-mamba env remove -n latest-mkShapesRDF
-rm -r /mnt/c/gpizzati/mambaforge/envs/latest-mkShapesRDF
 
 if [[ $pipStatus -eq 0 ]] && [[ $pipStatus2 -eq 0 ]] && [[ $flakeStatus2 -eq 0 ]] && [[ $blackStatus2 -eq 0 ]] && [[ $pytestStatus == 0 ]];
 then

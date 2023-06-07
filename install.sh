@@ -20,5 +20,7 @@ EOF
 chmod +x start.sh
 
 
-git clone https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration.git
+wget https://gpizzati.web.cern.ch/mkShapesRDF/jsonpog-integration.tar.gz
+tar -xzvf jsonpog-integration.tar.gz
+rm -r jsonpog-integration.tar.gz
 mv jsonpog-integration mkShapesRDF/processor/data/

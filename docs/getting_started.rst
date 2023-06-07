@@ -60,7 +60,7 @@ Now you can proceed to the simple installation:
 
 .. code:: bash
 
-   pip install -e .
+   pip install -e .[docs,dev]
 
 Now to work with ``mkShapes.processor`` one should also install correctionlib and
 compile it:
@@ -69,12 +69,23 @@ compile it:
 
    python -m pip install --no-binary=correctionlib correctionlib
 
-From now on, when you will login again on lxplus you will just have to run the setup
+From now on, when you will login again on that machine you will just have to run the setup
 command:
 
 .. code:: bash
 
    source start.sh
+
+
+Another step needed when using the ``processor`` is to download the ``jsonpog-integration`` folder:
+
+.. code:: bash
+
+   wget https://gpizzati.web.cern.ch/mkShapesRDF/jsonpog-integration.tar.gz
+   tar -xzvf jsonpog-integration.tar.gz
+   rm -r jsonpog-integration.tar.gz
+   mv jsonpog-integration mkShapesRDF/processor/data/
+
 
 Run the analysis with the provided example
 -----------------------------------------------------------------------

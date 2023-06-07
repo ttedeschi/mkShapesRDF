@@ -1,5 +1,5 @@
 import ROOT
-from mkShapesRDF.processor.framework.Module import Module
+from mkShapesRDF.processor.framework.module import Module
 import correctionlib
 
 correctionlib.register_pyroot_binding()

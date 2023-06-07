@@ -13,7 +13,7 @@ def test_Full2018v9():
     - Step: ``MCFull2018v9``
     - Sample: ``EWKZ2Jets_ZToLL_M-50_MJJ-120``
 
-    on 100 events.
+    on 10 events.
     """
     prod = "Summer20UL18_106x_nAODv9_Full2018v9"
     step = "MCFull2018v9"
@@ -33,7 +33,7 @@ def test_Full2018v9():
         && mkdir -p test \
         && cd test \
         && cp ../script.py . \
-        && sed -i -E 's|(readRDF\(.*\))|\1\ndf.df = df.df.Range(100)|g' script.py \
+        && sed -i -E 's|(readRDF\(.*\))|\1\ndf.df = df.df.Range(10)|g' script.py \
         && sed -i -E 's|(^.*EnableImplicit.*)|# \1|g' script.py \
         && head -n -2 ../../run.sh > run.sh \
         && chmod +x run.sh \
