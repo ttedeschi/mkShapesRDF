@@ -22,22 +22,26 @@ def test_Full2018v9():
     condorPath = f"{fwPath}/mkShapesRDF/processor/condor/{prod}/{step}/{sample}__part0/"
 
     postProcCommand = (
-        f"mkPostProc -o 0 -p {prod} -s {step} -sN {sample} --limitFiles 1 --dryRun 1"
+        f"mkPostProc -o 0 -p {prod} -s {step} -T {sample} --limitFiles 1 --dryRun 1"
     )
-
-    proc = subprocess.Popen(
-        rf"cd {fwPath} \
+    command = (
+        rf'cd {fwPath} \
         && source start.sh; \
         {postProcCommand} \
         && cd {condorPath} \
         && mkdir -p test \
         && cd test \
         && cp ../script.py . \
-        && sed -i -E 's|(readRDF\(.*\))|\1\ndf.df = df.df.Range(10)|g' script.py \
-        && sed -i -E 's|(^.*EnableImplicit.*)|# \1|g' script.py \
-        && head -n -2 ../../run.sh > run.sh \
-        && chmod +x run.sh \
-        && ./run.sh",
+        && sed -i -E "s|(readRDF\(.*\))|\1\ndf.df = df.df.Range(10)|g" script.py \
+        && sed -i -E "s|\/eos\/cms\/store\/group\/phys_smp\/[^\']+|test2|g" script.py \
+        && cp ../../run.sh . \
+        && ./run.sh',
+    )
+
+    print(command)
+
+    proc = subprocess.Popen(
+        command[0],
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

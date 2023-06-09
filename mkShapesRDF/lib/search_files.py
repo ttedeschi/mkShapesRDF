@@ -58,11 +58,24 @@ class SearchFiles:
             self.cached_list_of_files[folder] = listOfFiles
         else:
             listOfFiles = self.cached_list_of_files[folder]
+
         if isLatino:
             process = "nanoLatino_" + process + "__part*.root"
+        else:
+            process = process + "*.root"
+
         files = list(
             filter(lambda k: fnmatch.fnmatch(k, folder + process), listOfFiles)
         )
+
+        if isLatino:
+            files = sorted(
+                files,
+                key=lambda k: int(k.split("/")[-1].split(".")[0].split("__part")[-1]),
+            )
+        else:
+            files = sorted(files)
+
         if redirector != "":
             files = list(map(lambda k: redirector + k, files))
 

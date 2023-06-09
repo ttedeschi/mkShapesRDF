@@ -13,6 +13,33 @@ class mRDF:
         self.cols_d = []  #: cols_d stores the list of columns that were dropped
         self.variations = {}  #: variations stores the list of variations
 
+    @staticmethod
+    def variationNaming(variationName, variationTag, col=""):
+        """
+        Naming convention for variations.
+
+        Given a variation name and a tag it will return ``variationName_variationTag``.
+        If a column name is provided, it will return ``col__variationName_variationTag``.
+
+        Parameters
+        ----------
+        variationName : str
+            Variation name
+        variationTag : str
+            Variation tag
+        col : str, optional, default: ""
+            column name that has the variation
+
+        Returns
+        -------
+        str
+            formatted string
+        """
+        if col == "":
+            return variationName + "_" + variationTag
+        else:
+            return col + "__" + variationName + "_" + variationTag
+
     def setNode(self, dfNode, cols, cols_d, variations):
         r"""Set internal variables of an ``mRDF`` object to the provided ones
 
@@ -136,7 +163,7 @@ class mRDF:
                         varied_b = ParseCpp.replace(
                             varied_b,
                             variable,
-                            variable + "__" + variationName + "_" + tag,
+                            mRDF.variationNaming(variationName, tag, variable),
                         )
                     varied_bs.append(ParseCpp.format(varied_b))
                 _type = c.df.GetColumnType(colName)
@@ -222,7 +249,7 @@ class mRDF:
 
         for i, variationTag in enumerate(variationTags):
             c = c.Define(
-                colName + "__" + variationName + "_" + variationTag,
+                mRDF.variationNaming(variationName, variationTag, colName),
                 colName + "__" + variationName + "[" + str(i) + "]",
                 includeVariations=False,
             )
@@ -259,7 +286,7 @@ class mRDF:
         varied_bs = []
         for variationName in variationNames:
             for tag in c.variations[variationName]["tags"]:
-                varied_bs.append("CUT" + "__" + variationName + "_" + tag)
+                varied_bs.append(mRDF.variationNaming(variationName, tag, "CUT"))
 
         nom_and_variations = ["CUT"] + varied_bs
         filterExpr = " || ".join(nom_and_variations)
@@ -294,6 +321,60 @@ class mRDF:
                 variations.append(variationName)
         return variations
 
+    def GetVariedColumns_oneVariation(self, columns, variationName, tag):
+        """
+        Given a list of columns, return the varied columns for a given variation and tag
+
+        Parameters
+        ----------
+        columns : `list of str`
+            list of columns to search variations for
+        variationName : str
+            the variation name
+        tag : str
+            the variation tag
+
+        Returns
+        -------
+        `list of str`
+            List of varied columns for the given variation and tag
+        """
+
+        tmp_varied_cols = list(
+            set(columns).intersection(set(self.variations[variationName]["variables"]))
+        )
+
+        tmp_varied_cols = list(
+            map(
+                lambda k: mRDF.variationNaming(variationName, tag, k),
+                tmp_varied_cols,
+            )
+        )
+        return tmp_varied_cols
+
+    def GetVariedColumns(self, columns):
+        """
+        Given a list of columns, return the varied columns for all variations and tags
+
+        Parameters
+        ----------
+        columns : `list of str`
+            list of columns to search variations for
+
+        Returns
+        -------
+        `list of str`
+            List of varied columns for all variations and tags
+        """
+
+        tmp_varied_cols = []
+        for variationName in self.variations:
+            for tag in self.variations[variationName]["tags"]:
+                tmp_varied_cols += self.GetVariedColumns_oneVariation(
+                    columns, variationName, tag
+                )
+        return tmp_varied_cols
+
     def DropColumns(self, pattern, includeVariations=True):
         """
         Drop columns that match the given pattern
@@ -320,22 +401,12 @@ class mRDF:
         if len(tmp_cols_d) == 0:
             print("Warning: no columns found to drop with pattern", pattern)
 
+        tmp_varied_cols_d = c.GetVariedColumns(columns=tmp_cols_d)
+
         if includeVariations:
-            for variationName in self.variations:
-                tmp_varied_cols_d = list(
-                    set(tmp_cols_d).intersection(
-                        set(c.variations[variationName]["variables"])
-                    )
-                )
-                tmp_varied_cols_d = list(
-                    map(lambda k: k + "__" + variationName, tmp_varied_cols_d)
-                )
-                varied_cols_d = []
-                for tag in c.variations[variationName]["tags"]:
-                    varied_cols_d += list(
-                        map(lambda k: k + "_" + tag, tmp_varied_cols_d)
-                    )
-                tmp_cols_d += varied_cols_d
+            tmp_cols_d = list(set(tmp_cols_d).union(set(tmp_varied_cols_d)))
+        else:
+            tmp_cols_d = list(set(tmp_cols_d).difference(set(tmp_varied_cols_d)))
 
         # print('Deleting columns', tmp_cols_d)
         c.cols_d = list(set(c.cols_d + tmp_cols_d))

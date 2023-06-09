@@ -45,7 +45,6 @@ Steps = {
             "TopGenVars",
             "WGammaStar",
             "DressedLeptons",
-            "finalSnapshot_MC",
         ]
         # 'wwNLL','ggHTheoryUncertainty', 'qqHTheoryUncertainty', 'EFTGen'],
     },
@@ -235,7 +234,9 @@ Steps = {
         "do4MC": True,
         "do4Data": True,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', 'MET_*', 'PuppiMET_*', 'CUT'])",
+        "declare": "snapshot = lambda : Snapshot(['*'], \
+            'RPLME_EOSPATH', 'RPLME_OUTPUTFILENAME', \
+            includeVariations=True, splitVariations=True, storeNominals=False )",
         "module": "snapshot()",
     },
     "finalSnapshot_MC": {
@@ -243,8 +244,10 @@ Steps = {
         "do4MC": True,
         "do4Data": False,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', \
-            'Lepton_*', 'Electron_*', 'Muon_*', 'NewMet*', 'baseW', 'genWeight', 'CUT'])",
+        "declare": "snapshot = lambda : Snapshot(['CleanJet_*', 'Jet_*', \
+                'Lepton_*', 'Electron_*', 'Muon_*', 'NewMet*', 'baseW', 'genWeight', 'CUT'], \
+                'RPLME_EOSPATH', 'RPLME_OUTPUTFILENAME', \
+                includeVariations=False, splitVariations=False, storeNominals=True )",
         "module": "snapshot()",
     },
     "finalSnapshot_DATA": {

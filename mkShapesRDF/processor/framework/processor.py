@@ -21,13 +21,15 @@ class Processor:
         eosDir,
         prodName,
         step,
-        sampleName,
+        selTree=[],
+        excTree=[],
         isLatino=True,
         inputFolder="",
         redirector="",
         maxFilesPerJob=1,
         limitFiles=-1,
         dryRun=0,
+        MT=False,
     ):
         """
         Initialize the processor object
@@ -47,8 +49,11 @@ class Processor:
         step : str
             Step name (must be in ``Steps_cfg.py``)
 
-        sampleName : str
-            Sample name (must be in the sample file associated to the production)
+        selTree : `list of str`
+            List of sample names to process (must be in the sample file associated to the production)
+
+        excTree : `list of str`
+            List of sample names to exclude (must be in the sample file associated to the production)
 
         isLatino : bool
             If True, use the latino naming convention (e.g. ``nanoLatino_DYJetsToLL_M-50__part*.root``)
@@ -68,12 +73,17 @@ class Processor:
         dryRun : int, optional, default: 0
             If 1, do not submit jobs, just create the folder structure and the scripts
 
+        MT : bool, optional, default: False
+            If True, use multi-threading in the runner (``ROOT.EnableImplicitMT()``)
+            Be careful since the events order is not preserved!
+
         """
         self.condorDir = condorDir
         self.eosDir = eosDir
         self.searchFiles = SearchFiles()
         self.prodName = prodName
-        self.sampleName = sampleName
+        self.selTree = selTree
+        self.excTree = excTree
         self.isLatino = isLatino
         self.step = step
         self.inputFolder = inputFolder
@@ -82,10 +92,16 @@ class Processor:
         self.limitFiles = limitFiles
         self.dryRun = dryRun
         self.path = getFrameworkPath() + "mkShapesRDF/processor/framework/"
+        self.MT = MT
 
-    def getFiles_cfg(self):
+    def getFiles_cfg(self, sampleName):
         """
         Utility function to get a dictionary to be passed to the proper function of ``SearchFiles``
+
+        Parameters
+        ----------
+        sampleName : str
+            Sample name (must be in the sample file associated to the production)
 
         Returns
         -------
@@ -95,14 +111,14 @@ class Processor:
         if self.inputFolder == "":
             # if no inputFolder is given -> DAS
             return {
-                "process": self.Samples[self.sampleName]["nanoAOD"],
-                "instance": self.Samples[self.sampleName].get("instance", ""),
+                "process": self.Samples[sampleName]["nanoAOD"],
+                "instance": self.Samples[sampleName].get("instance", ""),
             }
         else:
             return {
                 "redirector": self.redirector,
                 "folder": self.inputFolder,
-                "process": "*" + self.sampleName + "*.root",
+                "process": sampleName,
                 "isLatino": self.isLatino,
             }
 
@@ -136,10 +152,13 @@ class Processor:
         self.fPy = dedent(
             """
         import ROOT
-        ROOT.EnableImplicitMT()
         ROOT.gROOT.SetBatch(True)
         """
         )
+
+        if self.MT:
+            self.fPy += "ROOT.EnableImplicitMT()\n"
+
         self.fPy += "from mkShapesRDF.processor.framework.mRDF import mRDF\n"
 
         if Productions[self.prodName]["isData"]:
@@ -158,20 +177,6 @@ class Processor:
             exec(file.read(), globals())
 
         self.Samples = Samples  # noqa F821
-
-        files_cfg = self.getFiles_cfg()
-        files = []
-        if self.inputFolder == "":
-            files = self.searchFiles.searchFilesDAS(**files_cfg)
-        else:
-            files = self.searchFiles.searchFiles(**files_cfg)
-        files = files[: self.limitFiles]
-
-        if len(files) == 0:
-            print("No files found for", self.sampleName)
-            sys.exit()
-
-        print(files[0])
 
         fSh = ""
         with open(self.path + "../../../start.sh") as file:
@@ -201,14 +206,6 @@ class Processor:
 
         fSh += "time python script.py\n"
 
-        folderPathEos = self.eosDir + "/" + self.prodName + "/" + self.step
-        Path(folderPathEos).mkdir(parents=True, exist_ok=True)
-
-        fSh += "cp output.root " + folderPathEos + "/" + "${1}.root\n"
-        fSh += "rm output.root\n"
-
-        print(fSh)
-
         jobDir = self.condorDir + "/" + self.prodName + "/" + self.step + "/"
         Path(jobDir).mkdir(parents=True, exist_ok=True)
 
@@ -217,45 +214,9 @@ class Processor:
 
         os.system("chmod +x " + jobDir + "run.sh")
 
-        nParts = ceil(len(files) / self.maxFilesPerJob)
+        frameworkPath = getFrameworkPath() + "mkShapesRDF"
 
-        fJdl = (
-            dedent(
-                """
-        universe = vanilla
-        executable = run.sh
-        arguments = $(Folder)
-
-        should_transfer_files = YES
-        transfer_input_files = $(Folder)/script.py
-
-        output = $(Folder)/out.txt
-        error  = $(Folder)/err.txt
-        log    = $(Folder)/log.txt
-
-        request_cpus   = 1
-        +JobFlavour = "workday"
-
-        queue 1 Folder in """
-            )
-            + ", ".join(
-                list(
-                    map(
-                        lambda k: self.sampleName + "__part" + str(k),
-                        list(range(nParts)),
-                    )
-                )
-            )
-        )
-
-        with open(jobDir + "/submit.jdl", "w") as f:
-            f.write(fJdl)
-
-        frameworkPath = "/".join(
-            os.path.abspath(os.path.dirname(__file__)).split("/")[:-2]
-        )
-
-        self.fPy += "sampleName = '" + self.sampleName + "'\n"
+        self.fPy += "sampleName = 'RPLME_SAMPLENAME'\n"
 
         self.fPy += "files = RPLME_FILES\n"
         self.fPy += f"ROOT.gInterpreter.Declare('#include \"{frameworkPath}/include/headers.hh\"')\n"
@@ -270,12 +231,32 @@ class Processor:
         self.fPy += dedent(
             """
         snapshots = []
+        snapshot_destinations = []
         for val in values:
             if "snapshot" == val[0]:
                 snapshots.append(val[1])
+                snapshot_destinations.append(val[2])
 
         if len(snapshots) != 0:
             ROOT.RDF.RunGraphs(snapshots)
+
+        import subprocess
+        for destination in snapshot_destinations:
+            outputFilename = destination[0]
+            outputFolderPath = destination[1]
+            outputFilenameEOS = destination[2]
+
+            # Create output folder
+            proc = subprocess.Popen(f"mkdir -p {outputFolderPath}", shell=True)
+            proc.wait()
+
+            # Copy output file in output folder
+            proc = subprocess.Popen(f"cp {outputFilename} {outputFolderPath}/{outputFilenameEOS}", shell=True)
+            proc.wait()
+
+            # Remove the output file from local
+            proc = subprocess.Popen(f"rm {outputFilename}", shell=True)
+            proc.wait()
 
         def sciNot(value):
             # scientific notation
@@ -301,26 +282,101 @@ class Processor:
 
         self.fPy = self.fPy.replace("RPLME_FW", frameworkPath)
 
-        if "RPLME_genEventSumw" in self.fPy:
-            import ROOT
+        #: folderPathEos is the output folder path (not ending with ``/`` so that is possible to add suffix to the folder)
+        folderPathEos = self.eosDir + "/" + self.prodName + "/" + self.step
+        self.fPy = self.fPy.replace("RPLME_EOSPATH", folderPathEos)
 
-            ROOT.gROOT.SetBatch(True)
-            ROOT.EnableImplicitMT()
-            df2 = ROOT.RDataFrame("Runs", files)
-            genEventSumw = df2.Sum("genEventSumw").GetValue()
-            self.fPy = self.fPy.replace("RPLME_genEventSumw", str(genEventSumw))
+        allSamples = []
 
-        for part in range(nParts):
-            _files = files[
-                part * self.maxFilesPerJob : (part + 1) * self.maxFilesPerJob
-            ]
-            _fPy = self.fPy.replace("RPLME_FILES", str(_files))
+        samplesToProcess = self.Samples.keys()
+        samplesNotToProcess = []
 
-            jobDirPart = jobDir + self.sampleName + "__part" + str(part) + "/"
-            Path(jobDirPart).mkdir(parents=True, exist_ok=True)
+        if len(self.selTree) != 0:
+            for i, sampleName in enumerate(samplesToProcess):
+                if sampleName not in self.selTree:
+                    samplesNotToProcess.append(i)
+        if len(self.excTree) != 0:
+            for i, sampleName in enumerate(samplesToProcess):
+                if sampleName in self.excTree:
+                    samplesNotToProcess.append(i)
 
-            with open(jobDirPart + "/script.py", "w") as f:
-                f.write(_fPy)
+        samplesToProcess = [
+            sampleName
+            for i, sampleName in enumerate(samplesToProcess)
+            if i not in samplesNotToProcess
+        ]
+
+        for sampleName in samplesToProcess:
+            files_cfg = self.getFiles_cfg(sampleName)
+            files = []
+            if self.inputFolder == "":
+                files = self.searchFiles.searchFilesDAS(**files_cfg)
+            else:
+                files = self.searchFiles.searchFiles(**files_cfg)
+            files = files[: self.limitFiles]
+
+            if len(files) == 0:
+                print("No files found for", sampleName, "and configuration", files_cfg)
+                sys.exit()
+
+            print(files[0])
+
+            nParts = ceil(len(files) / self.maxFilesPerJob)
+
+            sample_fPy = self.fPy.replace("RPLME_SAMPLENAME", sampleName)
+
+            if "RPLME_genEventSumw" in self.fPy:
+                import ROOT
+
+                ROOT.gROOT.SetBatch(True)
+                ROOT.EnableImplicitMT()
+                df = ROOT.RDataFrame("Runs", files)
+                genEventSumw = df.Sum("genEventSumw").GetValue()
+                sample_fPy = sample_fPy.replace("RPLME_genEventSumw", str(genEventSumw))
+
+            for part in range(nParts):
+                _files = files[
+                    part * self.maxFilesPerJob : (part + 1) * self.maxFilesPerJob
+                ]
+                _fPy = sample_fPy.replace("RPLME_FILES", str(_files))
+                outputFilename = (
+                    "nanoLatino_" + sampleName + "__part" + str(part) + ".root"
+                )
+
+                if self.inputFolder != "":
+                    outputFilename = _files[0].split("/")[-1]
+
+                _fPy = _fPy.replace("RPLME_OUTPUTFILENAME", outputFilename)
+
+                jobDirPart = jobDir + sampleName + "__part" + str(part) + "/"
+                Path(jobDirPart).mkdir(parents=True, exist_ok=True)
+
+                with open(jobDirPart + "/script.py", "w") as f:
+                    f.write(_fPy)
+                allSamples.append(sampleName + "__part" + str(part))
+
+        fJdl = dedent(
+            """
+        universe = vanilla
+        executable = run.sh
+        arguments = $(Folder)
+
+        should_transfer_files = YES
+        transfer_input_files = $(Folder)/script.py
+
+        output = $(Folder)/out.txt
+        error  = $(Folder)/err.txt
+        log    = $(Folder)/log.txt
+
+        request_cpus   = 1
+        +JobFlavour = "workday"
+
+        queue 1 Folder in RPLME_ALLSAMPLES"""
+        )
+
+        fJdl = fJdl.replace("RPLME_ALLSAMPLES", " ".join(allSamples))
+        with open(jobDir + "/submit.jdl", "w") as f:
+            f.write(fJdl)
 
         if self.dryRun == 0:
             proc = subprocess.Popen(

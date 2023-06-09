@@ -43,13 +43,6 @@ def defaultParser():
         required=True,
     )
 
-    parser.add_argument(
-        "-sN",
-        "--sampleName",
-        type=str,
-        help="Sample name to process",
-        required=True,
-    )
     return parser
 
 
@@ -57,6 +50,24 @@ def operationMode0Parser(parser=None):
     if parser is None:
         parser = argparse.ArgumentParser(add_help=False)
     parser0 = argparse.ArgumentParser(parents=[parser])
+
+    parser0.add_argument(
+        "-T",
+        "--selTree",
+        type=str,
+        help="List of samples to select, comma separated",
+        required=False,
+        default="",
+    )
+
+    parser0.add_argument(
+        "-E",
+        "--excTree",
+        type=str,
+        help="List of samples to exclude, comma separated",
+        required=False,
+        default="",
+    )
 
     parser0.add_argument(
         "-iL",
@@ -124,7 +135,7 @@ def operationMode1Parser(parser=None):
         type=int,
         choices=[0, 1],
         help="0 do not resubmit, 1 resubmit",
-        required=True,
+        required=False,
         default=0,
     )
 
@@ -133,21 +144,33 @@ def operationMode1Parser(parser=None):
 
 def main():
     parser = defaultParser()
-    if len(argv) < 1 + 2 * 4:
+    if len(argv) < (1 + 2 * 3):
         # just give the parser error
         args = parser.parse_args()
     else:
-        real_args = argv[1 : 1 + 2 * 4]
+        real_args = argv[1 : 1 + 2 * 3]
         args = parser.parse_args(real_args)
 
     opMode = args.operationMode
     prodName = args.prod
     step = args.step
-    sampleName = args.sampleName
 
     if opMode == 0:
         parser0 = operationMode0Parser(parser)
         args = parser0.parse_args()
+
+        selTree = args.selTree
+        excTree = args.excTree
+
+        if selTree == "":
+            selTree = []
+        else:
+            selTree = [s.strip() for s in selTree.split(",")]
+
+        if excTree == "":
+            excTree = []
+        else:
+            excTree = [s.strip() for s in excTree.split(",")]
 
         isLatino = args.isLatino
         inputFolder = args.inputFolder
@@ -165,7 +188,8 @@ def main():
             eosDir=eosDir,
             prodName=prodName,
             step=step,
-            sampleName=sampleName,
+            selTree=selTree,
+            excTree=excTree,
             isLatino=isLatino,
             inputFolder=inputFolder,
             redirector=redirector,
@@ -181,13 +205,12 @@ def main():
         resubmit = args.resubmit
         print("Should check for errors")
 
-        folder = "../condor/Summer20UL18_106x_nAODv9_Full2018v9/MCFull2018v9/"
         folder = condorDir + "/" + prodName + "/" + step + "/"
 
         folder = os.path.abspath(folder)
 
-        errs = glob.glob(f"{folder}/{sampleName}/err.txt")
-        files = glob.glob(f"{folder}/{sampleName}/script.py")
+        errs = glob.glob(f"{folder}/*/err.txt")
+        files = glob.glob(f"{folder}/*/script.py")
 
         errsD = list(map(lambda k: "/".join(k.split("/")[:-1]), errs))
         filesD = list(map(lambda k: "/".join(k.split("/")[:-1]), files))
