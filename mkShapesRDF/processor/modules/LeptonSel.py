@@ -62,9 +62,14 @@ class LeptonSel(Module):
             ]
         )
 
+        columnsToDrop = []
+
         df = df.Define("comb", "ROOT::RVecB(Electron_pt.size(), true)")
+        columnsToDrop.append("comb")
         df = df.Define("tmp1", "true")
+        columnsToDrop.append("tmp1")
         df = df.Define("tmp2", "true")
+        columnsToDrop.append("tmp2")
 
         # for key, cuts in list(ElectronWP['Full2018v9']['TightObjWP']['mvaFall17V2Iso_WP90']['cuts'].items()):
         for key, cuts in ElectronWP["Full2018v9"][Clean_TagWP]["HLTsafe"][
@@ -79,6 +84,7 @@ class LeptonSel(Module):
         df = df.Define(
             "LeptonMaskHyg_Ele", "propagateMask(Lepton_electronIdx, comb, true)"
         )
+        columnsToDrop.append("LeptonMaskHyg_Ele")
         df = df.Redefine("comb", "ROOT::RVecB(Muon_pt.size(), true)")
 
         for key, cuts in MuonWP["Full2018v9"][Clean_TagWP]["HLTsafe"]["cuts"].items():
@@ -89,12 +95,15 @@ class LeptonSel(Module):
             df = df.Redefine("comb", "comb && (! tmp1 || tmp2)")
 
         df = df.Define("LeptonMaskHyg_Mu", "propagateMask(Lepton_muonIdx, comb, true)")
+        columnsToDrop.append("LeptonMaskHyg_Mu")
 
         df = df.Define("LeptonMask_minPt", "Lepton_pt > 8")
+        columnsToDrop.append("LeptonMask_minPt")
         df = df.Define(
             "LeptonMask_minPt_pass",
             "LeptonMask_minPt && LeptonMaskHyg_Ele && LeptonMaskHyg_Mu",
         )
+        columnsToDrop.append("LeptonMask_minPt_pass")
 
         # FIXME should add Leptons IDs
 
@@ -116,13 +125,16 @@ class LeptonSel(Module):
             "LeptonMask_JC",
             "LeptonMaskHyg_Ele && LeptonMaskHyg_Mu && (Lepton_pt >= 10)",
         )
+        columnsToDrop.append("LeptonMask_JC")
 
         df = df.Define("CleanJetMask", "CleanJet_eta <= 5.0")
+        columnsToDrop.append("CleanJetMask")
 
         df = df.Define(
             "CleanJet_Lepton_comb",
             "ROOT::VecOps::Combinations(CleanJet_pt[CleanJetMask].size(), Lepton_pt[LeptonMask_JC].size())",
         )
+        columnsToDrop.append("CleanJet_Lepton_comb")
 
         df = df.Define(
             "dR2",
@@ -133,11 +145,13 @@ class LeptonSel(Module):
             Take(Lepton_phi, CleanJet_Lepton_comb[1]) \
         )",
         )
+        columnsToDrop.append("dR2")
 
         df = df.Define(
             "CleanJet_pass",
             "! reduce_cond_any(dR2<(0.3*0.3), CleanJet_pt[CleanJetMask].size(), Lepton_pt[LeptonMask_JC].size())",
         )
+        columnsToDrop.append("CleanJet_pass")
 
         branches = ["pt", "eta", "phi", "pdgId", "electronIdx", "muonIdx"]
         for prop in branches:
@@ -152,10 +166,7 @@ class LeptonSel(Module):
                 f"CleanJet_{prop}", f"CleanJet_{prop}[CleanJetMask][CleanJet_pass]"
             )
 
-        df = df.DropColumns("Lepton*Mask*")
-
-        df = df.DropColumns("CleanJetMask")
-        df = df.DropColumns("CleanJet_Lepton_comb")
-        df = df.DropColumns("CleanJet_pass")
+        for col in columnsToDrop:
+            df = df.DropColumns(col)
 
         return df

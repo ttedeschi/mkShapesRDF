@@ -14,6 +14,10 @@ condorDir = (
 #: eosDir is the path to use for eos submission, user might want to change it -> edit ``mkPostProc.py``
 eosDir = "/eos/cms/store/group/phys_smp/Latinos/vbfz/mkShapesRDF_nanoAOD"
 
+#: defaultRedirector is the redirector used to access files if the option ``--useRedirector 1`` is used, user might want to change it -> edit ``mkPostProc.py``
+defaultRedirector = "root://cms-xrd-global.cern.ch/"
+# defaultRedirector = "root://xrootd-cms.infn.it/"
+
 
 def defaultParser():
     parser = argparse.ArgumentParser(add_help=False)
@@ -181,7 +185,7 @@ def main():
 
         redirector = ""
         if useRedirector == 1:
-            redirector = "root://cms-xrd-global.cern.ch/"
+            redirector = defaultRedirector
 
         a = Processor(
             condorDir=condorDir,

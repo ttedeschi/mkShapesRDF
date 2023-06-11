@@ -7,3 +7,4 @@ Modules for processor
    :caption: Contents:
 
    jme_calculator
+   snapshot

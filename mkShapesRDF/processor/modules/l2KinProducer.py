@@ -28,7 +28,12 @@ class l2KinProducer(Module):
             "TkMET_4DV", "ROOT::Math::PtEtaPhiMVector" "(TkMET_pt, 0, TkMET_phi, 0)"
         )
 
-        df = df.Define("_isOk", "Lepton_pt[Lepton_pt > 0].size() >= 2 && MET_4DV.E()>0")
+        df = df.Define(
+            "_isOk",
+            "Lepton_pt[Lepton_pt > 0].size() >= 2 && MET_4DV.E()>0",
+            excludeVariations=["JES*", "MET*"],
+        )
+
         df = df.Define("_lepOk", "Lepton_pt[Lepton_pt > 0].size()")
         df = df.Define("_tkMetOk", "TkMET_4DV.E() > 0")
         df = df.Define("_jetOk", "CleanJet_pt[CleanJet_pt > 0].size()")

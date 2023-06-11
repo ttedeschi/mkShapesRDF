@@ -103,7 +103,7 @@ class mRDF:
         self.cols = list(map(lambda k: str(k), self.df.GetColumnNames()))
         return self
 
-    def Define(self, a, b, includeVariations=True):
+    def Define(self, a, b, excludeVariations=[]):
         r"""Define a new column, if the column already exists redefine it.
 
         Parameters
@@ -114,8 +114,9 @@ class mRDF:
         b : str
             The expression to be evaluated to define the new column
 
-        includeVariations : bool, optional, default: True
-            Whether to include variations or not
+        excludeVariations : `list of str`, optional, default: []
+            List of pattern of variations to exlude. If ``*`` is used, all variations will
+            be excluded and the defined column will be nominal only.
 
         Returns
         -------
@@ -124,8 +125,9 @@ class mRDF:
 
         Notes
         -----
-        If ``includeVariations`` is ``True``, the define expression (``b``) will be checked for variations.
-        If variations of the define expression are found, they will be defined for the new column as well.
+        If ``excludeVariations`` is ``[]``, the define expression (``b``) will be checked for all possible variations.
+        If variations of the define expression are found, they will be defined for the new column as well
+        (i.e. varied ``b`` will be defined as variations of ``a``).
         """
 
         c = self.Copy()
@@ -138,41 +140,40 @@ class mRDF:
             c.df = c.df.Redefine(colName, b)
         c.cols = list(set(c.cols + [colName]))
 
-        if includeVariations:
-            # check variations
-            depVars = ParseCpp.listOfVariables(ParseCpp.parse(b))
-            variations = {}
-            for variationName in c.variations.keys():
-                s = list(
-                    filter(
-                        lambda k: k in depVars, c.variations[variationName]["variables"]
-                    )
-                )
-                if len(s) > 0:
-                    # only register variations if they have an impact on "a" variable
-                    variations[variationName] = {
-                        "tags": c.variations[variationName]["tags"],
-                        "variables": s,
-                    }
+        # check variations
+        depVars = ParseCpp.listOfVariables(ParseCpp.parse(b))
+        variations = {}
+        for variationName in c.variations.keys():
+            if len([1 for x in excludeVariations if fnmatch(variationName, x)]) > 0:
+                # if variationName matches a pattern of excludeVariations, skip it
+                continue
 
-            for variationName in variations.keys():
-                varied_bs = []
-                for tag in variations[variationName]["tags"]:
-                    varied_b = ParseCpp.parse(b)
-                    for variable in variations[variationName]["variables"]:
-                        varied_b = ParseCpp.replace(
-                            varied_b,
-                            variable,
-                            mRDF.variationNaming(variationName, tag, variable),
-                        )
-                    varied_bs.append(ParseCpp.format(varied_b))
-                _type = c.df.GetColumnType(colName)
-                expression = (
-                    ParseCpp.RVecExpression(_type) + " {" + ", ".join(varied_bs) + "}"
-                )
-                c = c.Vary(
-                    a, expression, variations[variationName]["tags"], variationName
-                )
+            s = list(
+                filter(lambda k: k in depVars, c.variations[variationName]["variables"])
+            )
+            if len(s) > 0:
+                # only register variations if they have an impact on "a" variable
+                variations[variationName] = {
+                    "tags": c.variations[variationName]["tags"],
+                    "variables": s,
+                }
+
+        for variationName in variations.keys():
+            varied_bs = []
+            for tag in variations[variationName]["tags"]:
+                varied_b = ParseCpp.parse(b)
+                for variable in variations[variationName]["variables"]:
+                    varied_b = ParseCpp.replace(
+                        varied_b,
+                        variable,
+                        mRDF.variationNaming(variationName, tag, variable),
+                    )
+                varied_bs.append(ParseCpp.format(varied_b))
+            _type = c.df.GetColumnType(colName)
+            expression = (
+                ParseCpp.RVecExpression(_type) + " {" + ", ".join(varied_bs) + "}"
+            )
+            c = c.Vary(a, expression, variations[variationName]["tags"], variationName)
 
         # move back nominal value to the right column name -> a
         if a not in (c.cols + c.cols_d):
@@ -244,14 +245,14 @@ class mRDF:
 
         # define a column that will contain the two variations in a vector of len 2
         c = c.Define(
-            colName + "__" + variationName, expression, includeVariations=False
+            colName + "__" + variationName, expression, excludeVariations=["*"]
         )
 
         for i, variationTag in enumerate(variationTags):
             c = c.Define(
                 mRDF.variationNaming(variationName, variationTag, colName),
                 colName + "__" + variationName + "[" + str(i) + "]",
-                includeVariations=False,
+                excludeVariations=["*"],
             )
 
         c = c.DropColumns(colName + "__" + variationName)

@@ -12,7 +12,7 @@ class JMECalculator(Module):
         JEC_era,
         JER_era,
         jet_object,
-        met_collections=["PuppiMET", "MET"],
+        met_collections=["PuppiMET", "MET", "RawMET"],
         do_Jets=True,
         do_MET=True,
         do_JER=True,

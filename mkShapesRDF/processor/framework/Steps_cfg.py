@@ -19,14 +19,14 @@ Steps = {
             "finalSnapshot_DATA",
         ],
     },
-    "jmeCalculator_18_debug": {
+    "JES_18": {
         "isChain": True,
         "do4MC": True,
         "do4Data": False,
         "subTargets": [
-            "jmeCalculator_18UL",
+            "JES_modules_18UL",
             "l2Kin",
-            "finalSnapshot_debugJES",
+            "finalSnapshot_Variations",
         ],
     },
     "MCl1loose2018v9": {
@@ -54,7 +54,7 @@ Steps = {
         "do4Data": False,
         "subTargets": [
             "baseW",
-            "jmeCalculator_18UL",
+            "JES_modules_18UL",
             # "JERsMCUL",
             # # "FatJERsMCUL",
             "btagPerJet_DeepCSV_2018UL",
@@ -188,7 +188,7 @@ Steps = {
         "declare": "baseW = lambda : BaseW(sampleName, files, xs_db, RPLME_genEventSumw)",
         "module": "baseW()",
     },
-    "jmeCalculator_18UL": {
+    "JES_modules_18UL": {
         "isChain": False,
         "do4MC": True,
         "do4Data": False,
@@ -229,25 +229,28 @@ Steps = {
         "declare": 'btagPerJet_DeepJet_2018UL = lambda : btagSFProducerLatinos(2018, "deepJet", ["shape"], "shape", "RPLME_FW/processor/data/jsonpog-integration/POG/BTV/2018_UL/btagging.json.gz", ["jes","jesAbsolute","jesAbsolute_2018","jesBBEC1","jesBBEC1_2018","jesEC2","jesEC2_2018","jesFlavorQCD","jesHF","jesHF_2018","jesRelativeBal","jesRelativeSample_2018"])',
         "module": "btagPerJet_DeepJet_2018UL()",
     },
-    "finalSnapshot_debugJES": {
-        "isChain": False,
-        "do4MC": True,
-        "do4Data": True,
-        "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot(['*'], \
-            'RPLME_EOSPATH', 'RPLME_OUTPUTFILENAME', \
-            includeVariations=True, splitVariations=True, storeNominals=False )",
-        "module": "snapshot()",
-    },
     "finalSnapshot_MC": {
         "isChain": False,
         "do4MC": True,
         "do4Data": False,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot(['CleanJet_*', 'Jet_*', \
-                'Lepton_*', 'Electron_*', 'Muon_*', 'NewMet*', 'baseW', 'genWeight', 'CUT'], \
-                'RPLME_EOSPATH', 'RPLME_OUTPUTFILENAME', \
+        "declare": "snapshot = lambda : Snapshot( \
+                tmpOutputFilename='output.root', \
+                columns=['*'], \
+                eosPath='RPLME_EOSPATH', outputFilename='RPLME_OUTPUTFILENAME', \
                 includeVariations=False, splitVariations=False, storeNominals=True )",
+        "module": "snapshot()",
+    },
+    "finalSnapshot_Variations": {
+        "isChain": False,
+        "do4MC": True,
+        "do4Data": False,
+        "import": "mkShapesRDF.processor.modules.Snapshot",
+        "declare": "snapshot = lambda : Snapshot( \
+                tmpOutputFilename='output.root', \
+                columns=['*'], \
+                eosPath='RPLME_EOSPATH', outputFilename='RPLME_OUTPUTFILENAME', \
+                includeVariations=True, splitVariations=True, storeNominals=False )",
         "module": "snapshot()",
     },
     "finalSnapshot_DATA": {
@@ -255,7 +258,11 @@ Steps = {
         "do4MC": False,
         "do4Data": True,
         "import": "mkShapesRDF.processor.modules.Snapshot",
-        "declare": "snapshot = lambda : Snapshot('output.root', ['CleanJet_*', 'Jet_*', 'Lepton_*', 'Electron_*', 'Muon_*',, 'CUT'])",
+        "declare": "snapshot = lambda : Snapshot( \
+                tmpOutputFilename='output.root', \
+                columns=['*'], \
+                eosPath='RPLME_EOSPATH', outputFilename='RPLME_OUTPUTFILENAME', \
+                includeVariations=False, splitVariations=False, storeNominals=True )",
         "module": "snapshot()",
     },
 }

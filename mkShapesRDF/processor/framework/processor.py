@@ -110,17 +110,19 @@ class Processor:
         """
         if self.inputFolder == "":
             # if no inputFolder is given -> DAS
-            return {
+            d = {
                 "process": self.Samples[sampleName]["nanoAOD"],
                 "instance": self.Samples[sampleName].get("instance", ""),
             }
         else:
-            return {
-                "redirector": self.redirector,
+            d = {
                 "folder": self.inputFolder,
                 "process": sampleName,
                 "isLatino": self.isLatino,
             }
+        if self.redirector != "":
+            d["redirector"] = self.redirector
+        return d
 
     def addDeclareLines(self, step):
         """
@@ -160,6 +162,8 @@ class Processor:
             self.fPy += "ROOT.EnableImplicitMT()\n"
 
         self.fPy += "from mkShapesRDF.processor.framework.mRDF import mRDF\n"
+        self.fPy += "import subprocess\n"
+        self.fPy += "import sys\n"
 
         if Productions[self.prodName]["isData"]:
             self.fPy += (
@@ -218,7 +222,29 @@ class Processor:
 
         self.fPy += "sampleName = 'RPLME_SAMPLENAME'\n"
 
-        self.fPy += "files = RPLME_FILES\n"
+        self.fPy += "_files = RPLME_FILES\n"
+        self.fPy += dedent(
+            """
+        files = []
+        for f in _files:
+            filename = f.split('/')[-1]
+            filename = 'input__' + filename
+            files.append(filename)
+            proc = 0
+            if "root://" in f:
+                proc = subprocess.Popen(f"xrdcp {f} {filename}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                proc = subprocess.Popen(f"cp {f} {filename}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            out, err = proc.communicate()
+            print(out.decode('utf-8'))
+            print(err.decode('utf-8'), file=sys.stderr)
+            if proc.returncode != 0:
+                print(f"Error copying file {f}", file=sys.stderr)
+                sys.exit(1)\n
+        """
+        )
+
         self.fPy += f"ROOT.gInterpreter.Declare('#include \"{frameworkPath}/include/headers.hh\"')\n"
 
         self.fPy += "df = mRDF()\n"
@@ -240,11 +266,15 @@ class Processor:
         if len(snapshots) != 0:
             ROOT.RDF.RunGraphs(snapshots)
 
-        import subprocess
         for destination in snapshot_destinations:
+            copyFromInputFiles = destination[1]
             outputFilename = destination[0]
-            outputFolderPath = destination[1]
-            outputFilenameEOS = destination[2]
+
+            if copyFromInputFiles:
+                Snapshot.CopyFromInputFiles(outputFilename, files)
+
+            outputFolderPath = destination[2]
+            outputFilenameEOS = destination[3]
 
             # Create output folder
             proc = subprocess.Popen(f"mkdir -p {outputFolderPath}", shell=True)
@@ -277,6 +307,14 @@ class Processor:
         from tabulate import tabulate
 
         print(tabulate(data, headers=["desc.", "value"]))
+
+        for f in files:
+            print('Removing input file', f)
+            proc = subprocess.Popen(f"rm {f}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = proc.communicate()
+            print(out.decode('utf-8'))
+            print(err.decode('utf-8'), file=sys.stderr)
+
         """
         )
 
@@ -305,6 +343,9 @@ class Processor:
             for i, sampleName in enumerate(samplesToProcess)
             if i not in samplesNotToProcess
         ]
+        if len(samplesToProcess) == 0:
+            print("No samples to process", file=sys.stderr)
+            sys.exit(1)
 
         for sampleName in samplesToProcess:
             files_cfg = self.getFiles_cfg(sampleName)
