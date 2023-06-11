@@ -1,2 +1,15 @@
 #*
 .#
+\#*#
+**.root
+**__py*
+*.egg*
+myenv*
+examples/*/*_cc*
+examples/*/*/
+**~
+mkShapesRDF/processor/condor/*
+mkShapesRDF/processor/data/jsonpog*
+start.sh
+*build*
+*html*

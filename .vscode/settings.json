@@ -1,0 +1,21 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnType": true
+    },
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--config",
+        "pyproject.toml"],
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--config=setup.cfg"
+    ],
+    "flake8.args": [
+        "--config=setup.cfg"
+    ],
+    "autoDocstring.docstringFormat": "numpy",
+    "autoDocstring.startOnNewLine": true,
+    "python.pythonPath": "myenv/bin/python3",
+}

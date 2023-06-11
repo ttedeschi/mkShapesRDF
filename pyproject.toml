@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools >= 59.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = [
+		  "tests"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+# include = 'examples\/*\/.*\.py$|mkShapesRDF.*\.py$|tests\/.+\.py$'
+include = 'mkShapesRDF.*\.py$|tests\/.+\.py$'
+force-exclude = 'mkShapesRDF/processor/data.*\.py$|mkShapesRDF/processor/condor.*\.py$'

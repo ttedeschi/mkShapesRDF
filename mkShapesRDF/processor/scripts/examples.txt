@@ -1,0 +1,10 @@
+
+
+mkPostProc -o 0 -p Summer20UL18_106x_nAODv9_Full2018v9 -s jmeCalculator_18_debug -T DYJetsToLL_M-50 \
+--inputFolder /eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer20UL18_106x_nAODv9_Full2018v9/MCl1loose2018v9__MCCorr2018v9NoJERInHorn__l2tightOR2018v9/ \
+--limitFiles 1 --dryRun 1
+
+mkPostProc -o 1 -p Summer20UL18_106x_nAODv9_Full2018v9 -s jmeCalculator_18_debug
+
+
+['CleanJet_*', 'Jet_*', 'MET_*', 'PuppiMET_*', 'CUT']

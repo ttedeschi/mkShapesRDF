@@ -1,0 +1,3 @@
+include mkShapesRDF/include/*
+recursive-include mkShapesRDF/processor/data *.py *.txt *.json *.gz
+recursive-include mkShapesRDF/processor/framework/samples *.py *.txt *.json *.gz
