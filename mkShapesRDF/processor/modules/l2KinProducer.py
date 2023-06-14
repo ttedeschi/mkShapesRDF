@@ -16,8 +16,9 @@ class l2KinProducer(Module):
         df = df.Define(
             "CleanJet_4DV",
             "ROOT::VecOps::Construct<ROOT::Math::PtEtaPhiMVector>"
-            "(CleanJet_pt, CleanJet_eta, CleanJet_phi, "
-            "Take(Jet_mass, CleanJet_jetIdx))",
+            "(CleanJet_pt, CleanJet_eta, CleanJet_phi,"
+            # "Take(Jet_mass, CleanJet_jetIdx))",
+            "CleanJet_mass)",
         )
 
         df = df.Define(
@@ -86,7 +87,7 @@ class l2KinProducer(Module):
         )
         df = df.Define(
             prefix + "drjj",
-            "_isOk ? DeltaR(CleanJet_eta[0], CleanJet_eta[1], CleanJet_phi[0], CleanJet_phi[1]) : -9999.0",
+            "_jetOk >= 2 ? DeltaR(CleanJet_eta[0], CleanJet_eta[1], CleanJet_phi[0], CleanJet_phi[1]) : -9999.0",
         )
         df = df.Define(
             prefix + "detajj",

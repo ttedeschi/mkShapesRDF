@@ -87,7 +87,7 @@ Another step needed when using the ``processor`` is to download the ``jsonpog-in
    mv jsonpog-integration mkShapesRDF/processor/data/
 
 
-Run the analysis with the provided example
+Shape analysis: Run the analysis with the provided example
 -----------------------------------------------------------------------
 
 Configure the configuration folder (e.g. ``examples/2016Real``)
@@ -156,3 +156,9 @@ Plot with
    mkPlot
 
 which will create the plots to the specified paths provided in ``configuration.py``
+
+
+Processor: run the post processing
+----------------------------------
+
+Coming soon

@@ -29,6 +29,12 @@ Steps = {
             "finalSnapshot_Variations",
         ],
     },
+    "JES_18_test": {
+        "isChain": True,
+        "do4MC": True,
+        "do4Data": False,
+        "subTargets": ["JES_modules_18UL", "l2Kin", "histogram"],
+    },
     "MCl1loose2018v9": {
         "isChain": True,
         "do4MC": True,
@@ -54,7 +60,7 @@ Steps = {
         "do4Data": False,
         "subTargets": [
             "baseW",
-            "JES_modules_18UL",
+            # "JES_modules_18UL",
             # "JERsMCUL",
             # # "FatJERsMCUL",
             "btagPerJet_DeepCSV_2018UL",
@@ -264,5 +270,16 @@ Steps = {
                 eosPath='RPLME_EOSPATH', outputFilename='RPLME_OUTPUTFILENAME', \
                 includeVariations=False, splitVariations=False, storeNominals=True )",
         "module": "snapshot()",
+    },
+    "histogram": {
+        "isChain": False,
+        "do4MC": True,
+        "do4Data": True,
+        "import": "mkShapesRDF.processor.modules.Histogram",
+        "declare": "histogram = lambda : Histogram( \
+                outputFilename='output2.root', \
+                variables=[(('mjj', 'mjj', 100, 10, 1000), 'new_fw_mjj', 'baseW * genWeight')] \
+                    )",
+        "module": "histogram()",
     },
 }

@@ -86,7 +86,7 @@ class LeptonMaker(Module):
 
         df = df.Define("CleanJet_jetIdx", "ROOT::VecOps::Range(nJet)[isCleanJet]")
         df = df.Redefine("CleanJet_jetIdx", "Take(CleanJet_jetIdx, CleanJet_sorting)")
-        CleanJet_var = ["eta", "phi"]
+        CleanJet_var = ["eta", "phi", "mass"]
         for prop in CleanJet_var:
             df = df.Define(f"CleanJet_{prop}", f"Jet_{prop}[isCleanJet]")
             df = df.Redefine(

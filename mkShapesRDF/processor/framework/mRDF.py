@@ -317,8 +317,8 @@ class mRDF:
             list of all variations defined for the given column
         """
         variations = []
-        for variationName in self.variations:
-            if column in self.variations[variationName]:
+        for variationName in self.variations.keys():
+            if column in self.variations[variationName]["variables"]:
                 variations.append(variationName)
         return variations
 

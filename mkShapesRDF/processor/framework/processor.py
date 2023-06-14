@@ -114,14 +114,15 @@ class Processor:
                 "process": self.Samples[sampleName]["nanoAOD"],
                 "instance": self.Samples[sampleName].get("instance", ""),
             }
+            if self.redirector != "":
+                d["redirector"] = self.redirector
         else:
             d = {
                 "folder": self.inputFolder,
                 "process": sampleName,
                 "isLatino": self.isLatino,
+                "redirector": self.redirector,
             }
-        if self.redirector != "":
-            d["redirector"] = self.redirector
         return d
 
     def addDeclareLines(self, step):
@@ -266,6 +267,22 @@ class Processor:
         if len(snapshots) != 0:
             ROOT.RDF.RunGraphs(snapshots)
 
+        histos = []
+        for val in values:
+            if val[0] == "variables":
+                h = val[2]
+                for var in h.GetKeys():
+                    variation = val[1] + '_' + str(var).replace(":", "")
+                    _h = h[var]
+                    _h.SetName(variation)
+                    histos.append( _h )
+
+        f = ROOT.TFile.Open("output.root", "UPDATE")
+        f.cd()
+        for h in histos:
+            h.Write()
+        f.Close()
+
         for destination in snapshot_destinations:
             copyFromInputFiles = destination[1]
             outputFilename = destination[0]
@@ -293,8 +310,9 @@ class Processor:
             return "{:.3e}".format(value)
 
         data = []
+        reservedValuesNames = ["snapshot", "variables"]
         for val in values:
-            if "snapshot" == val[0]:
+            if val[0] in reservedValuesNames:
                 continue
             if "list" in str(type(val)):
                 if str(type(val[0])) == "<class 'function'>":

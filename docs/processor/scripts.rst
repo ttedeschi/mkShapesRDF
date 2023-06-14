@@ -36,3 +36,10 @@ Operation mode 1 arguments
    :module: mkShapesRDF.processor.scripts.mkPostProc
    :func: operationMode1Parser
    :prog: mkPostProc -o 1 -p PROD -s STEP -sN SAMPLENAME
+
+Example usage:
+
+.. code:: bash
+
+   mkPostProc -o 0 -p Summer20UL18_106x_nAODv9_Full2018v9 -s MCFull2018v9 -T EWKZ2Jets_ZToLL_M-50_MJJ-120 \
+   --limitFiles 1 --dryRun 1

@@ -52,7 +52,7 @@ class JetSel(Module):
             ]
         )
 
-        branches = ["jetIdx", "pt", "eta", "phi"]
+        branches = ["jetIdx", "pt", "eta", "phi", "mass"]
         for prop in branches:
             df = df.Redefine(f"CleanJet_{prop}", f"CleanJet_{prop}[CleanJetMask]")
 

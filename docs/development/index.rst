@@ -50,3 +50,11 @@ You might check the status of the pipeline on github (in the ``Actions`` tab) or
    :target: https://github.com/giorgiopizz/mkShapesRDF/actions/workflows/ci_lint_format_test.yml
 
 
+
+Docs
+----
+
+In order to build the documentation you can run the command below in the root directory of mkShapesRDF:
+
+.. code:: bash
+  python -m sphinx -T -E -b html -d _build/doctrees -D language=en docs test_html
