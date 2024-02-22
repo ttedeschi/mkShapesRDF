@@ -1,0 +1,25 @@
+stages:
+- build
+
+include:
+  - project: 'ci-tools/container-image-ci-templates'
+    file:
+      - 'kaniko-image.gitlab-ci.yml'
+
+variables:
+  CONTEXT_DIR: ""
+  DOCKER_FILE_NAME: "Dockerfile"
+  GIT_SUBMODULE_STRATEGY: recursive
+  PUSH_IMAGE: "true"
+  ACCELERATED_IMAGE: "false"
+  BUILD_ARGS: ""
+  SCAN_IMAGE: "false"
+  REGISTRY_IMAGE_PATH: "${CI_REGISTRY_IMAGE}:${CURRENT_BRANCH_NAME}"
+  CURRENT_BRANCH_NAME: "${CI_COMMIT_BRANCH}"
+
+
+add_to_image:
+  extends: .build_kaniko
+  stage: build
+  tags:
+    - cvmfs

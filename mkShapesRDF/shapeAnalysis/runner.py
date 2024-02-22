@@ -176,14 +176,14 @@ class RunAnalysis:
         mergedCuts = {}
         for cut in list(cuts["cuts"].keys()):
             __cutExpr = ""
-            if type(cuts["cuts"][cut]) == dict:
+            if isinstance(cuts["cuts"][cut], dict):
                 __cutExpr = cuts["cuts"][cut]["expr"]
                 for cat in list(cuts["cuts"][cut]["categories"].keys()):
                     mergedCuts[cut + "_" + cat] = {"parent": cut}
                     mergedCuts[cut + "_" + cat]["expr"] = (
                         __cutExpr + " && " + cuts["cuts"][cut]["categories"][cat]
                     )
-            elif type(cuts["cuts"][cut]) == str:
+            elif isinstance(cuts["cuts"][cut], str):
                 __cutExpr = cuts["cuts"][cut]
                 mergedCuts[cut] = {"expr": __cutExpr, "parent": cut}
         self.cuts = mergedCuts
@@ -264,7 +264,7 @@ class RunAnalysis:
                 df = ROOT.RDataFrame(tnom)
                 df = df.Range(limit)
             else:
-                #ROOT.EnableImplicitMT()
+                # ROOT.EnableImplicitMT()
                 df = ROOT.RDataFrame(tnom)
             if sampleName not in self.dfs.keys():
                 self.dfs[sample[0]] = {}
@@ -745,9 +745,9 @@ class RunAnalysis:
                     self.dfs[sampleName + "_" + subsample][index]["df"] = self.dfs[
                         sampleName
                     ][index]["df"].Filter(_sample[5][subsample])
-                    self.dfs[sampleName + "_" + subsample][index][
-                        "columnNames"
-                    ] = self.dfs[sampleName][index]["columnNames"]
+                    self.dfs[sampleName + "_" + subsample][index]["columnNames"] = (
+                        self.dfs[sampleName][index]["columnNames"]
+                    )
                     self.dfs[sampleName + "_" + subsample][index]["ttree"] = self.dfs[
                         sampleName
                     ][index]["ttree"]

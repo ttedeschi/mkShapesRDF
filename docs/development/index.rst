@@ -9,9 +9,18 @@ Linting and formatting
 
 We use ``black`` for formatting and ``flake8`` for linting.
 
+In order to have black and flake8 available you have to install with ``python3 -m pip install -e ".[dev]"``.
+
 You should run the formatting and the linting before committing your code, checking for errors/warnings and fixing them.
 
 This is very important since the CI/CD pipeline will fail if the code is not formatted or if there are linting errors.
+
+
+In ``mkShapesRDF`` folder you can run: 
+
+Formatting: ``python3 -m black --config pyproject.toml .``
+
+Linting: ``python3 -m flake8 --config setup.cfg .``
 
 
 Running tests 
@@ -57,4 +66,5 @@ Docs
 In order to build the documentation you can run the command below in the root directory of mkShapesRDF:
 
 .. code:: bash
+  
   python -m sphinx -T -E -b html -d _build/doctrees -D language=en docs test_html

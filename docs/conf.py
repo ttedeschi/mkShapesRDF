@@ -9,15 +9,15 @@ import inspect
 from mkShapesRDF.lib.utils import getFrameworkPath
 
 modpath = getFrameworkPath()
-linkcode_url = "https://github.com/giorgiopizz/mkShapesRDF/blob/devs/{filepath}#L{linestart}-L{linestop}"
+linkcode_url = "https://github.com/latinos/mkShapesRDF/blob/master/{filepath}#L{linestart}-L{linestop}"
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "mkShapesRDF"
-copyright = "2023, Giorgio Pizzati"
-author = "Giorgio Pizzati"
-release = "0.0.1"
+copyright = "2024, Latinos"
+author = "Latinos"
+release = "1.0.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -103,7 +103,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/giorgiopizz/mkShapesRDF/tree/devs",
+            "url": "https://github.com/latinos/mkShapesRDF",
             "icon": "fa-brands fa-square-github",
             "type": "fontawesome",
         },

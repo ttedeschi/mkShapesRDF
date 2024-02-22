@@ -20,7 +20,7 @@ dataDirectory = os.path.join(treeBaseDir, dataReco, dataSteps)
 
 samples = {}
 
-from mkShapesRDF.shapeAnalysis.libs.SearchFiles import SearchFiles
+from mkShapesRDF.lib.search_files import SearchFiles
 s = SearchFiles()
 
 useXROOTD = False

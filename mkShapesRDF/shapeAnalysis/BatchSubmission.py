@@ -40,6 +40,7 @@ class BatchSubmission:
 
     def __init__(
         self,
+        folder,
         outputPath,
         batchFolder,
         headersPath,
@@ -48,7 +49,9 @@ class BatchSubmission:
         samples,
         d,
         batchVars,
+        jdlconfigfile="",
     ):
+        self.project_folder = folder
         self.outputPath = outputPath
         self.batchFolder = batchFolder
         self.headersPath = headersPath
@@ -58,6 +61,7 @@ class BatchSubmission:
         self.samples = samples
         self.d = d
         self.batchVars = batchVars
+        self.jdlconfigfile = jdlconfigfile
 
         self.folders = []
 
@@ -111,31 +115,49 @@ class BatchSubmission:
         for sample in self.samples:
             self.createBatch(sample)
 
-    def submit(self, dryRun=0, queue='workday'):
+    def submit(self, dryRun=0, queue="workday"):
+
         txtsh = ""
-        with open(os.environ['STARTPATH']) as file:
-            txtsh += file.read()
+        use_jdlconfigfile = self.jdlconfigfile != ""
 
-        mE = self.d.get("mountEOS", [])
-        for line in mE:
-            txtsh += line
+        if use_jdlconfigfile:
+            try:
+                print("Opening jdlconfigfile")
+                print(self.project_folder + "/" + self.jdlconfigfile)
+                exec(
+                    open(self.project_folder + "/" + self.jdlconfigfile).read(),
+                    globals(),
+                )
+            except Exception as e:
+                print('could not parse jdlconfigfile "', self.jdlconfigfile, '"\n', e)
+                use_jdlconfigfile = False
 
-        txtsh += "time python runner.py\n"
-
-        outputFileTrunc = ".".join(self.d["outputFile"].split(".")[:-1])
-
-        print("\n\nReal output path:", os.path.realpath(self.outputPath), "\n\n")
-
-        if os.path.realpath(self.outputPath).startswith("/eos"):
-            # eos is not supported -> use xrdcp
-            fullOutfile = f"{os.path.realpath(self.outputPath)}/"
+        if use_jdlconfigfile:
+            txtsh += "\n".join(executable)
         else:
-            fullOutfile = f"{self.outputPath}/"
+            with open(os.environ["STARTPATH"]) as file:
+                txtsh += file.read()
 
-        fullOutfile += f"{outputFileTrunc}__ALL__" + "${1}.root"
-        txtsh += f"cp output.root {fullOutfile}\n"
-        txtsh += "rm output.root\n"
-        txtsh += "rm script.py\n"
+            mE = self.d.get("mountEOS", [])
+            for line in mE:
+                txtsh += line
+
+            txtsh += "time python runner.py\n"
+
+            outputFileTrunc = ".".join(self.d["outputFile"].split(".")[:-1])
+
+            print("\n\nReal output path:", os.path.realpath(self.outputPath), "\n\n")
+
+            if os.path.realpath(self.outputPath).startswith("/eos"):
+                # eos is not supported -> use xrdcp
+                fullOutfile = f"{os.path.realpath(self.outputPath)}/"
+            else:
+                fullOutfile = f"{self.outputPath}/"
+
+            fullOutfile += f"{outputFileTrunc}__ALL__" + "${1}.root"
+            txtsh += f"cp output.root {fullOutfile}\n"
+            txtsh += "rm output.root\n"
+            txtsh += "rm script.py\n"
 
         # write the run.sh file
         with open(f"{self.batchFolder}/{self.tag}/run.sh", "w") as file:
@@ -146,12 +168,22 @@ class BatchSubmission:
         )
         process.wait()
 
+        txtjdl = ""
         txtjdl = "universe = vanilla \n"
         txtjdl += "executable = run.sh\n"
         txtjdl += "arguments = $(Folder)\n"
 
-        txtjdl += "should_transfer_files = YES\n"
-        txtjdl += f"transfer_input_files = $(Folder)/script.py, {self.headersPath}, {self.runnerPath}\n"
+        txtjdl += "should_transfer_files    = YES\n"
+
+        if use_jdlconfigfile:
+
+            for key in jdl_dict:
+                if jdl_dict[key] != "":
+
+                    txtjdl += key + " = " + jdl_dict[key] + "\n"
+        else:
+
+            txtjdl += f"transfer_input_files = $(Folder)/script.py, {self.headersPath}, {self.runnerPath}\n"
 
         txtjdl += "output = $(Folder)/out.txt\n"
         txtjdl += "error  = $(Folder)/err.txt\n"
@@ -163,9 +195,20 @@ class BatchSubmission:
         txtjdl += f'queue 1 Folder in {", ".join(self.folders)}\n'
         with open(f"{self.batchFolder}/{self.tag}/submit.jdl", "w") as file:
             file.write(txtjdl)
+
+        condor_args = ""
         if dryRun != 1:
+
+            if use_jdlconfigfile:
+                condor_args += " ".join(condor_config)
+
+            print(
+                f"cd {self.batchFolder}/{self.tag}; condor_submit submit.jdl {condor_args}; cd -"
+            )
+
             process = subprocess.Popen(
-                f"cd {self.batchFolder}/{self.tag}; condor_submit submit.jdl; cd -",
+                f"cd {self.batchFolder}/{self.tag}; condor_submit submit.jdl {condor_args}; cd -",
                 shell=True,
             )
+
             process.wait()

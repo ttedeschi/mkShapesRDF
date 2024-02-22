@@ -13,3 +13,4 @@ mkShapesRDF/processor/data/jsonpog*
 start.sh
 *build*
 *html*
+.DS*

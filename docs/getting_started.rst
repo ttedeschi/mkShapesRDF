@@ -8,11 +8,15 @@ Git clone the project and work with the `v0.0.1`
 
 .. code:: bash
 
-   git clone https://github.com/giorgiopizz/mkShapesRDF.git
-   git checkout v0.0.1
+   git clone https://github.com/latinos/mkShapesRDF.git
 
 Lxplus is currently the suggested machine to work with. In general one should need
-``cvmfs`` with ``sft.cern.ch`` and ``cms.cern.ch``.
+``cvmfs`` with ``sft.cern.ch`` and ``cms.cern.ch``. 
+
+A docker image is also provided at ``/cvmfs/unpacked.cern.ch/gitlab-registry.cern.ch/cms-analysis/general/mkshapesrdf:master``.
+The latter should be used on the INFN Analysis Facility.
+
+
 
 Automatic installation
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -21,6 +25,8 @@ mkShapesRDF has its own install script: ``install.sh``: it first sources the cor
 python environment (it should contain a recent python3 and ROOT bindings) and then
 proceeds with the creation of a virtual environment `myenv` where all the needed
 packages and the framework scripts will be installed.
+
+Be careful to have a clean environment before running the install script! E.g. not after a cmsenv
 
 You're free to change the environment with conda/mamba insted of a LCG release inside
 ``install.sh``.
@@ -60,7 +66,7 @@ Now you can proceed to the simple installation:
 
 .. code:: bash
 
-   pip install -e .[docs,dev]
+   pip install -e ".[docs,dev]"
 
 Now to work with ``mkShapes.processor`` one should also install correctionlib and
 compile it:
@@ -90,7 +96,7 @@ Another step needed when using the ``processor`` is to download the ``jsonpog-in
 Shape analysis: Run the analysis with the provided example
 -----------------------------------------------------------------------
 
-Configure the configuration folder (e.g. ``examples/2016Real``)
+Configure the configuration folder (e.g. ``examples/Full2018_v9``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Documentation on the configuration folder structure at :doc:`the configuration folder

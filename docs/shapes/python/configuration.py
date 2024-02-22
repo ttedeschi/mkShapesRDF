@@ -47,6 +47,10 @@ structureFile = "structure.py"
 # nuisances file for mkDatacards and for mkShape
 nuisancesFile = "nuisances.py"
 
+#: dictionary containing the configurations to be passed to condor
+condorConfig = "jdl_dict.py"
+
+
 # minRatio = 0.5
 # maxRatio = 1.5
 # plotPath = "/eos/user/g/gpizzati/www/rdf/2016/"

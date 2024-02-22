@@ -9,6 +9,7 @@ The analysis can be run in batch mode or locally.
 
 If run in batch mode it gives the ability to merge the output root files.
 """
+
 import sys
 from pathlib import Path
 import argparse
@@ -105,7 +106,14 @@ def defaultParser():
     parser.add_argument(
         "-q",
         "--queue",
-        choices=['espresso', 'microcentury', 'longlunch', 'workday', 'tomorrow', 'testmatch'],
+        choices=[
+            "espresso",
+            "microcentury",
+            "longlunch",
+            "workday",
+            "tomorrow",
+            "testmatch",
+        ],
         help="Condor queue",
         required=False,
         default="workday",
@@ -128,6 +136,9 @@ def main():
     configFile = args.configFile
     resubmit = int(args.resubmit)
 
+    global jdlconfigfile
+    jdlconfigfile = ""  # give a default value since it might be not included in a configuration folder
+
     global batchFolder
     global outputFolder
 
@@ -148,6 +159,7 @@ def main():
         ConfigLib.loadConfig(["configuration.py"], globals())
         ConfigLib.loadConfig(filesToExec, globals(), imports)
 
+        globals()["varsToKeep"].insert(0, "jdlconfigfile")
         globals()["varsToKeep"].insert(0, "folder")
 
         d = ConfigLib.createConfigDict(
@@ -226,6 +238,7 @@ def main():
             outputPath = os.path.abspath(outputFolder)
 
             batch = BatchSubmission(
+                folder,
                 outputPath,
                 batchFolder,
                 headersPath,
@@ -234,6 +247,7 @@ def main():
                 _samples,
                 d,
                 batchVars,
+                jdlconfigfile,
             )
             batch.createBatches()
             batch.submit(dryRun, queue)
@@ -333,7 +347,9 @@ def main():
             if resubmit == 1:
                 from mkShapesRDF.shapeAnalysis.BatchSubmission import BatchSubmission
 
-                BatchSubmission.resubmitJobs(batchFolder, tag, toResubmit, dryRun, queue)
+                BatchSubmission.resubmitJobs(
+                    batchFolder, tag, toResubmit, dryRun, queue
+                )
 
         if resubmit == 2:
             # resubmit all the jobs that are not finished
@@ -367,10 +383,10 @@ def main():
 
         print(f"Hadding files into {folder}/{outputFolder}/{outputFile}")
         for fileToMerge in filesToMerge:
-          os.system(f'echo {fileToMerge} >> filesToMerge_{outputFile}.txt')
+            os.system(f"echo {fileToMerge} >> filesToMerge_{outputFile}.txt")
         process = subprocess.Popen(
-            f'hadd -j 10 {folder}/{outputFolder}/{outputFile} @filesToMerge_{outputFile}.txt; \
-            rm filesToMerge_{outputFile}.txt',
+            f"hadd -j 10 {folder}/{outputFolder}/{outputFile} @filesToMerge_{outputFile}.txt; \
+            rm filesToMerge_{outputFile}.txt",
             shell=True,
         )
         process.wait()
