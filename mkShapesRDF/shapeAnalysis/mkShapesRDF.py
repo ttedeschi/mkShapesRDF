@@ -17,6 +17,7 @@ import os
 import glob
 import subprocess
 import ROOT
+from mkShapesRDF.shapeAnalysis.histo_utils import postProcessNuisances
 
 ROOT.gROOT.SetBatch(True)
 
@@ -389,7 +390,17 @@ def main():
             rm filesToMerge_{outputFile}.txt",
             shell=True,
         )
-        process.wait()
+        process.communicate()
+
+        if process.returncode == 0:
+            print("Hadd was successful")
+            filename = f"{folder}/{outputFolder}/{outputFile}"
+            cuts = cuts["cuts"]
+
+            postProcessNuisances(filename, samples, aliases, variables, cuts, nuisances)
+        else:
+            print("mkShapesRDF: Hadd failed!", file=sys.stderr)
+            sys.exit(1)
 
     else:
         print("Operating mode was set to -1, nothing was done")

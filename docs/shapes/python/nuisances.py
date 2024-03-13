@@ -4,10 +4,6 @@ Defines the nuisances.
 Examples
 --------
 
->>> from mkShapesRDF.lib.search_files import SearchFiles
->>> searchFiles = SearchFiles()
->>> redirector = ""
-
 >>> nuisances = {}
 >>> 
 >>> nuisances['lumi_Uncorrelated'] = {

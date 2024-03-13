@@ -11,4 +11,6 @@ shapeAnalaysis
 
    configuration
    runner
+   histo_utils
+   rnp
    scripts/index

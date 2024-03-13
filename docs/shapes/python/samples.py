@@ -68,14 +68,17 @@ Examples
 >>>     "weight": mcCommonWeight,
 >>>     "FilesPerJob": 1,
 >>> }
->>> 
+
+
 >>> 
 >>> ###### DY MC ######
 >>> # example of subsamples
 >>> dys = {
 >>>     "DY_hardJets": "hardJets",
 >>>     "DY_PUJets": "PUJets",
->>>     "DY_inclusive_rwgt": ("true", "0.8"), # passing as a value a tuple/list of len 2 one can assign a custom multiplicative weight to this subsample
+>>>     "DY_inclusive_rwgt": ("true", "0.8"), 
+>>>     # passing as a value a tuple/list of len 2 one can 
+>>>     # assign a custom multiplicative weight to this subsample
 >>>     # aliases can be used inside subsampleCut or subsampleWeight
 >>> }
 >>> 
@@ -88,8 +91,9 @@ Examples
 >>>     "FilesPerJob": 5,
 >>>     "subsamples": dys,
 >>> }
->>> 
->>> 
+
+
+
 >>> ###########################################
 >>> ################## DATA ###################
 >>> ###########################################

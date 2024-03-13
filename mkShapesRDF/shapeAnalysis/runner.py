@@ -3,8 +3,7 @@ import sys
 import ROOT
 from array import array
 from mkShapesRDF.lib.parse_cpp import ParseCpp
-from mkShapesRDF.shapeAnalysis.histo_utils import _postplot
-import os
+from mkShapesRDF.shapeAnalysis.histo_utils import postPlot
 
 ROOT.gROOT.SetBatch(True)
 ROOT.TH1.SetDefaultSumw2(True)
@@ -989,7 +988,7 @@ class RunAnalysis:
                                     "histogram is None before _postplot", _h_name
                                 )
 
-                            _h2 = _postplot(_h, doFold=fold, unroll=True)
+                            _h2 = postPlot(_h, doFold=fold, unroll=True)
 
                             if _h2 is None:
                                 print(cut, var)
@@ -1234,7 +1233,7 @@ class RunAnalysis:
             for index in self.dfs[sampleName].keys():
                 self.dfs[sampleName][index]["df"] = self.dfs[sampleName][index][
                     "df"
-                    ].Filter("(" + self.preselections + ") && abs(weight) > 0.0")
+                ].Filter("(" + self.preselections + ") && abs(weight) > 0.0")
                 # ].Filter("(" + self.preselections + ")")
 
         self.loadVariables()

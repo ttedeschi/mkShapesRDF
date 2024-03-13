@@ -1,108 +1,24 @@
 import ROOT
 import numpy as np
+from mkShapesRDF.shapeAnalysis.rnp import rnp_hist2array, rnp_array, rnp_array2hist
 
 ROOT.TH1.SetDefaultSumw2(True)
 
 
-def rnp_array(array, copy=True):
+def fold(h, ifrom, ito):
     """
-    Convert TArray into numpy.array
+    Folds a histogram bin content and sumw2
 
     Parameters
     ----------
-    array : ROOT.TArray
-        a ROOT TArrayD
-    copy : bool, optional
-        if True returns a copy, by default True
+    h : ROOT.TH1, ROOT.TH2, ROOT.TH3
+        input histogram, will be modified in place
+    ifrom : int
+        index of bin where to copy from. Will be then set to 0
+    ito : int
+        index of bin where to copy.
 
-    Returns
-    -------
-    np.array
-        converted numpy array
     """
-    if not isinstance(array, ROOT.TArrayD):
-        raise ("Cannot convert ", array, "to TArrayD")
-    dtype = np.double
-    nx = len(array)
-    arr = np.ndarray((nx,), dtype=dtype, buffer=array.GetArray())
-    if copy:
-        arr = arr.copy()
-    return arr
-
-
-def rnp_hist2array(h, include_overflow=False, copy=True):
-    """
-    Converts histogram into a numpy array
-
-    Parameters
-    ----------
-    h : ROOT.TH
-        histogram, 1, 2 or 3D
-    include_overflow : bool, optional
-        Includes underflow and overflow bins, by default False
-    copy : bool, optional
-        if true returns a copy of the array, its modification won't affect the histogram, by default True
-
-    Returns
-    -------
-    np.array
-        converted numpy array
-    """
-    arr = rnp_array(h, copy=copy)
-    if isinstance(h, ROOT.TH3):
-        shape = (h.GetNbinsZ() + 2, h.GetNbinsY() + 2, h.GetNbinsX() + 2)
-    elif isinstance(h, ROOT.TH2):
-        shape = (h.GetNbinsY() + 2, h.GetNbinsX() + 2)
-    elif isinstance(h, ROOT.TH1):
-        shape = (h.GetNbinsX() + 2,)
-    arr = arr.reshape(shape)
-    if not include_overflow:
-        slices = []
-        for axis, bins in enumerate(shape):
-            slices.append(slice(1, -1))
-        arr = arr[tuple(slices)]
-    return arr
-
-
-def rnp_array2hist(array, h):
-    """
-    Sets bin contents with a numpy array
-
-    Parameters
-    ----------
-    array : np.array
-        numpy array with counts
-    h : ROOT.TH
-        histogram
-    """
-    dtype = np.double
-    if isinstance(h, ROOT.TH3):
-        shape = (h.GetNbinsX() + 2, h.GetNbinsY() + 2, h.GetNbinsZ() + 2)
-    elif isinstance(h, ROOT.TH2):
-        shape = (h.GetNbinsX() + 2, h.GetNbinsY() + 2)
-    elif isinstance(h, ROOT.TH1):
-        shape = (h.GetNbinsX() + 2,)
-    if array.shape != shape:
-        slices = []
-        for axis, bins in enumerate(shape):
-            if array.shape[axis] == bins - 2:
-                slices.append(slice(1, -1))
-            elif array.shape[axis] == bins:
-                slices.append(slice(None))
-            else:
-                raise ValueError("array and histogram are not compatible")
-        array_overflow = np.zeros(shape, dtype=dtype)
-        array_overflow[tuple(slices)] = array
-        array = array_overflow
-    if array.shape != shape:
-        raise "array2hist: Different shape between array and h"
-    array = np.ravel(np.transpose(array))
-    nx = len(array)
-    arr = memoryview(array)
-    h.Set(nx, arr)
-
-
-def _fold(h, ifrom, ito):
     cont = rnp_hist2array(h, copy=False, include_overflow=True)
     sumw2 = rnp_array(h.GetSumw2(), copy=False)
     if isinstance(h, ROOT.TH3):
@@ -161,11 +77,28 @@ def _fold(h, ifrom, ito):
         sumw2[:, :, ifrom] = 0.0
 
 
-def _postplot(hTotal, doFold, unroll=True):
+def postPlot(hTotal, doFold, unroll=True):
+    """
+    Takes TH1, TH2 or TH3, folds if necessary and unrolls
+
+    Parameters
+    ----------
+    hTotal : ROOT.TH1, ROOT.TH2, ROOT.TH3
+        input histogram
+    doFold : bool
+        0 do not fold, 1 fold underflow, 2 fold overflow, 3 fold everything
+    unroll : bool, optional
+        if dimension >= 2 unrolls to 1D, by default True
+
+    Returns
+    -------
+    ROOT.TH1
+        folded and unrolled histogram
+    """
     if doFold == 1 or doFold == 3:
-        _fold(hTotal, 0, 1)
+        fold(hTotal, 0, 1)
     if doFold == 2 or doFold == 3:
-        _fold(hTotal, -1, -2)
+        fold(hTotal, -1, -2)
 
     # if unroll and hTotal.InheritsFrom(ROOT.TH2.Class()):
     if unroll and isinstance(hTotal, ROOT.TH2) and hTotal.GetDimension() == 2:
@@ -274,3 +207,144 @@ def _postplot(hTotal, doFold, unroll=True):
         hTotal_rolled.Delete()
 
     return hTotal
+
+
+def postProcessNuisances(filename, samples, aliases, variables, cuts, nuisances):
+    """
+    Post process nuisances of type weight_[envelope/rms/square].
+    For each nuisance/cut/variable/sample will take many histograms in input and only save Up and Down histograms
+
+    Parameters
+    ----------
+    filename : str
+        path to input root file
+    samples : dict
+        configuration samples
+    aliases : dict
+        configuration aliases
+    variables : dict
+        configuration variables
+    cuts : dict
+        configuration cuts
+    nuisances : dict
+        configuration nuisances
+    """
+    import mkShapesRDF.shapeAnalysis.latinos.LatinosUtils as utils
+
+    f = ROOT.TFile.Open(filename, "update")
+    # post process -> nuisance envelops and RMS
+
+    categoriesmap = utils.flatten_cuts(cuts)
+    for nuisance in nuisances.keys():
+        if not (
+            nuisances[nuisance].get("kind", "").endswith("envelope")
+            or nuisances[nuisance].get("kind", "").endswith("rms")
+            or nuisances[nuisance].get("kind", "").endswith("square")
+        ):
+            continue
+        print("work for ", nuisance)
+        # categoriesmap = utils.flatten_cuts(cuts)
+        subsamplesmap = utils.flatten_samples(samples)
+
+        utils.update_variables_with_categories(variables, categoriesmap)
+        utils.update_nuisances_with_subsamples(nuisances, subsamplesmap)
+        utils.update_nuisances_with_categories(nuisances, categoriesmap)
+        # sys.exit()
+        _cuts = list(cuts.keys())
+        _samples = list(samples.keys())
+        # print(cuts['cuts'])
+        # print(variables)
+        # print(utils.flatten_cuts(cuts['cuts']))
+        for cut in _cuts:
+            # print('work in', cut)
+            # ROOT.gDirectory.cd(f"/{cut}")
+            # for variable in [k.GetName() for k in ROOT.gDirectory.GetListOfKeys()]:
+            for variable in variables.keys():
+                f.cd(f"/{cut}/{variable}")
+                print("work in ", cut, variable)
+                histos = [k.GetName() for k in ROOT.gDirectory.GetListOfKeys()]
+                for sampleName in _samples:
+                    limitSamples = nuisances[nuisance].get("samples", {})
+                    if not (
+                        len(limitSamples.keys()) == 0
+                        or sampleName in limitSamples.keys()
+                    ):
+                        # print(f'{sampleName} does not have nuisance {nuisance}')
+                        continue
+                    histosNameToProcess = list(
+                        filter(
+                            lambda k: k.startswith(
+                                f"histo_{sampleName}_{nuisances[nuisance]['name']}_SPECIAL_NUIS"
+                            ),
+                            histos,
+                        )
+                    )
+                    histosToProcess = list(
+                        map(
+                            lambda k: ROOT.gDirectory.Get(k).Clone(),
+                            histosNameToProcess,
+                        )
+                    )
+                    if len(histosToProcess) == 0:
+                        print(
+                            f'No variations found for {sampleName} in {cut}/{variable} for nuisance {nuisances[nuisance]["name"]}',
+                            file=sys.stderr,
+                        )
+                        continue
+
+                        sys.exit(1)
+                    hNominal = ROOT.gDirectory.Get(f"histo_{sampleName}").Clone()
+
+                    hName = f"histo_{sampleName}_{nuisances[nuisance]['name']}"
+                    h_up = histosToProcess[0].Clone()
+                    h_do = histosToProcess[0].Clone()
+                    variations = np.empty(
+                        (
+                            len(histosToProcess),
+                            histosToProcess[0].GetNbinsX() + 2,
+                        ),
+                        dtype=float,
+                    )
+                    for i in range(len(histosToProcess)):
+                        variations[i, :] = rnp_hist2array(
+                            histosToProcess[i], include_overflow=True, copy=True
+                        )
+                    arrup = 0
+                    arrdo = 0
+                    if nuisances[nuisance]["kind"].endswith("envelope"):
+                        arrup = np.max(variations, axis=0)
+                        arrdo = np.min(variations, axis=0)
+                    elif nuisances[nuisance]["kind"].endswith("rms"):
+                        vnominal = rnp_hist2array(
+                            hNominal, include_overflow=True, copy=True
+                        )
+                        arrnom = np.tile(vnominal, (variations.shape[0], 1))
+                        arrv = np.sqrt(np.mean(np.square(variations - arrnom), axis=0))
+                        arrup = vnominal + arrv
+                        arrdo = vnominal - arrv
+                    elif nuisances[nuisance]["kind"].endswith("square"):
+                        vnominal = rnp_hist2array(
+                            hNominal, include_overflow=True, copy=True
+                        )
+                        arrnom = np.tile(vnominal, (variations.shape[0], 1))
+                        # up_is_up = variations > arrnom
+                        arrv = np.sqrt(np.sum(np.square(variations - arrnom), axis=0))
+                        arrup = vnominal + arrv
+                        arrdo = vnominal - arrv
+                        # arrup = np.where(up_is_up, vnominal + arrv, vnominal - arrv)
+                        # arrdo = np.where(~up_is_up, vnominal - arrv, vnominal + arrv)
+                    else:
+                        continue
+                    print(arrup)
+                    print(arrdo)
+                    for i in range(len(arrup)):  # includes under/over flow
+                        h_up.SetBinContent(i, arrup[i])
+                        h_do.SetBinContent(i, arrdo[i])
+                    print(hName)
+                    h_up.SetName(hName + "Up")
+                    h_up.Write()
+                    h_do.SetName(hName + "Down")
+                    h_do.Write()
+                    for histo in histosNameToProcess:
+                        ROOT.gDirectory.Delete(f"{histo};*")
+    f.Close()
