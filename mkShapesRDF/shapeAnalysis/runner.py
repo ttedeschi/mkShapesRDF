@@ -3,6 +3,8 @@ import sys
 import ROOT
 from array import array
 from mkShapesRDF.lib.parse_cpp import ParseCpp
+from mkShapesRDF.shapeAnalysis.histo_utils import _postplot
+import os
 
 ROOT.gROOT.SetBatch(True)
 ROOT.TH1.SetDefaultSumw2(True)
@@ -252,12 +254,14 @@ class RunAnalysis:
                     continue
                 if nuisance.get("type", "") == "shape":
                     if nuisance.get("kind", "") == "suffix":
-                        if nuisance["folderUp"] in usedFolders:
-                            continue
-                        usedFolders.append(nuisance["folderUp"])
+                        if nuisance.get("folderUp", "") != "":
+                            if nuisance["folderUp"] in usedFolders:
+                                continue
+                            usedFolders.append(nuisance["folderUp"])
 
-                        friendsFiles += RunAnalysis.getNuisanceFiles(nuisance, files)
-
+                            friendsFiles += RunAnalysis.getNuisanceFiles(
+                                nuisance, files
+                            )
             tnom = RunAnalysis.getTTreeNomAndFriends(files, friendsFiles)
 
             if limit != -1:
@@ -437,6 +441,7 @@ class RunAnalysis:
                     if nuisance.get("type", "") == "shape":
                         if nuisance.get("kind", "") == "suffix":
                             variation = nuisance["mapDown"]
+                            separator = nuisance.get("separator", "_")
                             variedCols = list(
                                 filter(lambda k: k.endswith(variation), columnNames)
                             )
@@ -445,10 +450,16 @@ class RunAnalysis:
                                 sys.exit()
                             baseCols = list(
                                 map(
-                                    lambda k: k[
-                                        RunAnalysis.index_sub(k, "Events.")
-                                        + len("Events.") : -len("_" + variation)
-                                    ],
+                                    lambda k: (
+                                        k[
+                                            RunAnalysis.index_sub(k, "Events.")
+                                            + len("Events.") : -len(
+                                                separator + variation
+                                            )
+                                        ]
+                                        if "Events" in k
+                                        else k[: -len(separator + variation)]
+                                    ),
                                     variedCols,
                                 )
                             )
@@ -458,25 +469,34 @@ class RunAnalysis:
                                     not in self.dfs[sampleName][index]["usedVariables"]
                                 ):
                                     # baseCol is never used -> useless to register variation
+                                    # print("unused variable", baseCol)
                                     continue
+                                # print(baseCol in [str(k) for k in df.GetColumnNames()])
+                                if not (
+                                    baseCol in [str(k) for k in df.GetColumnNames()]
+                                ):
+                                    continue
+
                                 if "bool" not in str(df.GetColumnType(baseCol)).lower():
                                     varNameDown = (
                                         baseCol
-                                        + "_"
+                                        + separator
                                         + nuisance["mapDown"]
                                         + "*"
                                         + nuisance["samples"][sampleName][1]
                                     )
                                     varNameUp = (
                                         baseCol
-                                        + "_"
+                                        + separator
                                         + nuisance["mapUp"]
                                         + "*"
                                         + nuisance["samples"][sampleName][0]
                                     )
                                 else:
-                                    varNameDown = baseCol + "_" + nuisance["mapDown"]
-                                    varNameUp = baseCol + "_" + nuisance["mapUp"]
+                                    varNameDown = (
+                                        baseCol + separator + nuisance["mapDown"]
+                                    )
+                                    varNameUp = baseCol + separator + nuisance["mapUp"]
 
                                 _type = df.GetColumnType(baseCol)
                                 expr = (
@@ -492,11 +512,8 @@ class RunAnalysis:
                                     variationName=nuisance["name"],
                                 )
 
-                        elif nuisance.get("kind", "") == "weight":
-                            continue
                         else:
-                            print("Unsupported nuisance")
-                            sys.exit()
+                            continue
                 self.dfs[sampleName][index]["df"] = df
 
     def loadSystematicsReweights(self):
@@ -560,11 +577,86 @@ class RunAnalysis:
                                     variationTags=["Down", "Up"],
                                     variationName=nuisance["name"],
                                 )
-                        elif nuisance.get("kind", "") == "suffix":
-                            continue
                         else:
-                            print("Unsupported nuisance")
-                            sys.exit()
+                            continue
+                self.dfs[sampleName][index]["df"] = df
+
+    def loadSystematicsReweightsEnvelopeRMS(self):
+        """
+        Loads systematics of type ``weight_envelope`` or type ``weight_rms`` in the dataframes.
+        """
+        for sampleName in self.dfs.keys():
+            for index in self.dfs[sampleName].keys():
+                df = self.dfs[sampleName][index]["df"]
+                columnNames = self.dfs[sampleName][index]["columnNames"]
+                nuisances = self.nuisances
+                # nuisance key is not used
+                for _, nuisance in list(nuisances.items()):
+                    if sampleName not in nuisance.get("samples", {sampleName: []}):
+                        continue
+                    if nuisance.get("type", "") == "shape":
+                        if (
+                            nuisance.get("kind", "") == "weight_envelope"
+                            or nuisance.get("kind", "") == "weight_rms"
+                            or nuisance.get("kind", "") == "weight_square"
+                        ):
+                            weights = nuisance["samples"].get(sampleName, None)
+                            if weights is not None:
+                                variedNames = []
+                                variedTags = []
+                                for i, weight in enumerate(weights):
+                                    if weight not in columnNames:
+                                        nuisName = f'{nuisance["name"]}_{i}'
+                                        df = df.Define(nuisName, weight)
+                                        variedNames.append(nuisName)
+                                        variedTags.append(str(i))
+                                    else:
+                                        variedNames.append(weight)
+                                        variedTags.append(str(i))
+
+                                if df.GetColumnType("weight") == "double":
+                                    expr = (
+                                        "ROOT::RVecD"
+                                        + "{ "
+                                        + ", ".join(
+                                            [
+                                                f"weight * (double) {variedName}"
+                                                for variedName in variedNames
+                                            ]
+                                        )
+                                        + "}"
+                                    )
+                                elif df.GetColumnType("weight") == "float":
+                                    expr = (
+                                        "ROOT::RVecF"
+                                        + "{ "
+                                        + ", ".join(
+                                            [
+                                                f"weight * (float) {variedName}"
+                                                for variedName in variedNames
+                                            ]
+                                        )
+                                        + "}"
+                                    )
+                                else:
+                                    print(
+                                        "Weight column has unknown type:",
+                                        df.GetColumnType("weight"),
+                                        "while varied is: ",
+                                        df.GetColumnType(variedNames[0]),
+                                    )
+                                    sys.exit()
+
+                                df = df.Vary(
+                                    "weight",
+                                    expr,
+                                    variationTags=variedTags,
+                                    variationName=nuisance["name"]
+                                    + "_SPECIAL_NUIS_"
+                                    + nuisance["kind"].split("_")[-1],
+                                )
+                        else:
+                            continue
                 self.dfs[sampleName][index]["df"] = df
 
     def loadVariables(self):
@@ -742,15 +834,25 @@ class RunAnalysis:
                     self.dfs[sampleName + "_" + subsample][index] = {
                         "parent": sampleName
                     }
-                    self.dfs[sampleName + "_" + subsample][index]["df"] = self.dfs[
-                        sampleName
-                    ][index]["df"].Filter(_sample[5][subsample])
-                    self.dfs[sampleName + "_" + subsample][index]["columnNames"] = (
-                        self.dfs[sampleName][index]["columnNames"]
+                    subsampleCut = _sample[5][subsample]
+                    subsampleWeight = "1.0"
+                    if isinstance(subsampleCut, tuple) or isinstance(
+                        subsampleCut, list
+                    ):
+                        subsampleCut = _sample[5][subsample][0]
+                        subsampleWeight = _sample[5][subsample][1]
+
+                    self.dfs[sampleName + "_" + subsample][index]["df"] = (
+                        self.dfs[sampleName][index]["df"]
+                        .Filter(subsampleCut)
+                        .Redefine("weight", "weight * " + subsampleWeight)
                     )
-                    self.dfs[sampleName + "_" + subsample][index]["ttree"] = self.dfs[
-                        sampleName
-                    ][index]["ttree"]
+                    for key in self.dfs[sampleName][index]:
+                        if key == "df":
+                            continue
+                        self.dfs[sampleName + "_" + subsample][index][key] = self.dfs[
+                            sampleName
+                        ][index][key]
 
             del self.dfs[sampleName]
 
@@ -866,23 +968,39 @@ class RunAnalysis:
                             _h = 0
                             _h = _s_var[_variation]
                             fold = variables[var].get("fold", 0)
-                            if fold == 1 or fold == 3:
-                                _h.SetBinContent(
-                                    1, _h.GetBinContent(0) + _h.GetBinContent(1)
+
+                            # Rename histogram, needed to have all histograms with unique names
+                            # otherwise `RuntimeWarning: Replacing existing TH1`
+                            _name = _h.GetName()
+                            new_name = (
+                                _name
+                                + "_"
+                                + _h_name
+                                + "_"
+                                + sampleName
+                                + "_"
+                                + str(index)
+                            )
+
+                            _h.SetName(new_name)
+
+                            if _h is None:
+                                raise Exception(
+                                    "histogram is None before _postplot", _h_name
                                 )
-                                _h.SetBinContent(0, 0)
-                            if fold == 2 or fold == 3:
-                                lastBin = _h.GetNbinsX()
-                                _h.SetBinContent(
-                                    lastBin,
-                                    _h.GetBinContent(lastBin)
-                                    + _h.GetBinContent(lastBin + 1),
+
+                            _h2 = _postplot(_h, doFold=fold, unroll=True)
+
+                            if _h2 is None:
+                                print(cut, var)
+                                raise Exception(
+                                    "None histogram after _postplot", _h_name
                                 )
-                                _h.SetBinContent(lastBin + 1, 0)
-                            _histos[_h_name] = _h.Clone()
-                            # del _h
-                        # del self.results[cut][var][sampleName]['object']
-                        # replace the object with the dictionary of histos
+
+                            del _h
+                            _h = _h2
+                            _histos[_h_name] = _h
+
                         self.results[cut][var][sampleName][index] = _histos
 
     def saveResults(self):
@@ -972,22 +1090,27 @@ class RunAnalysis:
                         for hname in list(
                             self.results[cut_cat][var][sampleName][index].keys()
                         ):
+                            h = self.results[cut_cat][var][sampleName][index][hname]
                             if hname not in mergedHistos.keys():
-                                mergedHistos[hname] = self.results[cut_cat][var][
-                                    sampleName
-                                ][index][hname].Clone()
+                                if not isinstance(h, ROOT.TH1):
+                                    print(h)
+                                    raise Exception(
+                                        "Error in histogram, only save 1D histograms", h
+                                    )
+
+                                mergedHistos[hname] = h.Clone()
                             else:
-                                mergedHistos[hname].Add(
-                                    self.results[cut_cat][var][sampleName][index][hname]
-                                )
+                                mergedHistos[hname].Add(h)
 
                     for hname in mergedHistos.keys():
                         if hname == "nominal":
-                            mergedHistos[hname].SetName("histo_" + sampleName)
+                            _string = "histo_" + sampleName
+                            mergedHistos[hname].SetName(_string)
+                            mergedHistos[hname].SetTitle(_string)
                         else:
-                            mergedHistos[hname].SetName(
-                                "histo_" + sampleName + "_" + hname
-                            )
+                            _string = "histo_" + sampleName + "_" + hname
+                            mergedHistos[hname].SetName(_string)
+                            mergedHistos[hname].SetTitle(_string)
                         mergedHistos[hname].Write()
         f.Close()
 
@@ -1097,7 +1220,11 @@ class RunAnalysis:
 
         # load alias weight needed before nuisances of type weight
         self.loadAliasWeight()
+        self.splitSubsamples()
+        print("splitted samples")
+
         self.loadSystematicsReweights()
+        self.loadSystematicsReweightsEnvelopeRMS()
 
         # load all aliases remaining
         self.loadAliases(True)
@@ -1107,15 +1234,14 @@ class RunAnalysis:
             for index in self.dfs[sampleName].keys():
                 self.dfs[sampleName][index]["df"] = self.dfs[sampleName][index][
                     "df"
-                ].Filter("(" + self.preselections + ") && abs(weight) > 0.0")
+                    ].Filter("(" + self.preselections + ") && abs(weight) > 0.0")
+                # ].Filter("(" + self.preselections + ")")
 
         self.loadVariables()
         self.loadBranches()
         print("loaded all variables")
         self.createResults()
         print("created empty results dict")
-        self.splitSubsamples()
-        print("splitted samples")
         self.create_cuts_vars()
         print("created cuts")
 

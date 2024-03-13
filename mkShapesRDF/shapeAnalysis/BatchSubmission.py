@@ -49,7 +49,7 @@ class BatchSubmission:
         samples,
         d,
         batchVars,
-        jdlconfigfile="",
+        jdlconfigfile,
     ):
         self.project_folder = folder
         self.outputPath = outputPath
@@ -80,11 +80,7 @@ class BatchSubmission:
                 parents=True, exist_ok=False
             )
         except:  # noqa E722
-            print("Removing dir:", os.path.abspath(f"{self.batchFolder}/{self.tag}"))
-            shutil.rmtree(os.path.abspath(f"{self.batchFolder}/{self.tag}"))
-            Path(f"{self.batchFolder}/{self.tag}/{sampleName}_{str(i)}").mkdir(
-                parents=True, exist_ok=False
-            )
+            print("Error creating condor folder!")
         self.folders.append(f"{sampleName}_{str(i)}")
         # python file
 
@@ -112,6 +108,12 @@ class BatchSubmission:
             f.write(txtpy)
 
     def createBatches(self):
+        try:
+            print("Removing dir:", os.path.abspath(f"{self.batchFolder}/{self.tag}"))
+            shutil.rmtree(os.path.abspath(f"{self.batchFolder}/{self.tag}"))
+        except Exception as e:
+            print("Error removing directory", e)
+
         for sample in self.samples:
             self.createBatch(sample)
 
@@ -168,12 +170,11 @@ class BatchSubmission:
         )
         process.wait()
 
-        txtjdl = ""
         txtjdl = "universe = vanilla \n"
         txtjdl += "executable = run.sh\n"
         txtjdl += "arguments = $(Folder)\n"
 
-        txtjdl += "should_transfer_files    = YES\n"
+        txtjdl += "should_transfer_files = YES\n"
 
         if use_jdlconfigfile:
 
@@ -202,13 +203,11 @@ class BatchSubmission:
             if use_jdlconfigfile:
                 condor_args += " ".join(condor_config)
 
-            print(
-                f"cd {self.batchFolder}/{self.tag}; condor_submit submit.jdl {condor_args}; cd -"
-            )
+            proc_command = f"cd {self.batchFolder}/{self.tag}; condor_submit {condor_args} submit.jdl ; cd -"
+            print(proc_command)
 
             process = subprocess.Popen(
-                f"cd {self.batchFolder}/{self.tag}; condor_submit submit.jdl {condor_args}; cd -",
+                proc_command,
                 shell=True,
             )
-
             process.wait()
