@@ -705,22 +705,32 @@ class RunAnalysis:
                 for var in list(self.variables.keys()):
                     if "tree" in self.variables[var].keys():
                         continue
+                    # variable name format is
+                    # variables["test"] = {"name": "ptll[:ptj1[:ptj2]]"}
+                    # here we iterate over the single elements of name (splitting with `:`)
+                    # for each element we will define nd_single, i.e. `test_0, test_1`
                     for i, _var in enumerate(self.variables[var]["name"].split(":")):
-                        n = var if i == 0 else var + f"_{i}"
+                        nd_single = f"{var}_{i}"
 
                         if _var not in bigColumnNames:
                             # the variable expr does not exist, create it
-                            df = df.Define(n, _var)
-                        elif n not in bigColumnNames:
+                            df = df.Define(nd_single, _var)
+                        elif nd_single not in bigColumnNames:
                             # the variable expr exists in the df, but not the variable key
                             # use alias
-                            df = df.Alias(n, _var)
-                        elif n == _var and n in bigColumnNames:
+                            df = df.Alias(nd_single, _var)
+                        elif nd_single == _var and nd_single in bigColumnNames:
                             # since the variable name and expression are equal and are already present in the df don't do anything
                             pass
                         else:
-                            # FIXME
-                            print("Error, cannot define variable")
+                            print(
+                                "Error, cannot define variable",
+                                nd_single,
+                                "for key in variables",
+                                var,
+                                "that needs",
+                                _var,
+                            )
                             sys.exit()
                 self.dfs[sampleName][index]["df"] = df
                 self.dfs[sampleName][index]["columnNames"] = list(
@@ -916,24 +926,28 @@ class RunAnalysis:
 
                             histRange = tuple(histRange)
 
-                            if len(vs) == 1:
-                                _h = df_cat.Histo1D(
-                                    (cut + "_" + var, "") + histRange, var, "weight"
-                                )
-                            elif len(vs) == 2:
-                                varNames = []
-                                for i, _var in enumerate(vs):
-                                    n = var if i == 0 else var + f"_{i}"
-                                    varNames.append(n)
+                            varNames = []
+                            for i, _var in enumerate(vs):
+                                nd_single = f"{var}_{i}"
+                                varNames.append(nd_single)
 
-                                _h = df_cat.Histo2D(
-                                    (cut + "_" + var, "") + histRange,
-                                    *varNames,
-                                    "weight",
-                                )
+                            histFunc = 0
+                            if len(vs) == 1:
+                                histFunc = df_cat.Histo1D
+                            elif len(vs) == 2:
+                                histFunc = df_cat.Histo2D
+                            elif len(vs) == 3:
+                                histFunc = df_cat.Histo3D
                             else:
                                 print("Unknown dimension of histo for variable", var)
                                 sys.exit()
+
+                            _h = histFunc(
+                                (cut + "_" + var, "") + histRange,
+                                *varNames,
+                                "weight",
+                            )
+
                         if sampleName not in self.results[cut][var].keys():
                             self.results[cut][var][sampleName] = {}
                         self.results[cut][var][sampleName][index] = _h
