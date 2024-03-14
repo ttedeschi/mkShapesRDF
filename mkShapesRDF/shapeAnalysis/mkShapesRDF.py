@@ -224,9 +224,11 @@ def main():
 
     _results = {}
     sys.path.append(os.path.dirname(runnerPath))
-    runnerModule = __import__(runnerFile.strip('.py'))
-    if not hasattr(runnerModule, 'RunAnalysis'): 
-        raise AttributeError(f'Runner module {runnerFile} from {runnerPath} has no attribute RunAnalysis')
+    runnerModule = __import__(runnerFile.strip(".py"))
+    if not hasattr(runnerModule, "RunAnalysis"):
+        raise AttributeError(
+            f"Runner module {runnerFile} from {runnerPath} has no attribute RunAnalysis"
+        )
     RunAnalysis = runnerModule.RunAnalysis
 
     if operationMode == 0:

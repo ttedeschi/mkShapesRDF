@@ -51,7 +51,7 @@ Steps = {
             "TopGenVars",
             "WGammaStar",
             "DressedLeptons",
-        ]
+        ],
         # 'wwNLL','ggHTheoryUncertainty', 'qqHTheoryUncertainty', 'EFTGen'],
     },
     "MCCorr2018v9": {

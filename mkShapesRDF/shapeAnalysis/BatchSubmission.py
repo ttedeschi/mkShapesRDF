@@ -144,7 +144,7 @@ class BatchSubmission:
             for line in mE:
                 txtsh += line
 
-            runnerScriptFilename = self.runnerPath.split('/')[-1]
+            runnerScriptFilename = self.runnerPath.split("/")[-1]
             txtsh += f"time python {runnerScriptFilename}\n"
 
             outputFileTrunc = ".".join(self.d["outputFile"].split(".")[:-1])

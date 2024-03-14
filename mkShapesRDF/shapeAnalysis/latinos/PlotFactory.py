@@ -202,9 +202,9 @@ class PlotFactory:
                 list_tcanvasRatio[generalCounter] = tcanvasRatio
                 list_weight_X_tcanvasRatio[generalCounter] = weight_X_tcanvasRatio
                 list_tcanvasDifference[generalCounter] = tcanvasDifference
-                list_weight_X_tcanvasDifference[
-                    generalCounter
-                ] = weight_X_tcanvasDifference
+                list_weight_X_tcanvasDifference[generalCounter] = (
+                    weight_X_tcanvasDifference
+                )
                 if self._plotNormalizedDistributions:
                     list_tcanvasSigVsBkg[generalCounter] = tcanvasSigVsBkg
                 if self._plotNormalizedDistributionsTHstack:
@@ -284,12 +284,12 @@ class PlotFactory:
                     "thsBackground_grouped_normalized_" + cutName + "_" + variableName,
                     "thsBackground_grouped_normalized_" + cutName + "_" + variableName,
                 )
-                list_thsSignal_grouped_normalized[
-                    generalCounter
-                ] = thsSignal_grouped_normalized
-                list_thsBackground_grouped_normalized[
-                    generalCounter
-                ] = thsBackground_grouped_normalized
+                list_thsSignal_grouped_normalized[generalCounter] = (
+                    thsSignal_grouped_normalized
+                )
+                list_thsBackground_grouped_normalized[generalCounter] = (
+                    thsBackground_grouped_normalized
+                )
 
                 generalCounter += 1
 
@@ -699,14 +699,14 @@ class PlotFactory:
                                                 "Warning, lost nuisance, containing NaN ",
                                                 nuisanceName,
                                             )
-                                            nuisanceHistos[ivar][
-                                                nuisanceName
-                                            ] = fileIn.Get(
-                                                cutName
-                                                + "/"
-                                                + variableName
-                                                + "/histo_"
-                                                + sampleName
+                                            nuisanceHistos[ivar][nuisanceName] = (
+                                                fileIn.Get(
+                                                    cutName
+                                                    + "/"
+                                                    + variableName
+                                                    + "/histo_"
+                                                    + sampleName
+                                                )
                                             )
                                     elif not self._SkipMissingNuisance:
                                         print(
@@ -4309,15 +4309,15 @@ class PlotFactory:
                 tcanvas.SaveAs(nameBase + ".C")
 
     def _getColor(self, color):
-        if type(color) == int:
+        if isinstance(color, int):
             return color
-        elif type(color) == tuple:
+        elif isinstance(color, tuple):
             # RGB
             return ROOT.TColor.GetColor(*color)
-        elif type(color) == str:
+        elif isinstance(color, str):
             # hex string
             return ROOT.TColor.GetColor(color)
 
     def _getLine(self, line):
-        if type(line) == int:
+        if isinstance(line, int):
             return line
