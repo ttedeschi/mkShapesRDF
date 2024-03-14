@@ -1,4 +1,5 @@
 /**
+  Copied from https://github.com/root-project/root/blob/4bf4dd276fbde5018f07c9b2ee949be66bf6a1ee/main/src/hadd.cxx, reference issue: https://github.com/root-project/root/issues/14910
   \file hadd.cxx
   \brief This program will add histograms (see note) and Trees from a list of root files and write them to a target root file.
   The target file is newly created and must not be
@@ -16,28 +17,24 @@
 
   \param -a   Append to the output
   \param -f   Force overwriting of output file.
-  \param -f[0-9] Set target compression level. 0 = uncompressed, 6 = highly compressed.
+  \param -f[0-9] Set target compression level. 0 = uncompressed, 9 = highly compressed. Default is 1 (kDefaultZLIB).
+                 You can also specify the full compresion algorithm, e.g. -f206
   \param -fk  Sets the target file to contain the baskets with the same compression
               as the input files (unless -O is specified). Compresses the meta data
               using the compression level specified in the first input or the
               compression setting after fk (for example 206 when using -fk206)
   \param -ff  The compression level used is the one specified in the first input
-
   \param -k   Skip corrupt or non-existent files, do not exit
   \param -O   Re-optimize basket size when merging TTree
+  \param -T   Do not merge Trees
   \param -v   Explicitly set the verbosity level: 0 request no output, 99 is the default
-  \param -j   Parallelise the execution in multiple processes
-  \param -dbg  Parallelise the execution in multiple processes in debug mode (Does not delete  partial  files  stored
-              inside working directory)
+  \param -j   Parallelise the execution in `J` processes. If the number of processes is not specified, use the system maximum.
+  \param -dbg Enable verbosity. If -j was specified, do not not delete partial files stored inside working directory.
   \param -d   Carry out the partial multiprocess execution in the specified directory
-  \param -n   Open at most `n` at once (use 0 to request to use the system maximum)
-  \param -experimental-io-features `<feature>` Enables the corresponding experimental feature for output trees
+  \param -n   Open at most `N` files at once (use 0 to request to use the system maximum)
+  \param -cachesize Resize the prefetching cache use to speed up I/O operations (use 0 to disable).
+  \param -experimental-io-features `<feature>` Enables the corresponding experimental feature for output trees. \see ROOT::Experimental::EIOFeatures
   \return hadd returns a status code: 0 if OK, -1 otherwise
-
-  When the -f option is specified, one can also specify the compression
-  level of the target file. By default the compression level is 1 (kDefaultZLIB), but
-  if "-f0" is specified, the target file will not be compressed.
-  if "-f6" is specified, the compression level 6 will be used.
 
   For example assume 3 files f1, f2, f3 containing histograms hn and Trees Tn
    - f1 with h1 h2 h3 T1
@@ -126,8 +123,8 @@
 int main( int argc, char **argv )
 {
    if ( argc < 3 || "-h" == std::string(argv[1]) || "--help" == std::string(argv[1]) ) {
-         // fprintf(stderr, kCommandLineOptionsHelp);
-         return 1;
+        //  fprintf(stderr, kCommandLineOptionsHelp);
+         return (argc == 2 && ("-h" == std::string(argv[1]) || "--help" == std::string(argv[1]))) ? 0 : 1;
    }
 
    ROOT::TIOFeatures features;
@@ -374,56 +371,67 @@ int main( int argc, char **argv )
       std::cout << "hadd Target file: " << targetname << std::endl;
    }
 
-   // save all filenames
-   std::vector<std::string> filesToMerge;
-   for (auto i = ffirst; i < argc; i++){
-      if (argv[i]){
-         if (argv[i][0] == '@'){
-            std::ifstream indirect_file(argv[i] + 1);
-            if (!indirect_file.is_open()) {
-               std::cerr << "hadd could not open indirect file " << (argv[i] + 1) << std::endl;
-               break;
-            }
-            std::string line;
-            while (indirect_file) {
-               if (std::getline(indirect_file, line) && line.length()) {
-                  filesToMerge.push_back(line);
-               }
-               else{
-                  break;
-               }
-            }
-         }
-         else {
-            filesToMerge.push_back(argv[i]);
-         }
-      }
-   }
-
-   std::cout << "Files to merge " << filesToMerge.size() << "\n";
-   std::cout << "First: " << filesToMerge[0] << "\n"; 
-   std::cout << "Last: " << filesToMerge[filesToMerge.size()-1] << std::endl;
-   if (filesToMerge.size() < 1){
-      std::cout << "No files to merge!" << std::endl;
-      return 1;
-   }
-
    TFileMerger fileMerger(kFALSE, kFALSE);
    fileMerger.SetMsgPrefix("hadd");
    fileMerger.SetPrintLevel(verbosity - 1);
    if (maxopenedfiles > 0) {
       fileMerger.SetMaxOpenedFiles(maxopenedfiles);
    }
+   // The following section will collect all input filenames into a vector,
+   // including those listed within an indirect file.
+   // If any file can not be accessed, it will error out, unless skip_errors is true
+   std::vector<std::string> allSubfiles;
+   for( int a = ffirst; a < argc; ++a ) {
+      if (a == outputPlace)
+         continue;
+      if (argv[a] && argv[a][0]=='@') {
+         std::ifstream indirect_file(argv[a]+1);
+         if( ! indirect_file.is_open() ) {
+            std::cerr<< "hadd could not open indirect file " << (argv[a]+1) << std::endl;
+            if (!skip_errors) return 1;
+         }
+         else {
+            std::string line;
+            while( indirect_file ) {
+               if( std::getline(indirect_file, line) && line.length() ) {
+                  if (gSystem->AccessPathName(line.c_str(), kReadPermission) == kTRUE || (!TString(line).EndsWith(".root"))) {
+                     std::cerr<< "hadd could not validate subfile " << line << " within indirect file " << (argv[a]+1) << std::endl;
+                     if (!skip_errors) return 1;
+                  }
+                  else
+                     allSubfiles.emplace_back(line);
+               }
+            }
+         }
+      }
+      else
+      {
+         const std::string line = argv[a];
+         if (gSystem->AccessPathName(line.c_str(), kReadPermission) == kTRUE || (!TString(line).EndsWith(".root"))) {
+            std::cerr<< "hadd could not validate CLI argument " << line << " as input file " << std::endl;
+            if (!skip_errors) return 1;
+         }
+         else
+            allSubfiles.emplace_back(line);
+      }
+   }
+   if (allSubfiles.empty()) {
+      std::cerr<< "hadd could not find any valid input file " << std::endl;
+      return 1;
+   }
+   // The next snippet determines the output compression if unset
    if (newcomp == -1) {
       if (useFirstInputCompression || keepCompressionAsIs) {
          // grab from the first file.
-         TFile *firstInput = TFile::Open(filesToMerge[0].c_str());
+         TFile *firstInput = TFile::Open(allSubfiles.front().c_str());
          if (firstInput && !firstInput->IsZombie())
             newcomp = firstInput->GetCompressionSettings();
          else
-            newcomp = ROOT::RCompressionSetting::EDefaults::kUseCompiledDefault % 100;
+            newcomp = ROOT::RCompressionSetting::EDefaults::kUseCompiledDefault;
          delete firstInput;
-      } else newcomp = ROOT::RCompressionSetting::EDefaults::kUseCompiledDefault % 100; // default compression level.
+      } else {
+         newcomp = ROOT::RCompressionSetting::EDefaults::kUseCompiledDefault;
+      }
    }
    if (verbosity > 1) {
       if (keepCompressionAsIs && !reoptimize)
@@ -442,7 +450,7 @@ int main( int argc, char **argv )
       exit(1);
    }
 
-   auto filesToProcess = filesToMerge.size();
+   auto filesToProcess = allSubfiles.size();
    auto step = (filesToProcess + nProcesses - 1) / nProcesses;
    if (multiproc && step < 3) {
       // At least 3 files per process
@@ -494,13 +502,12 @@ int main( int argc, char **argv )
 
    auto sequentialMerge = [&](TFileMerger &merger, int start, int nFiles) {
 
-      // for (auto i = start; i < (start + nFiles) && i < argc; i++) {
-      for (auto i = start; i < (start + nFiles); i++) {
-         if (!merger.AddFile(filesToMerge[i].c_str())) {
+      for (auto i = start; i < (start + nFiles) && i < static_cast<int>(allSubfiles.size()); i++) {
+         if (!merger.AddFile(allSubfiles[i].c_str())) {
             if (skip_errors) {
-               std::cerr << "hadd skipping file with error: " << filesToMerge[i] << std::endl;
+               std::cerr << "hadd skipping file with error: " << allSubfiles[i] << std::endl;
             } else {
-               std::cerr << "hadd exiting due to error in " << filesToMerge[i] << std::endl;
+               std::cerr << "hadd exiting due to error in " << allSubfiles[i] << std::endl;
                return kFALSE;
             }
          }
@@ -515,7 +522,7 @@ int main( int argc, char **argv )
       if (maxopenedfiles > 0) {
          mergerP.SetMaxOpenedFiles(maxopenedfiles / nProcesses);
       }
-      if (!mergerP.OutputFile(partialFiles[(start) / step].c_str(), newcomp)) {
+      if (!mergerP.OutputFile(partialFiles[start / step].c_str(), newcomp)) {
          std::cerr << "hadd error opening target partial file" << std::endl;
          exit(1);
       }
@@ -555,14 +562,14 @@ int main( int argc, char **argv )
 
    if (status) {
       if (verbosity == 1) {
-         std::cout << "hadd merged " << fileMerger.GetMergeList()->GetEntries() << " input files in " << targetname
+         std::cout << "hadd merged " << filesToProcess << " (" << fileMerger.GetMergeList()->GetEntries() << ") input (partial) files into " << targetname
                    << ".\n";
       }
       return 0;
    } else {
       if (verbosity == 1) {
-         std::cout << "hadd failure during the merge of " << fileMerger.GetMergeList()->GetEntries()
-                   << " input files in " << targetname << ".\n";
+         std::cout << "hadd failure during the merge of " << filesToProcess << " (" << fileMerger.GetMergeList()->GetEntries()
+                   << ") input (partial) files into " << targetname << ".\n";
       }
       return 1;
    }

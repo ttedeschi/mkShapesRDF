@@ -11,6 +11,7 @@ shapeAnalaysis
 
    configuration
    runner
-   histo_utils
-   rnp
+   plotfactory
+   datacardfactory
    scripts/index
+   utils/index

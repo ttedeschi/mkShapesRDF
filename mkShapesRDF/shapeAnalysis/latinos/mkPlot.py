@@ -2,7 +2,7 @@
 
 import sys
 
-import optparse
+import argparse
 
 import os
 import os.path
@@ -23,95 +23,94 @@ if __name__ == "__main__":
     main()
 
 
-def main():
-    sys.argv = argv
+def defaultParser():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
 
-    usage = "usage: %prog [options]"
-    parser = optparse.OptionParser(usage)
-
-    parser.add_option(
+    parser.add_argument(
         "--scaleToPlot",
         dest="scaleToPlot",
         help="scale of maxY to maxHistoY",
         default=3.0,
         type=float,
     )
-    parser.add_option(
+    parser.add_argument(
         "--minLogC", dest="minLogC", help="min Y in log plots", default=0.01, type=float
     )
-    parser.add_option(
+    parser.add_argument(
         "--maxLogC", dest="maxLogC", help="max Y in log plots", default=100, type=float
     )
-    parser.add_option(
+    parser.add_argument(
         "--minLogCratio",
         dest="minLogCratio",
         help="min Y in log ratio plots",
         default=0.001,
         type=float,
     )
-    parser.add_option(
+    parser.add_argument(
         "--maxLogCratio",
         dest="maxLogCratio",
         help="max Y in log ratio plots",
         default=10,
         type=float,
     )
-    parser.add_option(
+    parser.add_argument(
         "--maxLinearScale",
         dest="maxLinearScale",
         help="scale factor for max Y in linear plots (1.45 magic number as default)",
         default=1.45,
         type=float,
     )
-    parser.add_option(
+    parser.add_argument(
         "--outputDirPlots", dest="outputDirPlots", help="output directory", default="./"
     )
-    parser.add_option(
+    parser.add_argument(
         "--inputFile",
         dest="inputFile",
         help="input file with histograms",
         default="input.root",
     )
-    parser.add_option(
+    parser.add_argument(
         "--tag",
         dest="tag",
         help="Tag used for the shape file name. Used if inputFile is a directory",
         default=None,
     )
-    parser.add_option(
+    parser.add_argument(
         "--nuisancesFile",
         dest="nuisancesFile",
         help="file with nuisances configurations",
         default=None,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--onlyVariable",
         dest="onlyVariable",
         help="draw only one variable (may be needed in post-fit plots)",
         default=None,
     )
-    parser.add_option(
+    parser.add_argument(
         "--onlyCut",
         dest="onlyCut",
         help="draw only one cut phase space (may be needed in post-fit plots)",
         default=None,
     )
-    parser.add_option(
+    parser.add_argument(
         "--onlyPlot",
         dest="onlyPlot",
         help="draw only specified plot type (comma-separated c, cratio, and/or cdifference)",
         default=None,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--linearOnly",
         dest="linearOnly",
         help="Make linear plot only.",
         action="store_true",
         default=False,
     )
-    parser.add_option(
+    parser.add_argument(
         "--logOnly",
         dest="logOnly",
         help="Make log plot only.",
@@ -119,27 +118,27 @@ def main():
         default=False,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--fileFormats",
         dest="fileFormats",
         help='Output plot file formats (comma-separated png, pdf, root, C, and/or eps). Default "png,root"',
         default="png,root",
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--plotNormalizedIncludeData",
         dest="plotNormalizedIncludeData",
         help="plot also normalized distributions for data, for shape comparison purposes",
         default=None,
     )
-    parser.add_option(
+    parser.add_argument(
         "--plotNormalizedDistributions",
         dest="plotNormalizedDistributions",
         help="plot also normalized distributions for optimization purposes",
         action="store_true",
         default=None,
     )
-    parser.add_option(
+    parser.add_argument(
         "--plotNormalizedDistributionsTHstack",
         dest="plotNormalizedDistributionsTHstack",
         help="plot also normalized distributions for optimization purposes, with stacked sig and bkg",
@@ -147,7 +146,7 @@ def main():
         default=None,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--showIntegralLegend",
         dest="showIntegralLegend",
         help="show the integral, the yields, in the legend",
@@ -155,14 +154,14 @@ def main():
         type=float,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--showRelativeRatio",
         dest="showRelativeRatio",
         help="draw instead of data-expected, (data-expected) / expected",
         action="store_true",
         default=False,
     )
-    parser.add_option(
+    parser.add_argument(
         "--showDataMinusBkgOnly",
         dest="showDataMinusBkgOnly",
         help="draw instead of data-expected, data-expected background only",
@@ -170,7 +169,7 @@ def main():
         default=False,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--removeWeight",
         dest="removeWeight",
         help="Remove weight S/B for PR plots, just do the sum",
@@ -178,7 +177,7 @@ def main():
         default=False,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--invertXY",
         dest="invertXY",
         help="Invert the weighting for X <-> Y. Instead of slices along Y, do slices along X",
@@ -186,14 +185,14 @@ def main():
         default=False,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--postFit",
         dest="postFit",
         help="Plot sum of post-fit backgrounds, and the data/post-fit ratio.",
         default="n",
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--skipMissingNuisance",
         dest="skipMissingNuisance",
         help="Do not trigger errors if a nuisance is missing. To be used with absolute care!!!",
@@ -201,27 +200,27 @@ def main():
         default=False,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--removeMCStat",
         dest="removeMCStat",
         help="Do not plot the MC statistics contribution in the uncertainty band",
         action="store_true",
         default=False,
     )
-    parser.add_option(
+    parser.add_argument(
         "--extraLegend",
         dest="extraLegend",
         help="User-specified additional legend",
         default=None,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--customize",
         dest="customizeKey",
         help="Optional parameters for the customizations script",
         default=None,
     )
-    parser.add_option(
+    parser.add_argument(
         "--plotFancy",
         dest="plotFancy",
         help="Plot fancy data - bkg plot",
@@ -229,14 +228,14 @@ def main():
         default=False,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--NoPreliminary",
         dest="NoPreliminary",
         help="Remove preliminary status in plots",
         action="store_true",
         default=False,
     )
-    parser.add_option(
+    parser.add_argument(
         "--RemoveAllMC",
         dest="RemoveAllMC",
         help="Remove all MC in legend",
@@ -244,19 +243,20 @@ def main():
         default=False,
     )
 
-    parser.add_option(
+    parser.add_argument(
         "--parallelPlotting",
         dest="parallelPlotting",
         help="Plot each cut in parallel",
         action="store_true",
         default=False,
     )
+    return parser
 
-    # read default parsing options as well
-    #    hwwtools.addOptions(parser)
-    #    hwwtools.loadOptDefaults(parser)
-    (opt, args) = parser.parse_args()
-    #    ROOT.gROOT.SetBatch()
+
+def main():
+    sys.argv = argv
+
+    opt = defaultParser().parse_args()
 
     print("")
     # print("          configuration file =", opt.pycfg)

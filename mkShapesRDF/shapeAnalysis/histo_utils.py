@@ -249,16 +249,9 @@ def postProcessNuisances(filename, samples, aliases, variables, cuts, nuisances)
         utils.update_variables_with_categories(variables, categoriesmap)
         utils.update_nuisances_with_subsamples(nuisances, subsamplesmap)
         utils.update_nuisances_with_categories(nuisances, categoriesmap)
-        # sys.exit()
         _cuts = list(cuts.keys())
         _samples = list(samples.keys())
-        # print(cuts['cuts'])
-        # print(variables)
-        # print(utils.flatten_cuts(cuts['cuts']))
         for cut in _cuts:
-            # print('work in', cut)
-            # ROOT.gDirectory.cd(f"/{cut}")
-            # for variable in [k.GetName() for k in ROOT.gDirectory.GetListOfKeys()]:
             for variable in variables.keys():
                 f.cd(f"/{cut}/{variable}")
                 print("work in ", cut, variable)
@@ -269,7 +262,6 @@ def postProcessNuisances(filename, samples, aliases, variables, cuts, nuisances)
                         len(limitSamples.keys()) == 0
                         or sampleName in limitSamples.keys()
                     ):
-                        # print(f'{sampleName} does not have nuisance {nuisance}')
                         continue
                     histosNameToProcess = list(
                         filter(

@@ -8,26 +8,11 @@ from array import array
 from collections import OrderedDict
 import math
 import numpy as np
+from mkShapesRDF.shapeAnalysis.rnp import rnp_hist2array, rnp_array
 
 import re
 
 ROOT.gROOT.SetBatch(True)
-
-
-def hist2array(h, overflow=False, copy=True):
-    shift = 0
-    if overflow:
-        shift = 1
-    d = []
-    for i in range(1 - shift, h.GetNbinsX() + 1 + shift):
-        d.append(h.GetBinContent(i))
-    d = np.array(d)
-    return d
-
-
-def np_array(_TArrayD):
-    return np.array(_TArrayD)
-
 
 # ----------------------------------------------------- PlotFactory --------------------------------------
 
@@ -693,7 +678,7 @@ class PlotFactory:
                                     if histoVar is not None:
                                         nuisanceHistos[ivar][nuisanceName] = histoVar
                                         if np.isnan(
-                                            hist2array(histoVar, copy=False)
+                                            rnp_hist2array(histoVar, copy=True)
                                         ).any():
                                             print(
                                                 "Warning, lost nuisance, containing NaN ",
@@ -739,8 +724,7 @@ class PlotFactory:
                                 # print(nuisanceName)
                                 try:
                                     histoVar = nuisanceHistos[ivar][nuisanceName]
-                                    # test = rnp.hist2array(histoVar, copy=False)
-                                    _ = hist2array(histoVar, copy=False)
+                                    _ = rnp_hist2array(histoVar, copy=True)
                                 except KeyError:
                                     # now, even if not considered this nuisance, I need to add it,
                                     # so that in case is "empty" it will add the nominal value
@@ -765,18 +749,15 @@ class PlotFactory:
                                     vy = nuisances_vy[nuisanceName]
                                     # print(sampleName, nuisanceName, vy)
                                 except KeyError:
-                                    # vy = nuisances_vy[nuisanceName] = np.zeros_like(rnp.hist2array(histo, copy=False))
                                     vy = nuisances_vy[nuisanceName] = np.zeros_like(
-                                        hist2array(histo, copy=False)
+                                        rnp_hist2array(histo, copy=True)
                                     )
 
                                 # get the background sum
                                 if (
                                     plotdef["isSignal"] == 0
                                 ):  # ---> add the signal too????? See ~ 20 lines below
-                                    # vy += rnp.hist2array(histoVar, copy=False)
-                                    vy += hist2array(histoVar, copy=False)
-                                    # print(sampleName, nuisanceName, rnp.hist2array(histoVar, copy=False))
+                                    vy += rnp_hist2array(histoVar, copy=True)
 
                     # create the group of histograms to plot
                     # this has to be done after the scaling of the previous lines
@@ -832,8 +813,7 @@ class PlotFactory:
                 #
                 if thsBackground.GetNhists() != 0:
                     last = thsBackground.GetStack().Last()
-                    # tgrMC_vy = rnp.hist2array(last, copy=True)
-                    tgrMC_vy = hist2array(last, copy=True)
+                    tgrMC_vy = rnp_hist2array(last, copy=True)
                     for iBin in range(
                         1, thsBackground.GetStack().Last().GetNbinsX() + 1
                     ):
@@ -845,8 +825,8 @@ class PlotFactory:
                         )
                     #              nuisances_err2_up = rnp.array(last.GetSumw2())[1:-1]
                     #              nuisances_err2_do = rnp.array(last.GetSumw2())[1:-1]
-                    nuisances_err2_up = np_array(last.GetSumw2())[1:-1]
-                    nuisances_err2_do = np_array(last.GetSumw2())[1:-1]
+                    nuisances_err2_up = rnp_array(last.GetSumw2())[1:-1]
+                    nuisances_err2_do = rnp_array(last.GetSumw2())[1:-1]
                     if self._removeMCStat:
                         nuisances_err2_up.fill(0)
                         nuisances_err2_do.fill(0)

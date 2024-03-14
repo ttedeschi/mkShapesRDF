@@ -26,7 +26,14 @@ class RunAnalysis:
         Returns
         -------
             `list of tuple`
-                each tuple will have a lenght of 5 (6 if subsamples are present), where the first element is the name of the sample, the second the list of files, the third the weight, and the fourth the index of this tuple compared to the other tuples of the same sample type, the fifth will be the isData flag (True if the sample is data, False otherwise). If subsamples are present, the sixth element will be the dict of subsamples
+                each tuple will have a lenght of 6 (7 if subsamples are present),
+                where the 1st element is the name of the sample, the 2nd the
+                list of files, the 3rd the weight, and the 4th the index of this
+                tuple compared to the other tuples of the same sample type,
+                the 5th will be the isData flag (True if the sample is data,
+                False otherwise) and the 6th the original dict in
+                samples[sampleName]. If subsamples are present,
+                the 7th element will be the dict of subsamples
         """
         # will contain all the different samples splitted based on their weights and max num. of files
         splittedSamples = []
@@ -66,7 +73,7 @@ class RunAnalysis:
                     dim = len(__files)
                 __files = [__files[j : j + dim] for j in range(0, len(__files), dim)]
                 for ___files in __files:
-                    # the weights for these files will be the product of the weight inside this sampele (i.e. samples[sampleName]['weight'])
+                    # the weights for these files will be the product of the weight inside this sample (i.e. samples[sampleName]['weight'])
                     # and the product of the special weights that is in common to all of those files (i.e. sampleType[0])
                     # the common special weight can be retrived from the first of the list of files with this weight
                     # remember that the tuple has always size 3 now, the last position is for the special weight
@@ -78,7 +85,14 @@ class RunAnalysis:
                         + " )"
                     )
                     isData = samples[sampleName].get("isData", False)
-                    sampleType = (sampleName, ___files, weight, i, isData)
+                    sampleType = (
+                        sampleName,
+                        ___files,
+                        weight,
+                        i,
+                        isData,
+                        deepcopy(samples[sampleName]),
+                    )
                     if "subsamples" in list(samples[sampleName].keys()):
                         sampleType += (samples[sampleName]["subsamples"],)
                     splittedSamples.append(sampleType)
@@ -833,25 +847,29 @@ class RunAnalysis:
         After this method the ``dfs`` attribute will be modified to contain the subsamples names instead of the original sample name
         """
         sampleNames = set(
-            list(map(lambda k: k[0], list(filter(lambda k: len(k) == 6, self.samples))))
+            list(map(lambda k: k[0], list(filter(lambda k: len(k) == 7, self.samples))))
         )
         for sampleName in sampleNames:
+            # select in the samples list only the one with this sampleName
             _sample = list(filter(lambda k: k[0] == sampleName, self.samples))[0]
-            for subsample in list(_sample[5].keys()):
-                self.dfs[sampleName + "_" + subsample] = {}
+            for subsample in list(_sample[6].keys()):
+                # _sample[5] is the original dict, i.e. samples[sampleName]
+                flatten_samples_map = _sample[5].get(
+                    "flatten_samples_map", lambda sname, sub: "%s_%s" % (sname, sub)
+                )
+                new_subsample_name = flatten_samples_map(sampleName, subsample)
+                self.dfs[new_subsample_name] = {}
                 for index in self.dfs[sampleName].keys():
-                    self.dfs[sampleName + "_" + subsample][index] = {
-                        "parent": sampleName
-                    }
-                    subsampleCut = _sample[5][subsample]
+                    self.dfs[new_subsample_name][index] = {"parent": sampleName}
+                    subsampleCut = _sample[6][subsample]
                     subsampleWeight = "1.0"
                     if isinstance(subsampleCut, tuple) or isinstance(
                         subsampleCut, list
                     ):
-                        subsampleCut = _sample[5][subsample][0]
-                        subsampleWeight = _sample[5][subsample][1]
+                        subsampleCut = _sample[6][subsample][0]
+                        subsampleWeight = _sample[6][subsample][1]
 
-                    self.dfs[sampleName + "_" + subsample][index]["df"] = (
+                    self.dfs[new_subsample_name][index]["df"] = (
                         self.dfs[sampleName][index]["df"]
                         .Filter(subsampleCut)
                         .Redefine("weight", "weight * " + subsampleWeight)
@@ -859,9 +877,9 @@ class RunAnalysis:
                     for key in self.dfs[sampleName][index]:
                         if key == "df":
                             continue
-                        self.dfs[sampleName + "_" + subsample][index][key] = self.dfs[
-                            sampleName
-                        ][index][key]
+                        self.dfs[new_subsample_name][index][key] = self.dfs[sampleName][
+                            index
+                        ][key]
 
             del self.dfs[sampleName]
 
