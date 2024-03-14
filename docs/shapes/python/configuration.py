@@ -8,7 +8,8 @@ It's the only necessary python configuration file, all the other files are impor
 #: tag used to identify the configuration folder version
 tag = "new_vbf_16"
 
-#: file to use as runner script, default uses mkShapesRDF.shapeAnalysis.runner, otherwise specify path to script
+#: file to use as runner script, default uses mkShapesRDF.shapeAnalysis.runner
+#: otherwise specify relative path to script
 runnerFile = "default"
 
 #: output file name

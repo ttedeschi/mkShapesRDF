@@ -26,6 +26,17 @@ samples.py
 
 ----
 
+variables.py
+----------
+
+.. automodule:: variables
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :private-members:
+
+----
+
 
 nuisances.py
 ----------
