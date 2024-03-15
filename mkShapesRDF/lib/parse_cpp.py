@@ -1,5 +1,6 @@
 class ParseCpp:
     r"""A utility class to parse C++ expression, replace variables and format back to a C++ expression."""
+
     #: delimeters is a list of strings that are used to split the expression.
     delimiters = [
         " ",

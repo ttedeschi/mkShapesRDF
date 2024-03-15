@@ -17,6 +17,7 @@ import os
 import glob
 import subprocess
 import ROOT
+from mkShapesRDF.shapeAnalysis.histo_utils import postProcessNuisances
 
 ROOT.gROOT.SetBatch(True)
 
@@ -203,10 +204,12 @@ def main():
     batchFolder = f"{folder}/{batchFolder}"
 
     Path(f"{folder}/{outputFolder}").mkdir(parents=True, exist_ok=True)
+    outputPath = os.path.abspath(f"{folder}/{outputFolder}")
+    outputFileMap = f"{outputPath}/{outputFile}"
 
-    if operationMode == 2 and os.path.exists(f"{folder}/{outputFolder}/{outputFile}"):
+    if operationMode == 2 and os.path.exists(outputFileMap):
         print("Can't merge files, output already exists")
-        print(f"You can run: rm {folder}/{outputFolder}/{outputFile}")
+        print(f"You can run: \nrm {outputFileMap}")
         sys.exit()
 
     limit = int(args.limitEvents)
@@ -223,7 +226,12 @@ def main():
 
     _results = {}
     sys.path.append(os.path.dirname(runnerPath))
-    from runner import RunAnalysis
+    runnerModule = __import__(runnerFile.strip(".py"))
+    if not hasattr(runnerModule, "RunAnalysis"):
+        raise AttributeError(
+            f"Runner module {runnerFile} from {runnerPath} has no attribute RunAnalysis"
+        )
+    RunAnalysis = runnerModule.RunAnalysis
 
     if operationMode == 0:
         print("#" * 20, "\n\n", "   Doing analysis", "\n\n", "#" * 20)
@@ -234,8 +242,6 @@ def main():
             _samples = RunAnalysis.splitSamples(samples)
 
             from mkShapesRDF.shapeAnalysis.BatchSubmission import BatchSubmission
-
-            outputPath = os.path.abspath(outputFolder)
 
             batch = BatchSubmission(
                 folder,
@@ -255,10 +261,7 @@ def main():
         else:
             print("#" * 20, "\n\n", " Running on local machine  ", "\n\n", "#" * 20)
 
-            outputFileMap = f"{folder}/{outputFolder}/{outputFile}"
-
             _samples = RunAnalysis.splitSamples(samples, False)
-            print(len(_samples))
 
             runner = RunAnalysis(
                 _samples,
@@ -271,6 +274,10 @@ def main():
                 outputFileMap,
             )
             runner.run()
+            cuts = cuts["cuts"]
+            postProcessNuisances(
+                outputFileMap, samples, aliases, variables, cuts, nuisances
+            )
 
     elif operationMode == 1:
         errs = glob.glob("{}/{}/*/err.txt".format(batchFolder, tag))
@@ -381,15 +388,25 @@ def main():
         print("\n\nMerging files\n\n")
         print("\n\n", filesToMerge, "\n\n")
 
-        print(f"Hadding files into {folder}/{outputFolder}/{outputFile}")
+        print(f"Hadding files into {outputFileMap}")
         for fileToMerge in filesToMerge:
             os.system(f"echo {fileToMerge} >> filesToMerge_{outputFile}.txt")
         process = subprocess.Popen(
-            f"hadd -j 10 {folder}/{outputFolder}/{outputFile} @filesToMerge_{outputFile}.txt; \
+            f"hadd2 -j 10 {outputFileMap} @filesToMerge_{outputFile}.txt; \
             rm filesToMerge_{outputFile}.txt",
             shell=True,
         )
-        process.wait()
+        process.communicate()
+
+        if process.returncode == 0:
+            print("Hadd was successful")
+            cuts = cuts["cuts"]
+            postProcessNuisances(
+                outputFileMap, samples, aliases, variables, cuts, nuisances
+            )
+        else:
+            print("mkShapesRDF: Hadd failed!", file=sys.stderr)
+            sys.exit(1)
 
     else:
         print("Operating mode was set to -1, nothing was done")

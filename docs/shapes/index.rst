@@ -11,4 +11,7 @@ shapeAnalaysis
 
    configuration
    runner
+   plotfactory
+   datacardfactory
    scripts/index
+   utils/index

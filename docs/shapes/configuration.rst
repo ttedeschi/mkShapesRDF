@@ -26,6 +26,29 @@ samples.py
 
 ----
 
+variables.py
+----------
+
+.. automodule:: variables
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :private-members:
+
+----
+
+
+nuisances.py
+----------
+
+.. automodule:: nuisances
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :private-members:
+
+----
+
 jdl_dict.py
 ----------
 

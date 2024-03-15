@@ -1,15 +1,31 @@
 def flatten_samples(samples):
-    # flatten the subsamples (create full samples named sample_subsample)
+    """
+    flatten the subsamples (create full samples named sample_subsample, or flatten_samples_map(sample, subsample))
+
+    Parameters
+    ----------
+    samples : dict
+        samples dictionary, will be modified in place
+
+    Returns
+    -------
+    list
+        subsamplesmap is returned e.g. ``[(sample, [sample_subsample1, sample_subsample2])]``
+    """
     subsamplesmap = []
     for sname in list(samples.keys()):
         sample = samples[sname]
         if "subsamples" not in sample:
             continue
+        flatten_samples_map = samples[sname].get(
+            "flatten_samples_map", lambda sname, sub: "%s_%s" % (sname, sub)
+        )
 
         subsamplesmap.append((sname, []))
         for sub in sample["subsamples"]:
-            samples["%s_%s" % (sname, sub)] = sample
-            subsamplesmap[-1][1].append("%s_%s" % (sname, sub))
+            new_subsample_name = flatten_samples_map(sname, sub)
+            samples[new_subsample_name] = sample
+            subsamplesmap[-1][1].append(new_subsample_name)
 
         sample.pop("subsamples")
         samples.pop(sname)
@@ -18,7 +34,19 @@ def flatten_samples(samples):
 
 
 def flatten_cuts(cuts):
-    # flatten the categories (create full cuts named cut_category)
+    """
+    flatten the categories (create full cuts named cut_category)
+
+    Parameters
+    ----------
+    cuts : dict
+        cuts dictionary, will be modified in place
+
+    Returns
+    -------
+    list
+        categoriesmap is returned e.g. ``[(cut, [cut_category1, cut_category2])]``
+    """
     categoriesmap = []
     for cname in list(cuts.keys()):
         cut = cuts[cname]
@@ -37,7 +65,17 @@ def flatten_cuts(cuts):
 
 
 def update_variables_with_categories(variables, categoriesmap):
-    # variables can have "cuts" specifications
+    """
+    Update variables dict with the flatten categories.
+    variables can have "cuts" specifications
+
+    Parameters
+    ----------
+    variables : dict
+        variables dictionary, will be modified in place
+    categoriesmap : list
+        categoriesmap as returned by flatten_cuts
+    """
     for variable in variables.items():
         if "cuts" not in variable:
             continue
@@ -60,6 +98,16 @@ def update_variables_with_categories(variables, categoriesmap):
 
 
 def update_nuisances_with_subsamples(nuisances, subsamplesmap):
+    """
+    Update nuisances dict with the flatten subsamples.
+
+    Parameters
+    ----------
+    nuisances : dict
+        nuisances dictionary, will be modified in place
+    subsamplesmap : list
+        subsamplesmap as returned by flatten_samples
+    """
     for nuisance in nuisances.items():
         if "samples" not in nuisance:
             continue
@@ -82,6 +130,16 @@ def update_nuisances_with_subsamples(nuisances, subsamplesmap):
 
 
 def update_nuisances_with_categories(nuisances, categoriesmap):
+    """
+    Update nuisances dict with the flatten categories.
+
+    Parameters
+    ----------
+    nuisances : dict
+        nuisances dictionary, will be modified in place
+    categoriesmap : list
+        categoriesmap as returned by flatten_samples
+    """
     for nuisance in nuisances.values():
         if "cuts" not in nuisance:
             continue

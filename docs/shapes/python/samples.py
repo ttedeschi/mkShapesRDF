@@ -68,12 +68,18 @@ Examples
 >>>     "weight": mcCommonWeight,
 >>>     "FilesPerJob": 1,
 >>> }
->>> 
+
+
 >>> 
 >>> ###### DY MC ######
+>>> # example of subsamples
 >>> dys = {
 >>>     "DY_hardJets": "hardJets",
 >>>     "DY_PUJets": "PUJets",
+>>>     "DY_inclusive_rwgt": ("true", "0.8"), 
+>>>     # passing as a value a tuple/list of len 2 one can 
+>>>     # assign a custom multiplicative weight to this subsample
+>>>     # aliases can be used inside subsampleCut or subsampleWeight
 >>> }
 >>> 
 >>> files = nanoGetSampleFiles(mcDirectory, "DYJetsToLL_M-50_ext2")
@@ -84,9 +90,14 @@ Examples
 >>>     + "*( !(Sum(PhotonGen_isPrompt==1 && PhotonGen_pt>15 && abs(PhotonGen_eta)<2.6) > 0)) * ewknloW",
 >>>     "FilesPerJob": 5,
 >>>     "subsamples": dys,
+>>>     "flatten_samples_map": lambda sname, sub: "%s" % (sub) 
+>>>     # in this way flatten sampled are simply "DY_hardJets", "DY_PUJets", 
+>>>     # and "DY_inclusive_rwgt"
+>>>     # default flatten_samples_map is lambda sname, sub: '%s_%s' % (sname, sub)
 >>> }
->>> 
->>> 
+
+
+
 >>> ###########################################
 >>> ################## DATA ###################
 >>> ###########################################

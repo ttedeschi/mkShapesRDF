@@ -3,10 +3,11 @@ import sys
 
 import ROOT
 
-import optparse
+import argparse
 import collections
 import os.path
 import shutil
+from textwrap import dedent
 
 
 ROOT.gROOT.SetBatch(True)
@@ -25,6 +26,8 @@ class DatacardFactory:
     def __init__(self):
         self._fileIn = None
         self._skipMissingNuisance = False
+        self.onlyVariables = None
+        self.onlyCuts = None
 
     # _____________________________________________________________________________
     # a datacard for each "cut" and each "variable" will be produced, in separate sub-folders, names after "cut/variable"
@@ -71,6 +74,9 @@ class DatacardFactory:
         isig = 0
         ibkg = 1
         for sampleName in samples:
+            if sampleName not in list(structureFile.keys()):
+                print("Sample", sampleName, "is not included in structure file")
+                continue
             if structureFile[sampleName]["isSignal"] != 0:
                 signal_ids[sampleName] = isig
                 isig -= 1
@@ -93,16 +99,18 @@ class DatacardFactory:
         print("Number of Backgrounds:         " + str(len(background_ids)))
 
         if not os.path.isdir(outputDirDatacard + "/"):
-            os.mkdir(outputDirDatacard + "/")
+            os.makedirs(outputDirDatacard + "/")
 
         # loop over cuts. One directory per cut will be created
         for cutName in cuts:
+            if self.onlyCuts and cutName not in self.onlyCuts:
+                continue
             print("cut = ", cutName)
             try:
                 shutil.rmtree(outputDirDatacard + "/" + cutName)
             except OSError:
                 pass
-            os.mkdir(outputDirDatacard + "/" + cutName)
+            os.makedirs(outputDirDatacard + "/" + cutName)
 
             #
             # prepare the signals and background list of samples
@@ -130,15 +138,21 @@ class DatacardFactory:
             for variableName, variable in variables.items():
                 if "cuts" in variable and cutName not in variable["cuts"]:
                     continue
+                if self.onlyVariables and variableName not in self.onlyVariables:
+                    continue
 
                 print("  variableName = ", variableName)
                 tagNameToAppearInDatacard = cutName
                 # e.g.    hww2l2v_13TeV_of0j
                 #         to be defined in cuts.py
 
-                os.mkdir(outputDirDatacard + "/" + cutName + "/" + variableName)
-                os.mkdir(
-                    outputDirDatacard + "/" + cutName + "/" + variableName + "/shapes/"
+                os.makedirs(
+                    outputDirDatacard + "/" + cutName + "/" + variableName,
+                    exist_ok=True,
+                )
+                os.makedirs(
+                    outputDirDatacard + "/" + cutName + "/" + variableName + "/shapes/",
+                    exist_ok=True,
                 )  # and the folder for the root files
 
                 self._outFile = ROOT.TFile.Open(
@@ -1045,7 +1059,9 @@ class DatacardFactory:
             #                 sys.exit()
             if suffix:
                 print("Getting the nominal instead of varied")
-                return self._getHisto(cutName, variableName, sampleName)
+                histo = self._getHisto(cutName, variableName, sampleName)
+                histo.SetName(shapeName)
+                return histo
 
         return histo
 
@@ -1075,77 +1091,69 @@ class list_maker:
             print("Malformed option (comma separated list expected):", value)
 
 
-def main():
+def defaultParser():
     sys.argv = argv
 
-    print(
-        """
---------------------------------------------------------------------------------------------------
-
-  __ \          |                                 |       \  |         |
-  |   |   _` |  __|   _` |   __|   _` |   __|  _` |      |\/ |   _` |  |  /   _ \   __|
-  |   |  (   |  |    (   |  (     (   |  |    (   |      |   |  (   |    <    __/  |
- ____/  \__,_| \__| \__,_| \___| \__,_| _|   \__,_|     _|  _| \__,_| _|\_\ \___| _|
-
---------------------------------------------------------------------------------------------------
-"""
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    usage = "usage: %prog [options]"
-    parser = optparse.OptionParser(usage)
-
-    parser.add_option(
-        "--tag", dest="tag", help="Tag used for the shape file name", default=None
-    )
-    parser.add_option(
-        "--sigset", dest="sigset", help="Signal samples [SM]", default="SM"
-    )
-    parser.add_option(
+    parser.add_argument(
         "--outputDirDatacard",
         dest="outputDirDatacard",
         help="output directory",
         default="./datacards",
     )
-    parser.add_option(
-        "--inputFile", dest="inputFile", help="input directory", default="./input.root"
-    )
-    parser.add_option(
-        "--structureFile",
-        dest="structureFile",
-        help="file with datacard configurations",
-        default=None,
-    )
-    parser.add_option(
-        "--nuisancesFile",
-        dest="nuisancesFile",
-        help="file with nuisances configurations",
-        default=None,
-    )
-    parser.add_option(
-        "--cardList",
-        dest="cardList",
-        help="List of cuts to produce datacards",
-        default=[],
-        type="string",
-        action="callback",
-        callback=list_maker("cardList", ","),
-    )
-    parser.add_option(
+    parser.add_argument(
         "--skipMissingNuisance",
         dest="skipMissingNuisance",
         help="Don't write nuisance lines when histograms are missing",
         default=False,
         action="store_true",
     )
+    parser.add_argument(
+        "--onlyVariables",
+        dest="onlyVariables",
+        help="Only make datacards for the provided variables, list of variables comma separated",
+        default="",
+    )
+    parser.add_argument(
+        "--onlyCuts",
+        dest="onlyCuts",
+        help="Only make datacards for the provided cuts, list of cuts comma separated",
+        default="",
+    )
+    return parser
 
-    # read default parsing options as well
-    #    hwwtools.addOptions(parser)
-    #    hwwtools.loadOptDefaults(parser)
-    (opt, args) = parser.parse_args()
 
-    # sys.argv.append( '-b' )
+def main():
+    header = """
+    --------------------------------------------------------------------------------------------------
 
-    # print(" configuration file = ", opt.pycfg)
+    __ \          |                                 |       \  |         |
+    |   |   _` |  __|   _` |   __|   _` |   __|  _` |      |\/ |   _` |  |  /   _ \   __|
+    |   |  (   |  |    (   |  (     (   |  |    (   |      |   |  (   |    <    __/  |
+    ____/  \__,_| \__| \__,_| \___| \__,_| _|   \__,_|     _|  _| \__,_| _|\_\ \___| _|
+
+    --------------------------------------------------------------------------------------------------
+    """
+    header = dedent(header)
+    print(header)
+    parser = defaultParser()
+    opt = parser.parse_args()
+
+    onlyVariables = opt.onlyVariables
+    if onlyVariables == "":
+        onlyVariables = None
+    else:
+        onlyVariables = [s.strip() for s in onlyVariables.split(",")]
+
+    onlyCuts = opt.onlyCuts
+    if onlyCuts == "":
+        onlyCuts = None
+    else:
+        onlyCuts = [s.strip() for s in onlyCuts.split(",")]
+
     global cuts, plot
     from mkShapesRDF.shapeAnalysis.ConfigLib import ConfigLib
 
@@ -1163,6 +1171,8 @@ def main():
     factory = DatacardFactory()
     factory._tag = tag
     factory._skipMissingNuisance = opt.skipMissingNuisance
+    factory.onlyCuts = onlyCuts
+    factory.onlyVariables = onlyVariables
 
     import mkShapesRDF.shapeAnalysis.latinos.LatinosUtils as utils
 
@@ -1172,24 +1182,6 @@ def main():
     utils.update_variables_with_categories(variables, categoriesmap)
     utils.update_nuisances_with_subsamples(nuisances, subsamplesmap)
     utils.update_nuisances_with_categories(nuisances, categoriesmap)
-
-    # command-line cuts restrictions
-    if len(opt.cardList) > 0:
-        try:
-            newCuts = []
-            for iCut in opt.cardList:
-                for iOptim in optim:
-                    newCuts.append(iCut + "_" + iOptim)
-            opt.cardList = newCuts
-            print(opt.cardList)
-        except:
-            print("No optim dictionary")
-        cut2del = []
-        for iCut in cuts:
-            if iCut not in opt.cardList:
-                cut2del.append(iCut)
-        for iCut in cut2del:
-            del cuts[iCut]
 
     factory.makeDatacards(
         inputFile, opt.outputDirDatacard, variables, cuts, samples, structure, nuisances

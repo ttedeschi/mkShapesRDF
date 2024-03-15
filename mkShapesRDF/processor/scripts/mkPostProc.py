@@ -282,9 +282,9 @@ def main():
 
                 lines = txt.split("\n")
                 line = list(filter(lambda k: k.startswith("queue"), lines))[0]
-                lines[
-                    lines.index(line)
-                ] = f'queue 1 Folder in {", ".join(toResubmit)}\n '
+                lines[lines.index(line)] = (
+                    f'queue 1 Folder in {", ".join(toResubmit)}\n '
+                )
                 with open(f"{folder}/submit.jdl", "w") as file:
                     file.write("\n".join(lines))
                 proc = subprocess.Popen(
