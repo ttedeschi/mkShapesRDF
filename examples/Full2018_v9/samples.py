@@ -23,12 +23,11 @@ samples = {}
 from mkShapesRDF.lib.search_files import SearchFiles
 s = SearchFiles()
 
-useXROOTD = False
 redirector = 'root://eoscms.cern.ch/'
+redirector = ''
 
 def nanoGetSampleFiles(path, name):
-    _files = s.searchFiles(path,  f"/nanoLatino_{name}__part*.root", useXROOTD, redirector=redirector)
-    #_files = glob.glob(path + f"/nanoLatino_{name}__part*.root")
+    _files = s.searchFiles(path,  name, redirector=redirector)
     if limitFiles != -1 and len(_files) > limitFiles:
         return [(name, _files[:limitFiles])]
     else:
