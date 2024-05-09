@@ -1,4 +1,4 @@
-import os, glob
+import os
 from mkShapesRDF.lib.search_files import SearchFiles
 
 mcProduction = "Summer20UL18_106x_nAODv9_Full2018v9"
@@ -14,6 +14,11 @@ treeBaseDir = "/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano"
 limitFiles = -1
 
 useXROOTD = False
+
+if useXROOTD:
+    redirector = "root://eoscms.cern.ch/"
+else:
+    redirector = ""
 
 print(treeBaseDir)
 
@@ -36,9 +41,6 @@ samples = {}
 
 
 s = SearchFiles()
-
-redirector = "root://eoscms.cern.ch/"
-redirector = ""
 
 
 def nanoGetSampleFiles(path, name):
