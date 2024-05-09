@@ -17,6 +17,7 @@ import os
 import glob
 import subprocess
 import ROOT
+from copy import deepcopy
 from mkShapesRDF.shapeAnalysis.histo_utils import postProcessNuisances
 
 ROOT.gROOT.SetBatch(True)
@@ -131,17 +132,15 @@ def main():
     doBatch = int(args.doBatch)
     dryRun = int(args.dryRun)
     queue = args.queue
+
     global folder
+    global batchFolder
+    global outputFolder
+
     folder = os.path.abspath(args.folder)
     configsFolder = os.path.abspath(args.folder + "/" + args.configsFolder)
     configFile = args.configFile
     resubmit = int(args.resubmit)
-
-    global jdlconfigfile
-    jdlconfigfile = ""  # give a default value since it might be not included in a configuration folder
-
-    global batchFolder
-    global outputFolder
 
     if compileFolder == 1:
         print(os.getcwd())
@@ -160,7 +159,6 @@ def main():
         ConfigLib.loadConfig(["configuration.py"], globals())
         ConfigLib.loadConfig(filesToExec, globals(), imports)
 
-        globals()["varsToKeep"].insert(0, "jdlconfigfile")
         globals()["varsToKeep"].insert(0, "folder")
 
         d = ConfigLib.createConfigDict(
@@ -196,6 +194,12 @@ def main():
         else:
             d = ConfigLib.loadLatestPickle(configsFolder, globals())
 
+    samples = globals()["samples"]
+    aliases = globals()["aliases"]
+    variables = globals()["variables"]
+    cuts = globals()["cuts"]
+    nuisances = globals()["nuisances"]
+    lumi = globals()["lumi"]
     print(samples.keys())
     print(d.keys())
 
@@ -215,8 +219,10 @@ def main():
     limit = int(args.limitEvents)
 
     # PROCESSING
+    runnerFile = globals()["runnerFile"]
     if runnerFile == "default":
         runnerPath = os.path.realpath(os.path.dirname(__file__)) + "/runner.py"
+        runnerFile = "runner.py"
     else:
         runnerPath = f"{folder}/{runnerFile}"
     print("\n\nRunner path: ", runnerPath, "\n\n")
@@ -225,7 +231,7 @@ def main():
         sys.exit()
 
     _results = {}
-    sys.path.append(os.path.dirname(runnerPath))
+    sys.path.insert(0, os.path.dirname(runnerPath))
     runnerModule = __import__(runnerFile.strip(".py"))
     if not hasattr(runnerModule, "RunAnalysis"):
         raise AttributeError(
@@ -253,7 +259,7 @@ def main():
                 _samples,
                 d,
                 batchVars,
-                jdlconfigfile,
+                globals().get("jdlconfigfile", ""),
             )
             batch.createBatches()
             batch.submit(dryRun, queue)
@@ -266,8 +272,8 @@ def main():
             runner = RunAnalysis(
                 _samples,
                 aliases,
-                variables,
-                cuts,
+                deepcopy(variables),
+                deepcopy(cuts),
                 nuisances,
                 lumi,
                 limit,
@@ -287,13 +293,54 @@ def main():
         filesD = list(map(lambda k: "/".join(k.split("/")[:-1]), files))
         # print(files)
         notFinished = list(set(filesD).difference(set(errsD)))
-        print(notFinished)
-        tabulated = []
-        tabulated.append(["Total jobs", "Finished jobs", "Running jobs"])
-        tabulated.append([len(files), len(errs), len(notFinished)])
+        sort_key = lambda k: (k.split("_")[0], int(k.split("_")[-1]))
+        notFinishedShort = sorted(
+            list(map(lambda k: k.split("/")[-1], notFinished)), key=sort_key
+        )
+        finishedShort = sorted(
+            list(map(lambda k: k.split("/")[-2], errs)), key=sort_key
+        )
+        allSamples = {}
+        for file in finishedShort:
+            sample = "_".join(file.split("_")[:-1])
+            if sample not in allSamples:
+                allSamples[sample] = {"done": 1, "running": 0}
+            else:
+                allSamples[sample]["done"] += 1
+        for file in notFinishedShort:
+            sample = "_".join(file.split("_")[:-1])
+            if sample not in allSamples:
+                allSamples[sample] = {"done": 0, "running": 1}
+            else:
+                allSamples[sample]["running"] += 1
+
+
         import tabulate
 
-        print(tabulate.tabulate(tabulated))
+        tabulated = [["Sample", "Total", "Finished", "Running"]]
+        for sample in allSamples:
+            tot = allSamples[sample]["done"] + allSamples[sample]["running"]
+            tabulated.append(
+                [
+                    sample,
+                    str(tot),
+                    "\033[92m " + str(allSamples[sample]["done"]) + "\033[00m",
+                    "\033[93m " + str(allSamples[sample]["running"]) + "\033[00m",
+                ]
+            )
+        print(tabulate.tabulate(tabulated, headers="firstrow", tablefmt="fancy_grid"))
+
+        tabulated = []
+        tabulated.append(["Total jobs", "Finished jobs", "Running jobs"])
+        tabulated.append(
+            [
+                len(files),
+                "\033[92m " + str(len(errs)) + "\033[00m",
+                "\033[93m " + str(len(notFinished)) + "\033[00m",
+            ]
+        )
+
+        print(tabulate.tabulate(tabulated, headers="firstrow", tablefmt="fancy_grid"))
         # print('queue 1 Folder in ' + ' '.join(list(map(lambda k: k.split('/')[-1], notFinished))))
         normalErrs = """Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
         Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available

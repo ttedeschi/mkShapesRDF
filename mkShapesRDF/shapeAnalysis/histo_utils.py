@@ -1,5 +1,6 @@
 import ROOT
 import numpy as np
+import sys
 from mkShapesRDF.shapeAnalysis.rnp import rnp_hist2array, rnp_array, rnp_array2hist
 
 ROOT.TH1.SetDefaultSumw2(True)
@@ -27,13 +28,7 @@ def fold(h, ifrom, ito):
         shape = (h.GetNbinsX() + 2, h.GetNbinsY() + 2)
     elif isinstance(h, ROOT.TH1):
         shape = (h.GetNbinsX() + 2,)
-    if array.shape != shape:
-        slices = []
-        for axis, bins in enumerate(shape):
-            if array.shape[axis] == bins - 2:
-                slices.append(slice(1, -1))
-            elif array.shape[axis] == bins:
-                slices.append(slice(None))
+    sumw2 = sumw2.reshape(shape)
 
     if h.GetDimension() == 1:
         cont[ito] += cont[ifrom]
@@ -254,7 +249,6 @@ def postProcessNuisances(filename, samples, aliases, variables, cuts, nuisances)
         for cut in _cuts:
             for variable in variables.keys():
                 f.cd(f"/{cut}/{variable}")
-                print("work in ", cut, variable)
                 histos = [k.GetName() for k in ROOT.gDirectory.GetListOfKeys()]
                 for sampleName in _samples:
                     limitSamples = nuisances[nuisance].get("samples", {})
@@ -327,16 +321,14 @@ def postProcessNuisances(filename, samples, aliases, variables, cuts, nuisances)
                         # arrdo = np.where(~up_is_up, vnominal - arrv, vnominal + arrv)
                     else:
                         continue
-                    print(arrup)
-                    print(arrdo)
                     for i in range(len(arrup)):  # includes under/over flow
                         h_up.SetBinContent(i, arrup[i])
                         h_do.SetBinContent(i, arrdo[i])
-                    print(hName)
                     h_up.SetName(hName + "Up")
                     h_up.Write()
                     h_do.SetName(hName + "Down")
                     h_do.Write()
-                    for histo in histosNameToProcess:
-                        ROOT.gDirectory.Delete(f"{histo};*")
+                    # Not removing because it's slow and because one might change approach for the pdfs envelope
+                    # for histo in histosNameToProcess:
+                    #     ROOT.gDirectory.Delete(f"{histo};*")
     f.Close()
