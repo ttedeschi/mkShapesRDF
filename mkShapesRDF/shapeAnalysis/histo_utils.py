@@ -328,6 +328,7 @@ def postProcessNuisances(filename, samples, aliases, variables, cuts, nuisances)
                     h_up.Write()
                     h_do.SetName(hName + "Down")
                     h_do.Write()
-                    for histo in histosNameToProcess:
-                        ROOT.gDirectory.Delete(f"{histo};*")
+                    # Not removing because it's slow and because one might change approach for the pdfs envelope
+                    # for histo in histosNameToProcess:
+                    #     ROOT.gDirectory.Delete(f"{histo};*")
     f.Close()

@@ -6,18 +6,6 @@ dataSteps = "DATAl1loose2018v9__l2loose__l2tightOR2018v9"
 
 # limitFiles = -1
 
-print(treeBaseDir)
-
-
-def makeMCDirectory(var=""):
-    _treeBaseDir = treeBaseDir + ""
-    if useXROOTD:
-        _treeBaseDir = redirector + treeBaseDir
-    if var == "":
-        return "/".join([_treeBaseDir, mcProduction, mcSteps])
-    else:
-        return "/".join([_treeBaseDir, mcProduction, mcSteps + "__" + var])
-
 
 # merge cuts
 _mergedCuts = []
