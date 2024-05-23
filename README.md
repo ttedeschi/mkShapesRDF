@@ -3,6 +3,6 @@
 [![tests](https://github.com/giorgiopizz/mkShapesRDF/actions/workflows/ci_lint_format_test.yml/badge.svg)](https://github.com/giorgiopizz/mkShapesRDF/actions/workflows/ci_lint_format_test.yml)
 
 
-Please refer to the [documentation](https://mkshapesrdf.readthedocs.io/en/latest/) for installation and a quick start guide.
+Please refer to the [documentation](https://mkshapesrdf.readthedocs.io/en/shapes-dev-fix/index.html) for installation and a quick start guide.
 
 Latest presentation at Latinos meeting [here](https://indico.cern.ch/event/1233729/contributions/5380538/attachments/2636898/4562210/mkShapesRDF%2026_04.pdf)
