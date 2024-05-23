@@ -655,7 +655,7 @@ class PlotFactory:
                                     values = nuisance["value"]
 
                                 if "/" in values:
-                                    variations = map(float, values.split("/"))
+                                    variations = (float(values.split("/")[0]),float(values.split("/")[1])) # variations = map(float, values.split("/"))
                                 else:
                                     variations = (float(values), 2.0 - float(values))
 
