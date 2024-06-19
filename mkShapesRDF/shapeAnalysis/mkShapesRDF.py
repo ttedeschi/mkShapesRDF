@@ -207,9 +207,14 @@ def main():
 
     batchFolder = f"{folder}/{batchFolder}"
 
-    Path(f"{folder}/{outputFolder}").mkdir(parents=True, exist_ok=True)
-    outputPath = os.path.abspath(f"{folder}/{outputFolder}")
-    outputFileMap = f"{outputPath}/{outputFile}"
+    if "/eos/user" in outputFolder:
+        Path(f"{outputFolder}").mkdir(parents=True, exist_ok=True)
+        outputPath = os.path.abspath(f"/{outputFolder}")
+        outputFileMap = f"{outputPath}/{outputFile}"
+    else: 
+        Path(f"{folder}/{outputFolder}").mkdir(parents=True, exist_ok=True)
+        outputPath = os.path.abspath(f"{folder}/{outputFolder}")
+        outputFileMap = f"{outputPath}/{outputFile}"
 
     if operationMode == 2 and os.path.exists(outputFileMap):
         print("Can't merge files, output already exists")
