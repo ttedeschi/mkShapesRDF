@@ -38,7 +38,7 @@ class FatJetSel(Module):
         return deltaR
 
     def CheckCuts():
-        # ***** not defined in LeptonMaker, to drop at the end ***** #
+        # ***** not defined in LeptonMaker, deleted at the end ***** #
         cut_variables = ["tau1", "tau2"]
         columns = df.GetColumnNames()
         for i in cut_variables:
