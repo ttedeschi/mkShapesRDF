@@ -108,8 +108,18 @@ class LeptonMaker(Module):
             ]
         )
 
+
+        # FAT JETS 
+        df = df.Define("isCleanFatJet", "ROOT::RVecB(FatJet_pt.size()),true)")
+        df = df.Define("CleanFatJet_pt", "FatJet_pt[isCleanFatJet]")
+        df = df.Define("CleanFatJet_sorting", "sortedIndices(CleanFatJet_pt)")
+        FatJet_vars = ["jetId", "eta", "phi", "mass", "msoftdrop"]
+        for var in FatJet__vars:
+            df = df.Define(f"CleanFatJet_{var}", f"FatJet_{var}[isCleanFatJet]")
+            df = df.Redefine(f"CleanFatJet_{var}", f"Take(CleanFatJet_{var}, CleanFatJet_sorting)")
+        
+
         df = df.DropColumns("Lepton_sorting")
         df = df.DropColumns("isCleanJet")
-        df = df.DropColumns("CleanJet_sorting")
 
         return df
