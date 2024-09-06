@@ -37,8 +37,9 @@ class FatJetSel(Module):
         deltaR = sqrt((deta*deta) + (dphi*dphi))
         return deltaR
 
-    def CheckCuts():
+    def CheckCuts(self, df):
         # ***** not defined in LeptonMaker, deleted at the end ***** #
+        columnsToDrop = []
         cut_variables = ["tau1", "tau2"]
         columns = df.GetColumnNames()
         for i in cut_variables:
@@ -51,13 +52,14 @@ class FatJetSel(Module):
         columnsToDrop.append(f"CleanFatJet_tau21")
         # ********************************************************** #
  
-        return  f"CleanFatJet_pt >= {self.min_pt} && CleanFatJet_pt <= {self.max_pt} && " +
-                f"abs(CleanFatJet_eta) <= {self.max_eta}) && " + 
-                f"(CleanFatJet_tau21 <= {self.max_tau21} && CleanFatJet_tau1 > 0) && " +
-                f"CleanFatJet_msoftdrop >= {self.mass_range[0]} && CleanFatJet_msoftdrop <= {self.mass_range[1]} && " +
-                f"CleanFatJet_Id > {self.jetid} && " + 
-                f"CheckDeltaR({self.getDeltaR(CleanFatJet_phi, Lepton_phi, CleanFatJet_eta, Lepton_eta)}, {self.DeltaRlep}) && " +
-                f"CheckDeltaR({self.getDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta)},{self.DeltaRjet})"
+        goodFatJet = f"CleanFatJet_pt >= {self.min_pt} && CleanFatJet_pt <= {self.max_pt} && " +
+                     f"abs(CleanFatJet_eta) <= {self.max_eta}) && " + 
+                     f"(CleanFatJet_tau21 <= {self.max_tau21} && CleanFatJet_tau1 > 0) && " +
+                     f"CleanFatJet_msoftdrop >= {self.mass_range[0]} && CleanFatJet_msoftdrop <= {self.mass_range[1]} && " +
+                     f"CleanFatJet_Id > {self.jetid} && " + 
+                     f"CheckDeltaR({self.getDeltaR(CleanFatJet_phi, Lepton_phi, CleanFatJet_eta, Lepton_eta)}, {self.DeltaRlep}) && " +
+                     f"CheckDeltaR({self.getDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta)},{self.DeltaRjet})"
+        return goodFatJet, columnsToDrop
 
     def runModule(self, df, values):
         columnsToDrop = []
@@ -70,11 +72,11 @@ class FatJetSel(Module):
         ROOT.gInterpreter.Declare(CheckDeltaR)
 
         # apply mask 
-        cut_FatJets = self.CheckCuts()
+        cut_FatJets, columnsToDrop  = self.CheckCuts(df)
         df = df.Define("CleanFatJetMask", cut_FatJets)  
 
     # CleanJet not fat, CleanJet-CleanFatJet distance 
-        df = df.Define("isCleanJetNotFat", f"! CheckDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta, {self.DeltaRjet})")
+        df = df.Define("isCleanJetNotFat", f"! CheckDeltaR({self.getDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta)}, {self.DeltaRjet})")
         df = df.Define("CleanJetNotFat_idx", "CleanJet_jetIdx[isCleanJetNotFat]")
         df = df.Define("CleanJetNotFat_deltaR", f"{self.getDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta)}[isCleanJetNotFat]")
 
