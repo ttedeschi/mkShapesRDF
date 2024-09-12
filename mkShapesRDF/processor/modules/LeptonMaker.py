@@ -17,7 +17,6 @@ class LeptonMaker(Module):
             }
         """
         )
-
         # df = df.Filter("(nElectron + nMuon) >= 1")
 
         df = df.Define("Lepton_pt", "ROOT::VecOps::Concatenate(Electron_pt, Muon_pt)")
@@ -76,12 +75,9 @@ class LeptonMaker(Module):
             [df.Define("test", "Lepton_pt.size()").Sum("test"), "lepton pt size"]
         )
 
-        # df = df.Define("isCleanJet", " Jet_pt > 9 && ROOT::VecOps::abs(Jet_eta) < 4.7 ")
+        # JET   
         df = df.Define("isCleanJet", "ROOT::RVecB(Jet_pt.size(), true)")
-
         df = df.Define("CleanJet_pt", "Jet_pt[isCleanJet]")
-
-        # check just to be sure the sorting
         df = df.Define("CleanJet_sorting", "sortedIndices(CleanJet_pt)")
 
         df = df.Define("CleanJet_jetIdx", "ROOT::VecOps::Range(nJet)[isCleanJet]")
@@ -107,19 +103,45 @@ class LeptonMaker(Module):
                 "Size of CleanJet pt",
             ]
         )
+        df = df.DropColumns("Lepton_sorting")
+        df = df.DropColumns("isCleanJet")
+        df = df.DropColumns("CleanJet_sorting")
 
 
         # FAT JETS 
-        df = df.Define("isCleanFatJet", "ROOT::RVecB(FatJet_pt.size()),true)")
+        df = df.Define("isCleanFatJet", "ROOT::RVecB(FatJet_pt.size(), true)")
         df = df.Define("CleanFatJet_pt", "FatJet_pt[isCleanFatJet]")
         df = df.Define("CleanFatJet_sorting", "sortedIndices(CleanFatJet_pt)")
-        FatJet_vars = ["jetId", "eta", "phi", "mass", "msoftdrop"]
-        for var in FatJet__vars:
-            df = df.Define(f"CleanFatJet_{var}", f"FatJet_{var}[isCleanFatJet]")
-            df = df.Redefine(f"CleanFatJet_{var}", f"Take(CleanFatJet_{var}, CleanFatJet_sorting)")
-        
 
+        df = df.Define("CleanFatJet_jetIdx", "ROOT::VecOps::Range(nFatJet)[isCleanFatJet]")
+        df = df.Redefine("CleanFatJet_jetIdx", "Take(CleanFatJet_jetIdx, CleanFatJet_sorting)")
+        FatJet_vars = ["eta", "phi", "mass"]
+        for var in FatJet_vars:
+            df = df.Define(f"CleanFatJet_{var}", f"FatJet_{var}[isCleanFatJet]")
+            df = df.Redefine(
+                f"CleanFatJet_{var}", f"Take(CleanFatJet_{var}, CleanFatJet_sorting)"
+            )
+        
+        
+        values.append([df.Define("test", "Sum(FatJet_pt)").Sum("test"), "Sum of FatJet pt"])
+        values.append(
+            [df.Define("test", "FatJet_pt.size()").Sum("test"), "Size of FatJet pt"]
+        )
+
+        values.append(
+            [df.Define("test", "Sum(CleanFatJet_pt)").Sum("test"), "Sum of CleanFatJet pt"]
+        )
+        values.append(
+            [
+                df.Define("test", "CleanFatJet_pt.size()").Sum("test"),
+                "Size of CleanFatJet pt",
+            ]
+        )
+        
         df = df.DropColumns("Lepton_sorting")
         df = df.DropColumns("isCleanJet")
+        df = df.DropColumns("CleanJet_sorting")
 
         return df
+
+

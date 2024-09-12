@@ -18,7 +18,26 @@ variables['ptj2'] = {
         'xaxis': 'p_{T} 2nd jet',
         'fold' :3
 }
+variables['NewFatJet_n'] = {
+    'name': 'Sum(CleanFatJet_pt>30)',
+    'range': (10,0,10),
+    'xaxis': 'number of FatJet p_{T}>30',
+    'fold' : 1,
+}
 
+variables["NewFatJet_pt2"] = {
+    'name' : 'CleanFatJet_pt[1]',
+    'range':(50,0,300),
+    'xaxis': 'Second FatJet_pt [GeV]',
+    'fold' : 1,
+}
+variables["NewFatJet_eta1"] = {
+    'name' : 'CleanFatJet_eta[0]',
+    'range': (50,0,2.5),
+    'xaxis': '1st FatJet |eta|',    
+    'fold' : 1,
+}
+'''
 variables['mjj']      = {   'name': 'mjj',            #   variable name    
                             'range' : (20, 200, 3000),    #   variable range
                             'xaxis' : 'm_{jj} [GeV]',  #   x axis name
@@ -122,4 +141,4 @@ variables['dphijj']  = {  'name': 'dphijj',
                         'xaxis' : '#Delta#phi_{jj}',
                         'fold'  : 3
                         }
-
+'''

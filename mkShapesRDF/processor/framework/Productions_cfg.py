@@ -72,4 +72,49 @@ Productions = {
         "xsFile": "../framework/samples/samplesCrossSections_UL.py",
         "YRver": ["YR4", "13TeV"],
     },
+   # -------- 2022 MC Prompt
+    "Summer22EE_126x_nAODv11_Full2022v11": {
+        "isData": False,
+        "samples": "../framework/samples/Summer22EE_126x_nAODv11.py",
+        "cmssw": "Full2022v11",
+        "year": "2022",
+        "xsFile": "../framework/samples/samplesCrossSections_13p6TeV.py",
+        "YRver": ["YR4", "13p6TeV"],
+    },
+    # ------- 2022 MC Summer22 v12 
+    "Summer22_130x_nAODv12_Full2022v12": {
+        "isData": False,
+        "samples": "../framework/samples/Summer22_130x_nAODv12.py",
+        "cmssw": "Full2022v12",
+        "year": "2022",
+        "xsFile": "../framework/samples/samplesCrossSections_13p6TeV.py",
+        "YRver": ["YR4", "13p6TeV"],
+    },
+    # ------- 2022 MC Sumer22EE v12
+    "Summer22EE_130x_nAODv12_Full2022v12": {
+        "isData": False,
+        "samples": "../framework/samples/Summer22EE_130x_nAODv12.py",
+        "cmssw": "Full2022v12",
+        "year": "2022",
+        "xsFile": "../framework/samples/samplesCrossSections_13p6TeV.py",
+        "YRver": ["YR4", "13p6TeV"],
+    },
+    # ------- 2023 MC Summer23 v12
+    "Summer23_130x_nAODv12_Full2023v12": {
+        "isData": False,
+        "samples": "../framework/samples/Summer23_130x_nAODv12.py",
+        "cmssw": "Full2023v12",
+        "year": "2023",
+        "xsFile": "../framework/samples/samplesCrossSections_13p6TeV.py",
+        "YRver": ["YR4", "13p6TeV"],
+    },
+    # ------- 2023 MC Summer23BPix v12
+    "Summer23BPix_130x_nAODv12_Full2023BPixv12": {
+        "isData": False,
+        "samples": "../framework/samples/Summer23BPix_130x_nAODv12.py",
+        "cmssw": "Full2023BPixv12",
+        "year": "2023",
+        "xsFile": "../framework/samples/samplesCrossSections_13p6TeV.py",
+        "YRver": ["YR4", "13p6TeV"],
+    },
 }
