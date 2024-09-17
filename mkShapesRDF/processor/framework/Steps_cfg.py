@@ -5,7 +5,7 @@ Steps = {
         "do4Data": True,
         "selection": '"((nElectron+nMuon)>0)"',
         "subTargets": [
-            "lumiMask",
+            #"lumiMask",
             "leptonMaker",
             "fatjetSel",
             #"lepSel",
@@ -17,7 +17,7 @@ Steps = {
             # "l4Kin",
             # "trigData",
             # "formulasDATA",
-            "finalSnapshot_DATA",
+            "finalSnapshot_MC",
         ],
     },
     "Run2018_UL2018" : { 
@@ -158,8 +158,8 @@ Steps = {
         "do4MC":True,
         "do4Data":True,
         "import": "mkShapesRDF.processor.modules.FatJetSel",
-        "declare": "FatJetSel = lambda : FatJetSel()",
-        "module" : "FatJetSel()",    
+        "declare": "fatJetSel = lambda : FatJetSel()",
+        "module" : "fatJetSel()",    
     },
     "PromptParticlesGenVars": {
         "isChain": False,

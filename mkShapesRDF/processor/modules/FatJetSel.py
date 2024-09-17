@@ -1,94 +1,141 @@
 import ROOT
 from mkShapesRDF.processor.framework.module import Module
+#from mkShapesRDF.processor.modules.LeptonMaker import LeptonMaker 
 
-# module to clean fatjets
-# clean fatjets with kinamatic cuts: min_pt, max_eta, max_tau21, mass_range of reconstructed Jet
-# check overlapping with leptons 
-# check if FatJets overlaps with Jet, radius distance must be set. 
 
-#
-# passing elements of a dictionary ???
-# to move on a configuration file in ../processor/data/
+# Dictionary for FatJet cuts  
 FatJetFilter_dict = {
-   'default' : { 'pt_min': 0 , 'pt_max' : 5000, 'max_eta' : 2.4, 'max_tau21': 0.45, 'mass_range' : [0 , 10000],
+   'default' : { 'pt_min': 0 , 'pt_max' : 5000, 'max_eta' : 2.4, 'max_tau21': 1000, 'mass_range' : [0 , 10000],
                'DeltaRlep' : 0.4, 'DeltaRjet' : 0.4, 'jet_id' : 0},
 }
 
-# da aggiungere in lepton maker : tau21
 class FatJetSel(Module):
-    def __init__(self, dict="FatJetFilter_dict", Era = "default"):
+
+    def __init__(self, Mask=True, dict=FatJetFilter_dict, Era = "default"):
         super().__init__("FatJetSel")   
         cuts = dict[Era]
         self.max_pt = cuts['pt_max']
         self.min_pt = cuts['pt_min']
         self.max_eta = cuts['max_eta']
-        self.max_tau21 = cuts['max_tau21'] # ratio between tau1 and tau2 for N subjettiness algorithm 
+        self.max_tau21 = cuts['max_tau21']
         self.mass_range = cuts['mass_range']
         self.DeltaRjet = cuts['DeltaRjet']
         self.DeltaRlep = cuts['DeltaRlep']
         self.jet_id = cuts['jet_id']
+        #self.lepMake = LeptonMaker(10)
 
-    
-    def getDeltaR(self, phi1, phi2, eta1, eta2):
-        dphi = phi1 - phi2
-        if dphi > ROOT.TMath.Pi(): dphi -= 2*ROOT.TMath.Pi()
-        if dphi < -ROOT.TMath.Pi(): dphi += 2*ROOT.TMath.Pi()
-        deta = eta1 - eta2
-        deltaR = ROOT.TMath.Sqrt((deta*deta) + (dphi*dphi))
-        return deltaR
 
-    def CheckCuts(self, df):
-        # ***** not defined in LeptonMaker, deleted at the end ***** #
-        columnsToDrop = []
-        cut_variables = ["tau1", "tau2"]
-        columns = df.GetColumnNames()
-        for i in cut_variables:
-            if f"CleanFatJet_{i}" not in columns:
-                columnsToDrop.append(f"CleanFatJet_{i}")
-                df = df.Define(f"CleanFatJet_{i}", f"Take(FatJet_{i}[isCleanFatJet], CleanFatJet_sorting)")
-        df = df.Define(f"CleanFatJet_tau21", "CleanFatJet_tau1/CleanFatJet_tau2")
-        df = df.Redefine("CleanFatJet_tau21", "Take(CleanFatJet_tau21, CleanFatJet_sorting)")
-        columnsToDrop.append(f"CleanFatJet_tau21")
-        # ********************************************************** #
- 
-        goodFatJet = ( f"CleanFatJet_pt >= {self.min_pt} && CleanFatJet_pt <= {self.max_pt} && " +
+
+    def CheckCuts(self, df): 
+        goodFatJet =( f"CleanFatJet_pt >= {self.min_pt} && CleanFatJet_pt <= {self.max_pt} && " +
                      f"abs(CleanFatJet_eta) <= {self.max_eta} && " + 
                      f"(CleanFatJet_tau21 <= {self.max_tau21} && CleanFatJet_tau1 > 0) && " +
                      f"CleanFatJet_msoftdrop >= {self.mass_range[0]} && CleanFatJet_msoftdrop <= {self.mass_range[1]} && " +
-                     f"CleanFatJet_Id > {self.jet_id} && " + 
-                     f"CheckDeltaR({self.getDeltaR(CleanFatJet_phi, Lepton_phi, CleanFatJet_eta, Lepton_eta)}, {self.DeltaRlep}) && " +
-                     f"CheckDeltaR({self.getDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta)},{self.DeltaRjet})"
+                     f"CleanFatJet_jetId > {self.jet_id} && " +
+                     f"CheckDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta, {self.DeltaRjet})"
                     )
-        print(f"goodFatJet:{goodFatJet}")
-        return goodFatJet, columnsToDrop
+        return goodFatJet
 
+
+    # *********************************************************** #
+    # ********************* RUN MODULE ************************** #
+    # *********************************************************** #
     def runModule(self, df, values):
         columnsToDrop = []
 
-        CheckDeltaR = ("""
-         bool CheckDeltaR(double deltaR, double DeltaRcuts) {
-            return deltaR < DeltaRcuts;
+        # // Define CLeanJet, CleanFatJet, Lepton columns
+        # df = self.lepMake.runModule(df, values)
+        '''
+        # //////////////////////////////////////// #
+        # // CleanJets Columns Definitions   
+        df = df.Define("isCleanJet", "ROOT::RVecB(Jet_pt.size(), true)")
+        df = df.Define("CleanJet_pt", "Jet_pt[isCleanJet]")
+        df = df.Define("CleanJet_sorting", "sortedIndices(CleanJet_pt)")
+
+        df = df.Define("CleanJet_jetIdx", "ROOT::VecOps::Range(nJet)[isCleanJet]")
+        df = df.Redefine("CleanJet_jetIdx", "Take(CleanJet_jetIdx, CleanJet_sorting)")
+
+        CleanJet_var = ["eta", "phi", "mass"]
+        for prop in CleanJet_var:
+            df = df.Define(f"CleanJet_{prop}", f"Jet_{prop}[isCleanJet]")
+            df = df.Redefine(
+                f"CleanJet_{prop}", f"Take(CleanJet_{prop}, CleanJet_sorting)"
+            )
+
+        columnsToDrop.append("isCleanJet")
+        columnsToDrop.append("CleanJet_sorting")  
+        # //////////////////////////////////////// #
+ 
+
+        # //////////////////////////////////////// #
+        # // CleanFatJets Columns Definitions   
+        df = df.Define("isCleanFatJet", "ROOT::RVecB(FatJet_pt.size(), true)")
+        df = df.Define("CleanFatJet_pt", "FatJet_pt[isCleanFatJet]")
+        df = df.Define("CleanFatJet_sorting", "sortedIndices(CleanFatJet_pt)")
+
+        df = df.Define("CleanFatJet_jetIdx", "ROOT::VecOps::Range(nFatJet)[isCleanFatJet]")
+        df = df.Redefine("CleanFatJet_jetIdx", "Take(CleanFatJet_jetIdx, CleanFatJet_sorting)")
+        FatJet_vars = ["eta", "phi", "mass", "jetId", "msoftdrop", "tau1", "tau2"]
+        for var in FatJet_vars:
+            df = df.Define(f"CleanFatJet_{var}", f"FatJet_{var}[isCleanFatJet]")
+            df = df.Redefine(
+                f"CleanFatJet_{var}", f"Take(CleanFatJet_{var}, CleanFatJet_sorting)"
+            )
+        df = df.Define("CleanFatJet_tau21", "CleanFatJet_tau1/CleanFatJet_tau2")
+        df = df.Redefine("CleanFatJet_tau21", f"Take(CleanFatJet_tau21, CleanFatJet_sorting)")
+
+        columnsToDrop.append("isCleanFatJet")
+        columnsToDrop.append("CleanFatJet_sorting")
+        columnsToDrop.append("CleanFatJet_tau21")
+        # //////////////////////////////////////// #
+
+        '''
+        # //////////////////////////////////////// #
+        # // apply cuts 
+        CheckDeltaR = (""" 
+         ROOT::RVec<Bool_t> CheckDeltaR(ROOT::RVec<double> phi1, ROOT::RVec<double> phi2, ROOT::RVec<double> eta1, ROOT::RVec<double> eta2, double DeltaRcuts) {
+         ROOT::RVec<double> deltaR_values;
+         for (size_t i = 0; i <  phi1.size() ; ++i) {
+            double dphi = phi1[i] - phi2[i];
+            if (dphi > ROOT::Math::Pi()) dphi -= 2 * ROOT::Math::Pi();
+            if (dphi < -ROOT::Math::Pi()) dphi += 2 * ROOT::Math::Pi();
+            double deta = eta1[i] - eta2[i];
+            double deltaR = sqrt(deta*deta + dphi*dphi);
+            deltaR_values.push_back(deltaR < DeltaRcuts);
          }
+        return deltaR_values;
+        }
         """)
-        ROOT.gInterpreter.Declare(CheckDeltaR)
+        ROOT.gInterpreter.Declare(CheckDeltaR)   
+        
 
-        # apply mask 
-        cut_FatJets, columnsToDrop  = self.CheckCuts(df)
+        cut_FatJets  = self.CheckCuts(df)
         df = df.Define("CleanFatJetMask", cut_FatJets)  
+        # //////////////////////////////////////// #
 
-    # CleanJet not fat, CleanJet-CleanFatJet distance 
-        df = df.Define("isCleanJetNotFat", f"! CheckDeltaR({self.getDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta)}, {self.DeltaRjet})")
-        df = df.Define("CleanJetNotFat_idx", "CleanJet_jetIdx[isCleanJetNotFat]")
-        df = df.Define("CleanJetNotFat_deltaR", f"{self.getDeltaR(CleanFatJet_phi, CleanJet_phi, CleanFatJet_eta, CleanJet_eta)}[isCleanJetNotFat]")
+        # store jets that are not fatjets
+        df = df.Define("isCleanJetNotFat", f" ! CheckDeltaR(CleanJet_phi, CleanFatJet_phi, CleanJet_eta, CleanFatJet_eta, {self.DeltaRjet})")
+       # df = df.Define("CleanJetNotFat_Idx", "CleanJet_jetIdx[isCleanJetNotFat]")
+        df = df.Define("isLeptonNotFat", f" ! CheckDeltaR(Lepton_phi, CleanFatJet_phi, Lepton_eta, CleanFatJet_eta, {self.DeltaRjlep})")
+        df = df.Define("MuonNotFat_Idx", "Lepton_electronIdx[isLeptonNotFat]")
+        df = df.Define("ElectronNotFat_Idx", "Lepton_muonIdx[isLeptonNotFat]")
+    
 
-        CleanFatJet_variables = ["jetId", "pt", "eta", "mass", "msoftdrop"]
+
+        # apply mask
+        CleanFatJet_variables = ["jetId",  "pt", "eta", "mass", "phi" , "msoftdrop", "tau1", "tau2", "tau21"]
         for var in CleanFatJet_variables:
             df = df.Redefine(
                 f"CleanFatJet_{var}", f"CleanFatJet_{var}[CleanFatJetMask]"
             )
 
+    
+        # remove columns
+        ''' 
+        columnsToDrop.extend(DroppedColumns)
         for col in columnsToDrop:
             df = df.DropColumns(col)
-
-
+        '''
         return df
+    # ********************* END RUN MODULE *********************** #
+    # ************************************************************ #
