@@ -18,11 +18,11 @@ class FatJMECalculator(Module):
         jet_object,
         jsonFileSubjet,
         JEC_era_subjet,
-        JER_era_subjet,
+        subjet_object,
         do_JER=True,
-        do_Unclustered=True,
         store_nominal=True,
         store_variations=True,
+        addHEM2018Issue = False
     ):
         """
         JMECalculator module
@@ -50,15 +50,15 @@ class FatJMECalculator(Module):
         self.json = jsonFile
         self.JEC_era = JEC_era
         self.JER_era = JER_era
+        self.jsonSubJet = jsonFileSubjet
+        self.JEC_era_subjet = JEC_era_subjet
         self.jsonFileSmearingTool = jsonFileSmearingTool
         self.jet_object = jet_object
-        self.met_collections = met_collections
-        self.do_Jets = do_Jets
-        self.do_MET = do_MET
+        self.subjet_object = subjet_object
         self.do_JER = do_JER
-        self.do_Unclustered = do_Unclustered
         self.store_nominal = store_nominal
         self.store_variations = store_variations
+        self.addHEM2018Issue = addHEM2018Issue
 
     def runModule(self, df, values):
         ROOT.gInterpreter.Declare(
@@ -89,10 +89,13 @@ class FatJMECalculator(Module):
         jsonFile 	= self.json
         jetAlgo 	= self.jet_object
         jecTag  	= self.JEC_era
-        jerTag 		= ""
+        jerTag 		= self.JER_era
         jsonFileSmearingTool = self.jsonFileSmearingTool
         jecLevel    = "L1L2L3Res"
-        L1JecTag    = ""
+        jsonFileSubjet =  self.jsonSubJet
+        jetAlgoSubjet = self.subjet_object 
+        jecTagSubjet =  self.JEC_era_subjet
+        jecLevelSubjet = jecLevel
         ROOT.gROOT.ProcessLine("std::vector<string> jesUnc{}")
         jesUnc = getattr(ROOT, "jesUnc")
         jesUnc.push_back("Total")
@@ -103,8 +106,9 @@ class FatJMECalculator(Module):
         
         if self.do_JER:
             jerTag          = self.JER_era
-        
-        ROOT.gROOT.ProcessLine(f"FatJetVariationsCalculator myFatJetVariationsCalculator = FatJetVariationsCalculator::create(\"{jsonFile}\", \"{jetAlgo}\", \"{jecTag}\", \"{jecLevel}\", \"{L1JecTag}\", {jesUnc}, {addHEM}, \"{jerTag}\", \"{jsonFileSmearingTool}\", \"{smearingTool}\", false, true, {maxDR}, {maxDPT}, \"{jsonFileSubjet}\", \"{jetAlgoSubjet}\", \"{jecTagSubjet}\", \"{jecLevelSubjet}\");")
+
+        print((f"FatJetVariationsCalculator myFatJetVariationsCalculator = FatJetVariationsCalculator::create(\"{jsonFile}\", \"{jetAlgo}\", \"{jecTag}\", \"{jecLevel}\", {jesUnc}, {addHEM}, \"{jerTag}\", \"{jsonFileSmearingTool}\", \"{smearingTool}\", false, true, {maxDR}, {maxDPT}, \"{jsonFileSubjet}\", \"{jetAlgoSubjet}\", \"{jecTagSubjet}\", \"{jecLevelSubjet}\");"))
+        ROOT.gROOT.ProcessLine(f"FatJetVariationsCalculator myFatJetVariationsCalculator = FatJetVariationsCalculator::create(\"{jsonFile}\", \"{jetAlgo}\", \"{jecTag}\", \"{jecLevel}\", {jesUnc}, {addHEM}, \"{jerTag}\", \"{jsonFileSmearingTool}\", \"{smearingTool}\", false, true, {maxDR}, {maxDPT}, \"{jsonFileSubjet}\", \"{jetAlgoSubjet}\", \"{jecTagSubjet}\", \"{jecLevelSubjet}\");")
         calc = getattr(ROOT, "myFatJetVariationsCalculator")
         jesSources = calc.available()
         jesSources = calc.available()[1:][::2]
@@ -138,10 +142,11 @@ class FatJMECalculator(Module):
         cols.append("SubJet_mass")
         cols.append("SubJet_rawFactor")
 
-        cols.append("FatJet_jetId" if addHEM2018Issue else [])
+        
+        cols.append("FatJet_jetId")
 
         # rho
-        cols.append("fixedGridRhoFastjetAll") #in Run2 is Rho_fixedGridRhoFastjetAll
+        cols.append("Rho_fixedGridRhoFastjetAll") #in Run2 is Rho_fixedGridRhoFastjetAll
 
         cols.append(f"Take(FatJet_genJetAK8Idx, {JetColl}_jetIdx)")
         cols.append("event")
