@@ -234,6 +234,16 @@ Steps = {
             jet_object="AK4PFchs", do_Jets=True, do_MET=True, do_JER=False, store_nominal=False, store_variations=True)',
         "module": "jmeCalculator()",
     },
+
+    "FatJMECalculator": {
+        "isChain": False,
+        "do4MC": True,
+        "do4Data": False,
+        "import": "mkShapesRDF.processor.modules.FatJMECalculatorRun3",
+        "declare": 'fatjmeCalculator = lambda : FatJMECalculator("RPLME_FW/processor/data/jsonpog-integration/POG/JME/2022_Summer22EE/fatJet_jerc.json.gz", "Summer22EE_22Sep2023_V2_MC", "Summer22EE_22Sep2023_JRV1_MC", "RPLME_FW/processor/data/jsonpog-integration/POG/JME/jer_smear.json.gz", "AK8PFPuppi", "RPLME_FW/processor/data/jsonpog-integration/POG/JME/2022_Summer22EE/jet_jerc.json.gz","Summer22EE_22Sep2023_V2_MC", "AK4PFPuppi",  do_JER=True, store_nominal=True, store_variations=True)',
+        "module": "fatjmeCalculator()",
+    },
+    
     "l2Kin": {
         "isChain": False,
         "do4MC": True,
