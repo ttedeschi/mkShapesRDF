@@ -77,12 +77,11 @@ class LeptonMaker(Module):
 
         df = df.DropColumns("Lepton_sorting")
 
-        df = df.DropColumns("Lepton_sorting")
-
+        # //////////////////////////////////////// #
+        # // CleanJets Columns Definitions   
         df = df.Define("isCleanJet", "ROOT::RVecB(Jet_pt.size(), true)")
         df = df.Define("CleanJet_pt", "Jet_pt[isCleanJet]")
         df = df.Define("CleanJet_sorting", "sortedIndices(CleanJet_pt)")
-
         df = df.Define("CleanJet_jetIdx", "ROOT::VecOps::Range(nJet)[isCleanJet]")
         df = df.Redefine("CleanJet_jetIdx", "Take(CleanJet_jetIdx, CleanJet_sorting)")
 
@@ -92,11 +91,12 @@ class LeptonMaker(Module):
             df = df.Redefine(
                 f"CleanJet_{prop}", f"Take(CleanJet_{prop}, CleanJet_sorting)"
             )
-               # // CleanFatJets Columns Definitions   
+
+        # //////////////////////////////////////// #
+        # // CleanFatJets Columns Definitions   
         df = df.Define("isCleanFatJet", "ROOT::RVecB(FatJet_pt.size(), true)")
         df = df.Define("CleanFatJet_pt", "FatJet_pt[isCleanFatJet]")
         df = df.Define("CleanFatJet_sorting", "sortedIndices(CleanFatJet_pt)")
-
         df = df.Define("CleanFatJet_jetIdx", "ROOT::VecOps::Range(nFatJet)[isCleanFatJet]")
         df = df.Redefine("CleanFatJet_jetIdx", "Take(CleanFatJet_jetIdx, CleanFatJet_sorting)")
         FatJet_vars = ["eta", "phi", "mass", "jetId", "msoftdrop", "tau1", "tau2"]
@@ -107,9 +107,7 @@ class LeptonMaker(Module):
             )
         df = df.Define("CleanFatJet_tau21", "CleanFatJet_tau1/CleanFatJet_tau2")
         df = df.Redefine("CleanFatJet_tau21", f"Take(CleanFatJet_tau21, CleanFatJet_sorting)")
-
-      
-    
+        # //////////////////////////////////////// #
 
         return df
 
