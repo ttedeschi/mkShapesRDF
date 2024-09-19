@@ -22,7 +22,6 @@ class FatJMECalculator(Module):
         do_JER=True,
         store_nominal=True,
         store_variations=True,
-        addHEM2018Issue = False
     ):
         """
         JMECalculator module
@@ -30,15 +29,21 @@ class FatJMECalculator(Module):
         Parameters
         ----------
         jsonFile : str
-            path to json file for JEC and JER
+            path to FatJet json file for JEC and JER
         JEC_era : str
-            JEC era to use
+            FatJet JEC era to use
         JER_era : str
-            JER era to use
+            FatJet JER era to use
         jsonFileSmearingTool : str
             path to json file to smearing tool
         jet_object : str
-            Jet Collection to use (e.g. ``CleanFatJet``)
+            FatJet algorithm to consider (e.g. ``AK8PFPuppi``)
+        jsonFileSubjet: str
+            path to SubJet json file for JEC and JER
+        JEC_era_subjet: str 
+            SubJet JEC era to use
+        subjet_object: str
+            SubJet algorithm to consider (e.g. ``AK4PFPuppi``)
         do_JER : bool, optional, default: ``True``
             Whether to calculate JER
         store_nominal : bool, optional, default: ``True``
@@ -58,7 +63,6 @@ class FatJMECalculator(Module):
         self.do_JER = do_JER
         self.store_nominal = store_nominal
         self.store_variations = store_variations
-        self.addHEM2018Issue = addHEM2018Issue
 
     def runModule(self, df, values):
         ROOT.gInterpreter.Declare(
@@ -83,7 +87,6 @@ class FatJMECalculator(Module):
         )
         
         from CMSJMECalculators import loadJMESystematicsCalculators
-
         loadJMESystematicsCalculators()
         
         jsonFile 	= self.json
@@ -107,7 +110,6 @@ class FatJMECalculator(Module):
         if self.do_JER:
             jerTag          = self.JER_era
 
-        print((f"FatJetVariationsCalculator myFatJetVariationsCalculator = FatJetVariationsCalculator::create(\"{jsonFile}\", \"{jetAlgo}\", \"{jecTag}\", \"{jecLevel}\", {jesUnc}, {addHEM}, \"{jerTag}\", \"{jsonFileSmearingTool}\", \"{smearingTool}\", false, true, {maxDR}, {maxDPT}, \"{jsonFileSubjet}\", \"{jetAlgoSubjet}\", \"{jecTagSubjet}\", \"{jecLevelSubjet}\");"))
         ROOT.gROOT.ProcessLine(f"FatJetVariationsCalculator myFatJetVariationsCalculator = FatJetVariationsCalculator::create(\"{jsonFile}\", \"{jetAlgo}\", \"{jecTag}\", \"{jecLevel}\", {jesUnc}, {addHEM}, \"{jerTag}\", \"{jsonFileSmearingTool}\", \"{smearingTool}\", false, true, {maxDR}, {maxDPT}, \"{jsonFileSubjet}\", \"{jetAlgoSubjet}\", \"{jecTagSubjet}\", \"{jecLevelSubjet}\");")
         calc = getattr(ROOT, "myFatJetVariationsCalculator")
         jesSources = calc.available()
@@ -146,7 +148,7 @@ class FatJMECalculator(Module):
         cols.append("FatJet_jetId")
 
         # rho
-        cols.append("Rho_fixedGridRhoFastjetAll") #in Run2 is Rho_fixedGridRhoFastjetAll
+        cols.append("Rho_fixedGridRhoFastjetAll") #in Run2 is fixedGridRhoFastjetAll
 
         cols.append(f"Take(FatJet_genJetAK8Idx, {JetColl}_jetIdx)")
         cols.append("event")
@@ -158,7 +160,7 @@ class FatJMECalculator(Module):
 
         df = df.Define("jetVars", f'myFatJetVariationsCalculator.produce({", ".join(cols)})')
         if self.store_nominal:
-            df = df.Define("CleaFatJet_pt", "jetVars.pt(0)")
+            df = df.Define("CleanFatJet_pt", "jetVars.pt(0)")
             df = df.Define("CleanFatJet_mass", "jetVars.mass(0)")
             df = df.Define(
                 "CleanFatJet_sorting",
@@ -200,7 +202,7 @@ class FatJMECalculator(Module):
                     )
 
                     df = df.Define(
-                        f"CleanFatJet_CleanFatJetIdx_preJES_{source}_{tag}",
+                        f"CleanFatJet_cleanFatJetIdx_preJES_{source}_{tag}",
                         f"tmp_CleanFatJet_pt__JES_{source}_{tag}_sorting",
                     )
 
