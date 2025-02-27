@@ -445,6 +445,8 @@ universe = vanilla
 executable = run.sh
 arguments = $(Folder)
 
++SingularityImage = /cvmfs/unpacked.cern.ch/ghcr.io/comp-dev-cms-ita/kernel-mkshapesrdf:vbs-semilep-v0.0.2
+
 should_transfer_files = YES
 transfer_input_files = $(Folder)/script.py
 
@@ -453,10 +455,9 @@ error  = $(Folder)/err.txt
 log    = $(Folder)/log.txt
 
 request_cpus   = 1
-request_memory = 12GB
-request_disk   = 10GB
-requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour = "testmatch"
+request_memory = 2GB
+requirements = ( SiteName == "T2_BA_Af20" )
+Requirements = HasSingularity
 
 queue 1 Folder in RPLME_ALLSAMPLES
 """
@@ -468,6 +469,6 @@ queue 1 Folder in RPLME_ALLSAMPLES
 
         if self.dryRun == 0:
             proc = subprocess.Popen(
-                f"cd {jobDir}; condor_submit submit.jdl;", shell=True
+                f"cd {jobDir}; condor_submit submit.jdl -spool;", shell=True
             )
             proc.wait()
